@@ -1,0 +1,6 @@
+--colors
+--compilers coffee:coffee-script
+--require ./test/common.js
+--ui bdd
+--reporter spec
+--recursive

@@ -1,0 +1,14 @@
+{
+	"name":"dbModeler",
+	"version":"0.0.1",
+	"description":"",
+	"dependencies":{
+		"pg": "*"
+	},
+	"devDependencies":{
+		"mocha": "*",
+		"chai": "*",
+		"sinon": "*",
+		"sinon-chai": "*"
+	}	
+}

@@ -1,0 +1,22 @@
+icon(name)
+	background: url("../images/icons/"name".png")
+
+.controlPanel
+	width: 24px
+	height: 100%
+	//display: inline-block
+	float:right
+	border-left: 1px solid black 
+	background-color: #EEE
+	.icon
+		width: 20px
+		height: @width
+		display: block
+		margin: 5px auto
+		border: 2px solid outset
+		&.active
+			border-style: inset
+		&[name=newTable]
+			icon 'table'
+		&[name=newRelationship]
+			icon 'relationship'
