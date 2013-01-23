@@ -4,6 +4,10 @@
   margin: 2% auto;
   border: 1px solid #000;
 }
+#modelerCanvas {
+  height: 100%;
+  margin-right: 25px;
+}
 #controlPanel {
   width: 24px;
   height: 100%;
@@ -21,13 +25,9 @@
 #controlPanel .icon.active {
   border-style: inset;
 }
-#controlPanel .icon[name=newTable] {
-  background: url("../images/icons/table.png");
+#controlPanel .icon[name=createTable] {
+  background: url("./images/icons/table.png");
 }
-#controlPanel .icon[name=newRelationship] {
-  background: url("../images/icons/relationship.png");
-}
-#modelerCanvas {
-  height: 100%;
-  margin-right: 25px;
+#controlPanel .icon[name=createRelationship] {
+  background: url("./images/icons/relationship.png");
 }

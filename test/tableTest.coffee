@@ -1,4 +1,4 @@
-table = require '../src/objects/table'
+table = require '../src/components/objects/table'
 
 describe 'class Table', ->
 	#tb = new table RaphaelMock, 0, 0

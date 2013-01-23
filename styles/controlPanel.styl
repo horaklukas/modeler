@@ -1,7 +1,7 @@
 icon(name)
-	background: url("../images/icons/"name".png")
+	background: url("./images/icons/"name".png")
 
-.controlPanel
+#controlPanel
 	width: 24px
 	height: 100%
 	//display: inline-block
@@ -16,7 +16,7 @@ icon(name)
 		border: 2px solid outset
 		&.active
 			border-style: inset
-		&[name=newTable]
+		&[name=createTable]
 			icon 'table'
-		&[name=newRelationship]
+		&[name=createRelationship]
 			icon 'relationship'

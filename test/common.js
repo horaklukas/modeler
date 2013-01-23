@@ -1,8 +1,10 @@
-var chai, expect, sinonChai;
+var chai, sinonChai;
 
 chai = require('chai');
 chai.should();
-expect = chai.expect;
-sinonChai = require("sinon-chai");
+global.expect = chai.expect;
+global.sinon = require('sinon');
+sinonChai = require('sinon-chai');
+$ = jQuery = require('jquery');
 
 chai.use(sinonChai);
