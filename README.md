@@ -3,6 +3,7 @@
 ## TODO
 
 ### Table
+* Add text frame to table head for typing table name right after create it
 * dont allow to move table outside canvas
 * <s>change mouse cursor type to four-arrow when moving table</s>
 
