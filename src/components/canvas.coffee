@@ -17,5 +17,5 @@ Canvas =
 		if cb then cb()
 
 	on: (event, target, cb) -> @obj.on event, target, cb
-
-	off: (event, target, cb) ->	@obj.off event, target, cb	
+	off: (event, target, cb) ->	@obj.off event, target, cb
+	css: (name, value) -> @obj.css name, value

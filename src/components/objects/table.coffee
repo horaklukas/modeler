@@ -2,14 +2,14 @@ class Table
 	start: x: [], y: []
 
 	constructor: (canvas, @x, @y, @w = 100, @h = 60) ->
-		@anchors = {}
+		#@anchors = {}
 		@table = {}
 
 		@table.all = canvas.set()
 		@table.head = canvas.rect(@x, @y, @w, 20, 2).attr {fill:'#AAA', stroke: '#000', opacity: 1}
 		@table.body = canvas.rect(@x, @y + 19, @w, @h, 2).attr {fill:'#EEE', stroke: '#000', opacity: 1}
 		@table.all.push @table.head, @table.body
-		@createAnchors canvas
+		#@initAnchors canvas
 
 		#@table.body.drag @moveTable, @startTable, @endTable
 		@table.all.drag @moveTable, @startTable, @endTable
@@ -23,7 +23,7 @@ class Table
 			@start.y.push part.attr 'y'
 			console.log 'start', part, @start.x, @start.y	
 
-		anch.start = anch.obj.attr ['x','y'] for k, anch of @anchors	
+		#anch.start = anch.obj.attr ['x','y'] for k, anch of @anchors	
 
 		@table.all.attr 'opacity': 0.5, 'cursor': 'move'
 
@@ -34,16 +34,14 @@ class Table
 			#console.log @start.x[i] + dx, @start.y[i] + dy
 			@table.all[i].attr { x: @start.x[i] + dx, y: @start.y[i] + dy }
 
-		for k, anch of @anchors
-			anch.obj.attr { x: anch.start.x + dx , y: anch.start.y + dy}	
-
-		console.log '\n'
+		#for k, anch of @anchors
+		#	anch.obj.attr { x: anch.start.x + dx , y: anch.start.y + dy}	
 
 	endTable: =>
 		@table.all.attr 'cursor', 'default'
 		@table.all.attr 'opacity', 1
 
-	createAnchors: (canvas) ->
+	###createAnchors: (canvas) ->
 		lt = @table.head.attr ['x','y']
 		rb = 
 			x: @table.body.attr('x') + @table.body.attr('width')
@@ -51,7 +49,7 @@ class Table
 
 		for side in ['t','l','b','r']
 			@anchors[side] = new Anchor canvas, side, lt, rb	
-
+	###
 
 	show: ->	@table.all.show()
 
