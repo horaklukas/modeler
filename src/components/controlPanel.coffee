@@ -5,6 +5,8 @@ ControlPanel =
 	obj: null
 	activeTool: null
 	clueTable: null
+	clueRelation: null
+	relStart: x: null, y: null
 
 	###*
   * @param {jQueryObject} obj Control panel element selected by jQuery
@@ -53,13 +55,29 @@ ControlPanel =
 
 	createTableFinish: () ->
 		# Deactivate all events
-		Canvas.off 'mousemove', @moveClueTable
-		Canvas.off 'click',  @create
+		Canvas.off 'mousemove'
+		Canvas.off 'click'
 		$(document).off 'click', @toolFinished
 
-	createRelationshipInit: () ->
+	createRelationInit: (ev) ->
+		Canvas.css 'cursor': 'crosshair'
 
-	createRelationshipFinish: () ->	
-		
+		Canvas.on 'click', (ev) ->
+			if not ControlPanel.relStart.x? and not ControlPanel.relStart.y?
+				pos = ControlPanel.relStart = 'x': ev.offsetX, 'y': ev.offsetY
+
+				startPath = "M#{pos.x} #{pos.y}"
+				ControlPanel.clueRelation = Canvas.self.path "M#{pos.x} #{pos.y}"
+
+				Canvas.on 'mousemove', (ev) ->
+					ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.offsetX} #{ev.offsetY}"
+			else
+				ControlPanel.toolFinished()	
+
+	createRelationFinish: () ->
+		Canvas.css 'cursor': 'default'
+		Canvas.off 'mousemove'
+		Canvas.off 'click'
+		@relStart = x: null, y: null
 
 if not window? then module.exports = ControlPanel		
