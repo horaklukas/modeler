@@ -4,70 +4,87 @@ var Table,
 
 Table = (function() {
 
-  Table.prototype.start = {
-    x: [],
-    y: []
+  Table.prototype.position = {
+    relative: {
+      x: null,
+      y: null
+    },
+    absolute: {
+      x: null,
+      y: null
+    }
   };
 
   function Table(canvas, x, y, w, h) {
+    var canvasMax, properties,
+      _this = this;
     this.x = x;
     this.y = y;
     this.w = w != null ? w : 100;
-    this.h = h != null ? h : 60;
-    this.endTable = __bind(this.endTable, this);
+    this.h = h != null ? h : 80;
+    this.stopTable = __bind(this.stopTable, this);
     this.moveTable = __bind(this.moveTable, this);
     this.startTable = __bind(this.startTable, this);
-    this.table = {};
-    this.table.all = canvas.set();
-    this.table.head = canvas.rect(this.x, this.y, this.w, 20, 2).attr({
-      fill: '#AAA',
-      stroke: '#000',
-      opacity: 1
+    properties = {
+      width: this.w,
+      height: this.h,
+      left: this.x,
+      top: this.y
+    };
+    this.table = $('<div class="table"><input class="head" ></div>').css(properties);
+    this.table.appendTo(canvas);
+    canvasMax = {
+      maxX: (typeof canvas.width === "function" ? canvas.width() : void 0) || $(canvas).width(),
+      maxY: (typeof canvas.height === "function" ? canvas.height() : void 0) || $(canvas).height()
+    };
+    this.table.on('mousedown', function(ev) {
+      _this.startTable(ev);
+      $(document).on('mousemove', canvasMax, _this.moveTable);
+      return $(document).one('mouseup', function() {
+        $(document).off('mousemove', _this.moveTable);
+        return _this.stopTable();
+      });
     });
-    this.table.body = canvas.rect(this.x, this.y + 19, this.w, this.h, 2).attr({
-      fill: '#EEE',
-      stroke: '#000',
-      opacity: 1
-    });
-    this.table.all.push(this.table.head, this.table.body);
-    this.table.all.drag(this.moveTable, this.startTable, this.endTable);
   }
 
-  Table.prototype.startTable = function() {
-    var part, _i, _len, _ref;
-    this.start.x = [];
-    this.start.y = [];
-    _ref = this.table.all;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      part = _ref[_i];
-      this.start.x.push(part.attr('x'));
-      this.start.y.push(part.attr('y'));
-      console.log('start', part, this.start.x, this.start.y);
+  Table.prototype.startTable = function(ev) {
+    var position;
+    position = this.table.position();
+    this.position.relative = {
+      x: position.left,
+      y: position.top
+    };
+    return this.position.absolute = {
+      x: ev.pageX,
+      y: ev.pageY
+    };
+  };
+
+  Table.prototype.moveTable = function(ev) {
+    var newX, newY, xDiff, yDiff;
+    this.table.addClass('move');
+    xDiff = ev.pageX - this.position.absolute.x;
+    yDiff = ev.pageY - this.position.absolute.y;
+    newX = this.position.relative.x + xDiff;
+    newY = this.position.relative.y + yDiff;
+    if (newX < 0) {
+      newX = 0;
+    } else if (newX > ev.data.maxX - this.w) {
+      newX = ev.data.maxX - this.w;
     }
-    return this.table.all.attr({
-      'opacity': 0.5,
-      'cursor': 'move'
+    if (newY < 0) {
+      newY = 0;
+    } else if (newY > ev.data.maxY - this.h) {
+      newY = ev.data.maxY - this.h;
+    }
+    return this.table.css({
+      'left': newX,
+      'top': newY
     });
   };
 
-  Table.prototype.moveTable = function(dx, dy) {
-    var i, part, _i, _len, _ref, _results;
-    console.log('move ', dx, dy);
-    _ref = this.table.all;
-    _results = [];
-    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-      part = _ref[i];
-      _results.push(this.table.all[i].attr({
-        x: this.start.x[i] + dx,
-        y: this.start.y[i] + dy
-      }));
-    }
-    return _results;
-  };
-
-  Table.prototype.endTable = function() {
-    this.table.all.attr('cursor', 'default');
-    return this.table.all.attr('opacity', 1);
+  Table.prototype.stopTable = function() {
+    return this.table.removeClass('move');
   };
 
   /*createAnchors: (canvas) ->

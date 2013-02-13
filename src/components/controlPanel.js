@@ -54,7 +54,7 @@ ControlPanel = {
     });
     Canvas.on('click', function(ev) {
       ControlPanel.clueTable.hide();
-      new Table(Canvas.self, ev.offsetX, ev.offsetY, 100, 60);
+      new Table(Canvas.obj, ev.offsetX, ev.offsetY, 100, 60);
       return ControlPanel.toolFinished();
     });
     return $(document).on('click', this.toolFinished);

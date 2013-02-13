@@ -1,45 +1,52 @@
 class Table
-	start: x: [], y: []
+	position: 
+		relative: x: null, y: null
+		absolute: x: null, y: null
 
-	constructor: (canvas, @x, @y, @w = 100, @h = 60) ->
-		#@anchors = {}
-		@table = {}
+	constructor: (canvas, @x, @y, @w = 100, @h = 80) ->
+		properties = width: @w, height: @h, left: @x, top: @y
+		@table = $('<div class="table"><input class="head" ></div>').css properties
+			
+		@table.appendTo canvas#Canvas.obj
+		canvasMax =
+			maxX: canvas.width?() or $(canvas).width()
+			maxY: canvas.height?() or $(canvas).height()
 
-		@table.all = canvas.set()
-		@table.head = canvas.rect(@x, @y, @w, 20, 2).attr {fill:'#AAA', stroke: '#000', opacity: 1}
-		@table.body = canvas.rect(@x, @y + 19, @w, @h, 2).attr {fill:'#EEE', stroke: '#000', opacity: 1}
-		@table.all.push @table.head, @table.body
-		#@initAnchors canvas
 
-		#@table.body.drag @moveTable, @startTable, @endTable
-		@table.all.drag @moveTable, @startTable, @endTable
+		@table.on 'mousedown', (ev) =>
+			@startTable ev
+			$(document).on 'mousemove', canvasMax, @moveTable
+			$(document).one 'mouseup', =>
+				$(document).off 'mousemove', @moveTable
+				@stopTable() 	
 
-	startTable: =>
-		@start.x = []
-		@start.y = []
+	startTable: (ev) =>
+		position = @table.position()
+		@position.relative = x: position.left, y: position.top
+		@position.absolute = x: ev.pageX, y: ev.pageY
+		
+		#console.log 'start', @start.x, @start.y
 
-		for part in @table.all 
-			@start.x.push part.attr 'x' 
-			@start.y.push part.attr 'y'
-			console.log 'start', part, @start.x, @start.y	
+	moveTable: (ev) =>
+		@table.addClass 'move'
+		
+		xDiff = ev.pageX - @position.absolute.x
+		yDiff = ev.pageY - @position.absolute.y
+		
+		newX = @position.relative.x + xDiff
+		newY = @position.relative.y + yDiff
+		
+		# Check moving table inside the borders
+		if newX < 0 then newX = 0
+		else if newX > ev.data.maxX - @w then newX = ev.data.maxX - @w
+		
+		if newY < 0 then newY = 0
+		else if newY > ev.data.maxY - @h then newY = ev.data.maxY - @h
 
-		#anch.start = anch.obj.attr ['x','y'] for k, anch of @anchors	
+		@table.css 'left': newX, 'top': newY
 
-		@table.all.attr 'opacity': 0.5, 'cursor': 'move'
-
-	moveTable: (dx, dy) =>
-		console.log 'move ',dx, dy
-
-		for part, i in @table.all
-			#console.log @start.x[i] + dx, @start.y[i] + dy
-			@table.all[i].attr { x: @start.x[i] + dx, y: @start.y[i] + dy }
-
-		#for k, anch of @anchors
-		#	anch.obj.attr { x: anch.start.x + dx , y: anch.start.y + dy}	
-
-	endTable: =>
-		@table.all.attr 'cursor', 'default'
-		@table.all.attr 'opacity', 1
+	stopTable: =>
+		@table.removeClass 'move'
 
 	###createAnchors: (canvas) ->
 		lt = @table.head.attr ['x','y']

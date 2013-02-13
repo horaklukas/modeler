@@ -48,7 +48,7 @@ ControlPanel =
 		# When click on canvas create new table and finish tool action
 		Canvas.on 'click', (ev) -> 
 			ControlPanel.clueTable.hide()
-			new Table Canvas.self, ev.offsetX, ev.offsetY, 100, 60
+			new Table Canvas.obj, ev.offsetX, ev.offsetY, 100, 60
 			ControlPanel.toolFinished() 
 		
 		$(document).on 'click', @toolFinished

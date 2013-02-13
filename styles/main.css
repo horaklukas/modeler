@@ -1,33 +1,10 @@
-#app {
-  width: 95%;
-  height: 94%;
-  margin: 2% auto;
-  border: 1px solid #000;
-}
-#modelerCanvas {
-  height: 100%;
-  margin-right: 25px;
-}
-#controlPanel {
-  width: 24px;
-  height: 100%;
-  float: right;
-  border-left: 1px solid #000;
-  background-color: #eee;
-}
-#controlPanel .icon {
-  width: 20px;
-  height: 20px;
-  display: block;
-  margin: 5px auto;
-  border: 2px solid outset;
-}
-#controlPanel .icon.active {
-  border-style: inset;
-}
-#controlPanel .icon[name=createTable] {
-  background: url("./images/icons/table.png");
-}
-#controlPanel .icon[name=createRelationship] {
-  background: url("./images/icons/relationship.png");
-}
+#app{width:95%;height:94%;margin:2% auto;border:1px solid #000}
+#modelerCanvas{position:relative;height:100%;margin-right:25px}
+#controlPanel{width:24px;height:100%;float:right;border-left:1px solid #000;background-color:#eee;}
+#controlPanel .icon{width:20px;height:20px;display:block;margin:5px auto;border:2px solid outset;}
+#controlPanel .icon.active{border-style:inset}
+#controlPanel .icon[name=createTable]{background:url("./images/icons/table.png")}
+#controlPanel .icon[name=createRelationship]{background:url("./images/icons/relationship.png")}
+.table{position:absolute;border:1px solid #000;}
+.table.move{opacity:.5;cursor:move}
+.table .head{width:inherit;height:20px;margin:0;padding:2px;border:0;outline:0;background-color:#ccc}

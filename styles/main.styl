@@ -1,3 +1,5 @@
+@import 'utils/mixins'
+
 #app
 	width: 95%
 	height: 94%
@@ -5,9 +7,11 @@
 	border: 1px solid black
 
 #modelerCanvas
-		height: 100%
-		margin-right: 25px
-		//width: 80%
-		//background-color: #AAA
+	position: relative
+	height: 100%
+	margin-right: 25px
+	//width: 80%
+	//background-color: #AAA
 
-@import 'controlPanel'
+@import 'components/controlPanel'
+@import 'components/objects/table'
