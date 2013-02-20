@@ -1,4 +1,4 @@
-Table = require "#{srcDir}/components/objects/table"
+Table = require "#{srcDir}/components/model/table"
 tab = null
 canvas = $('canvas')
 

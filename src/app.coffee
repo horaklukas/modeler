@@ -1,6 +1,5 @@
+App = {}
+App.actualModel = new Model()
+ 
 Canvas.init $('#modelerCanvas')
 ControlPanel.init $('#controlPanel')
-
-Model = {}
-Model.tables = []
-Model.relationsips = []

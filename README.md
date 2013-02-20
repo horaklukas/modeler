@@ -19,7 +19,7 @@
 * holds methods for placing object to canvas
 
 ### Control Panel
-* __fix error when select activated tool once again__
+* <s>__fix error when select activated tool once again__</s>
 
 ### <s>Anchor</s> _object canceled_
 * <s>set right coordinates of anchor, in depend on its position</s>

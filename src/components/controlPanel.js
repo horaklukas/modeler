@@ -27,11 +27,15 @@ ControlPanel = {
   toolActivated: function(ev) {
     var $tool, toolName;
     $tool = $(this);
-    toolName = $tool.attr('name');
-    $tool.addClass('active');
-    ControlPanel.activeTool = toolName;
-    ev.stopImmediatePropagation();
-    return ControlPanel["" + toolName + "Init"]();
+    if ($tool.hasClass('active')) {
+      return ControlPanel.toolFinished();
+    } else {
+      toolName = $tool.attr('name');
+      $tool.addClass('active');
+      ControlPanel.activeTool = toolName;
+      ev.stopImmediatePropagation();
+      return ControlPanel["" + toolName + "Init"]();
+    }
   },
   toolFinished: function(ev) {
     ControlPanel["" + ControlPanel.activeTool + "Finish"]();
@@ -54,7 +58,7 @@ ControlPanel = {
     });
     Canvas.on('click', function(ev) {
       ControlPanel.clueTable.hide();
-      new Table(Canvas.obj, ev.offsetX, ev.offsetY, 100, 60);
+      App.actualModel.addTable(Canvas.obj, ev.offsetX, ev.offsetY);
       return ControlPanel.toolFinished();
     });
     return $(document).on('click', this.toolFinished);

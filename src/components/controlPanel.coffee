@@ -20,15 +20,17 @@ ControlPanel =
 
 	toolActivated: (ev) ->
 		$tool = $(@)
-		toolName = $tool.attr('name')
 
-		$tool.addClass 'active'
+		if $tool.hasClass 'active' then ControlPanel.toolFinished()
+		else
+			toolName = $tool.attr('name')
+			$tool.addClass 'active'
 
-		ControlPanel.activeTool = toolName
+			ControlPanel.activeTool = toolName
 
-		ev.stopImmediatePropagation()
-		# Init tool
-		ControlPanel["#{toolName}Init"]() 
+			ev.stopImmediatePropagation()
+			# Init tool
+			ControlPanel["#{toolName}Init"]() 
 
 	toolFinished: (ev)->
 		ControlPanel["#{ControlPanel.activeTool}Finish"]() 
@@ -37,7 +39,7 @@ ControlPanel =
 		@activeTool = null
 
 	createTableInit: ->
-		if not @clueTable?
+		unless @clueTable?
 			@clueTable = Canvas.self.rect 0, 0, 100, 80, 2 
 			@clueTable.attr(fill:'#CCC', opacity: 0.5).hide()
 
@@ -48,7 +50,7 @@ ControlPanel =
 		# When click on canvas create new table and finish tool action
 		Canvas.on 'click', (ev) -> 
 			ControlPanel.clueTable.hide()
-			new Table Canvas.obj, ev.offsetX, ev.offsetY, 100, 60
+			App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
 			ControlPanel.toolFinished() 
 		
 		$(document).on 'click', @toolFinished
