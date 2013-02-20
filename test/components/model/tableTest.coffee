@@ -5,7 +5,10 @@ canvas = $('canvas')
 describe 'class Table', ->
 	describe 'constructor', ->
 		before ->
-			tab = new Table canvas, 70, 50
+			tab = new Table canvas, 'tab25' , 70, 50
+
+		it 'should set `id` attribute to table', ->
+			expect(tab.table.attr 'id').to.equal 'tab25'
 
 		it 'should have position properties with null value', ->
 			tab.should.have.deep.property 'position.relative.x', null
@@ -26,7 +29,7 @@ describe 'class Table', ->
 			expect(tab.table.height()).to.equal 80
 
 		it 'should set the size if passed', ->
-			tab2 = new Table canvas, 0, 0, 40, 120
+			tab2 = new Table canvas, 'id', 0, 0, 40, 120
 			expect(tab2.table.width()).to.equal 40
 			expect(tab2.table.height()).to.equal 120
 	
@@ -35,7 +38,7 @@ describe 'class Table', ->
 		mPos = null
 
 		before ->
-			tab = new Table canvas, 0, 0
+			tab = new Table canvas, 'id', 0, 0
 			mPos = sinon.stub(tab.table, 'position').returns left: 60, top: 100
 
 		after ->
@@ -53,7 +56,7 @@ describe 'class Table', ->
 		mCss = null
 
 		before ->
-			tab = new Table canvas, 20, 20, 70, 50
+			tab = new Table canvas, 'id', 20, 20, 70, 50
 			mPos = sinon.stub(tab.table, 'position').returns left: 20, top: 30
 			mCss = sinon.stub(tab.table, 'css')
 
@@ -104,7 +107,7 @@ describe 'class Table', ->
 
 	describe 'stopTable', ->
 		before ->
-			tab = new Table canvas, 0, 0
+			tab = new Table canvas, 'id', 0, 0
 
 		it 'should remove class `move` from table', ->
 			tab.moveTable pageX: 0, pageY: 0

@@ -49,13 +49,14 @@ ControlPanel =
 
 		# When click on canvas create new table and finish tool action
 		Canvas.on 'click', (ev) -> 
-			ControlPanel.clueTable.hide()
 			App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
 			ControlPanel.toolFinished() 
 		
 		$(document).on 'click', @toolFinished
 
 	createTableFinish: () ->
+		ControlPanel.clueTable.hide()
+
 		# Deactivate all events
 		Canvas.off 'mousemove'
 		Canvas.off 'click'
@@ -63,23 +64,33 @@ ControlPanel =
 
 	createRelationInit: (ev) ->
 		Canvas.css 'cursor': 'crosshair'
+		canvasPos = Canvas.obj.position()
 
-		Canvas.on 'click', (ev) ->
-			if not ControlPanel.relStart.x? and not ControlPanel.relStart.y?
-				pos = ControlPanel.relStart = 'x': ev.offsetX, 'y': ev.offsetY
+		Canvas.on 'click', '.table', (ev) ->
+			unless ControlPanel.relStart.x? and ControlPanel.relStart.y?
+				pos = ControlPanel.relStart = 
+					'x': ev.clientX - canvasPos.left, 'y': ev.clientY - canvasPos.top
+				startPath = "M#{pos.x} #{pos.y}"	
 
-				startPath = "M#{pos.x} #{pos.y}"
-				ControlPanel.clueRelation = Canvas.self.path "M#{pos.x} #{pos.y}"
+				# Create clue relation or only set start point to existing
+				unless ControlPanel.clueRelation?
+					ControlPanel.clueRelation = Canvas.self.path startPath
+				else
+					ControlPanel.clueRelation.attr('path', startPath).show()
 
+				# When moving over canvas, change end point of relation	
 				Canvas.on 'mousemove', (ev) ->
-					ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.offsetX} #{ev.offsetY}"
+					ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.clientX - canvasPos.left} #{ev.clientY-canvasPos.top}"
 			else
+				App.actualModel.addRelation 
 				ControlPanel.toolFinished()	
 
 	createRelationFinish: () ->
+		ControlPanel.clueRelation.hide()
+
 		Canvas.css 'cursor': 'default'
 		Canvas.off 'mousemove'
-		Canvas.off 'click'
+		Canvas.off 'click', '.table'
 		@relStart = x: null, y: null
 
 if not window? then module.exports = ControlPanel		

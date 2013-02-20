@@ -57,44 +57,52 @@ ControlPanel = {
       });
     });
     Canvas.on('click', function(ev) {
-      ControlPanel.clueTable.hide();
       App.actualModel.addTable(Canvas.obj, ev.offsetX, ev.offsetY);
       return ControlPanel.toolFinished();
     });
     return $(document).on('click', this.toolFinished);
   },
   createTableFinish: function() {
+    ControlPanel.clueTable.hide();
     Canvas.off('mousemove');
     Canvas.off('click');
     return $(document).off('click', this.toolFinished);
   },
   createRelationInit: function(ev) {
+    var canvasPos;
     Canvas.css({
       'cursor': 'crosshair'
     });
-    return Canvas.on('click', function(ev) {
+    canvasPos = Canvas.obj.position();
+    return Canvas.on('click', '.table', function(ev) {
       var pos, startPath;
-      if ((ControlPanel.relStart.x == null) && (ControlPanel.relStart.y == null)) {
+      if (!((ControlPanel.relStart.x != null) && (ControlPanel.relStart.y != null))) {
         pos = ControlPanel.relStart = {
-          'x': ev.offsetX,
-          'y': ev.offsetY
+          'x': ev.clientX - canvasPos.left,
+          'y': ev.clientY - canvasPos.top
         };
         startPath = "M" + pos.x + " " + pos.y;
-        ControlPanel.clueRelation = Canvas.self.path("M" + pos.x + " " + pos.y);
+        if (ControlPanel.clueRelation == null) {
+          ControlPanel.clueRelation = Canvas.self.path(startPath);
+        } else {
+          ControlPanel.clueRelation.attr('path', startPath).show();
+        }
         return Canvas.on('mousemove', function(ev) {
-          return ControlPanel.clueRelation.attr('path', "" + startPath + "L" + ev.offsetX + " " + ev.offsetY);
+          return ControlPanel.clueRelation.attr('path', "" + startPath + "L" + (ev.clientX - canvasPos.left) + " " + (ev.clientY - canvasPos.top));
         });
       } else {
+        App.actualModel.addRelation;
         return ControlPanel.toolFinished();
       }
     });
   },
   createRelationFinish: function() {
+    ControlPanel.clueRelation.hide();
     Canvas.css({
       'cursor': 'default'
     });
     Canvas.off('mousemove');
-    Canvas.off('click');
+    Canvas.off('click', '.table');
     return this.relStart = {
       x: null,
       y: null

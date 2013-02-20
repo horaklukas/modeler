@@ -15,7 +15,7 @@ Table = (function() {
     }
   };
 
-  function Table(canvas, x, y, w, h) {
+  function Table(canvas, id, x, y, w, h) {
     var canvasMax, properties,
       _this = this;
     this.x = x;
@@ -31,7 +31,7 @@ Table = (function() {
       left: this.x,
       top: this.y
     };
-    this.table = $('<div class="table"><input class="head" ></div>').css(properties);
+    this.table = $('<div class="table"><input class="head" ></div>').css(properties).attr('id', id);
     this.table.appendTo(canvas);
     canvasMax = {
       maxX: (typeof canvas.width === "function" ? canvas.width() : void 0) || $(canvas).width(),

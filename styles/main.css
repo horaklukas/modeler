@@ -8,4 +8,4 @@
 #controlPanel .icon[name=createRelationship]{background:url("./images/icons/relationship.png")}
 .table{position:absolute;border:1px solid #000;}
 .table.move{opacity:.5;cursor:move}
-.table .head{width:inherit;height:20px;margin:0;padding:2px;border:0;outline:0;background-color:#ccc}
+.table .head{width:inherit;height:20px;margin:1px 0;padding:2px;border:0;outline:0;background-color:#ccc}

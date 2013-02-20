@@ -4,15 +4,33 @@ var Model;
 Model = (function() {
 
   function Model(name) {
+    if (!name) throw new Error('Model name must be specified!');
     this.tables = [];
     this.relations = [];
   }
 
   Model.prototype.addTable = function(canvas, x, y) {
-    return new Table(canvas, x, y, 100, 60);
+    return this.tables.push(new Table(canvas, "tab_" + this.tables.length, x, y, 100, 60));
   };
 
-  Model.prototype.addRelation = function() {};
+  Model.prototype.addRelation = function(startTabId, endTabId) {
+    var endTab, startTab;
+    startTab = this.getTabNumberId(startTabId);
+    endTab = this.getTabNumberId(endTabId);
+    if (startTab !== false && endTab !== false) {
+      return this.relations.push(new Relation);
+    }
+  };
+
+  Model.prototype.getTabNumberId = function(fullid) {
+    var numberId;
+    numberId = fullid.match(/^tab_(\d+)$/);
+    if (numberId != null) {
+      return Number(numberId[1]);
+    } else {
+      return false;
+    }
+  };
 
   return Model;
 

@@ -3,9 +3,9 @@ class Table
 		relative: x: null, y: null
 		absolute: x: null, y: null
 
-	constructor: (canvas, @x, @y, @w = 100, @h = 80) ->
+	constructor: (canvas, id, @x, @y, @w = 100, @h = 80) ->
 		properties = width: @w, height: @h, left: @x, top: @y
-		@table = $('<div class="table"><input class="head" ></div>').css properties
+		@table = $('<div class="table"><input class="head" ></div>').css(properties).attr 'id', id
 			
 		@table.appendTo canvas#Canvas.obj
 		canvasMax =
