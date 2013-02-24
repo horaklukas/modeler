@@ -7,14 +7,15 @@ class Model
 	addTable: (canvas, x, y) ->
 		@tables.push new Table canvas, "tab_#{@tables.length}" , x, y, 100, 60
 
+	addRelation: (canvas, startTabId, endTabId) ->
+		startTab = @tables[@getTabNumberId startTabId]
+		endTab = @tables[@getTabNumberId endTabId]
 
-	addRelation: (startTabId, endTabId) ->
-		startTab = @getTabNumberId startTabId
-		endTab = @getTabNumberId endTabId
-
-		if startTab isnt false and endTab isnt false
-			@relations.push new Relation
-			
+		if startTab isnt undefined and endTab isnt undefined
+			relLen = @relations.push new Relation canvas, startTab, endTab
+			startTab.addRelation @relations[relLen - 1]
+			endTab.addRelation @relations[relLen - 1]
+		else false
 
 	getTabNumberId: (fullid) ->
 		numberId = fullid.match /^tab_(\d+)$/

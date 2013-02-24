@@ -1,13 +1,19 @@
 class Table
-	position: 
-		relative: x: null, y: null
-		absolute: x: null, y: null
-
 	constructor: (canvas, id, @x, @y, @w = 100, @h = 80) ->
-		properties = width: @w, height: @h, left: @x, top: @y
+		# Table's position coordinates
+		@position =
+			current: x: x, y: y
+			startmove: 
+				relative: x: x, y: y
+				absolute: x: null, y: null
+
+		# Table's list of related relations
+		@relations = []	
+
+		properties = width: @w, height: @h, left: x, top: y
 		@table = $('<div class="table"><input class="head" ></div>').css(properties).attr 'id', id
 			
-		@table.appendTo canvas#Canvas.obj
+		@table.appendTo canvas
 		canvasMax =
 			maxX: canvas.width?() or $(canvas).width()
 			maxY: canvas.height?() or $(canvas).height()
@@ -21,45 +27,46 @@ class Table
 				@stopTable() 	
 
 	startTable: (ev) =>
-		position = @table.position()
-		@position.relative = x: position.left, y: position.top
-		@position.absolute = x: ev.pageX, y: ev.pageY
-		
-		#console.log 'start', @start.x, @start.y
+		{left, top} = @table.position()
+
+		@position.current = x: left, y: top
+		@position.startmove.relative = x: left, y: top
+		@position.startmove.absolute = x: ev.pageX, y: ev.pageY
 
 	moveTable: (ev) =>
 		@table.addClass 'move'
 		
-		xDiff = ev.pageX - @position.absolute.x
-		yDiff = ev.pageY - @position.absolute.y
+		# Position difference from position where moving began
+		xDiff = ev.pageX - @position.startmove.absolute.x
+		yDiff = ev.pageY - @position.startmove.absolute.y
 		
-		newX = @position.relative.x + xDiff
-		newY = @position.relative.y + yDiff
+		@position.current.x = @position.startmove.relative.x + xDiff
+		@position.current.y = @position.startmove.relative.y + yDiff
 		
 		# Check moving table inside the borders
-		if newX < 0 then newX = 0
-		else if newX > ev.data.maxX - @w then newX = ev.data.maxX - @w
+		if @position.current.x < 0 then @position.current.x = 0
+		else if @position.current.x > ev.data.maxX - @w
+			@position.current.x = ev.data.maxX - @w
 		
-		if newY < 0 then newY = 0
-		else if newY > ev.data.maxY - @h then newY = ev.data.maxY - @h
+		if @position.current.y < 0 then @position.current.y = 0
+		else if @position.current.y > ev.data.maxY - @h
+			@position.current.y = ev.data.maxY - @h
 
-		@table.css 'left': newX, 'top': newY
+		# Check if relation connection point should be changed or left
+		rel.recountPosition() for rel in @relations
+
+		@table.css 'left': @position.current.x, 'top': @position.current.y
 
 	stopTable: =>
 		@table.removeClass 'move'
 
-	###createAnchors: (canvas) ->
-		lt = @table.head.attr ['x','y']
-		rb = 
-			x: @table.body.attr('x') + @table.body.attr('width')
-			y: @table.body.attr('y') + @table.body.attr('height')
+	getConnPoints: ->
+		top: x: @position.current.x + @w / 2, y: @position.current.y
+		right: x: @position.current.x + @w + 1, y: @position.current.y + @h / 2
+		bottom: x: @position.current.x + @w / 2, y: @position.current.y + @h + 1
+		left: x: @position.current.x, y: @position.current.y + @h / 2
 
-		for side in ['t','l','b','r']
-			@anchors[side] = new Anchor canvas, side, lt, rb	
-	###
-
-	show: ->	@table.all.show()
-
-	hide: -> @table.all.hide()
+	addRelation: (rel) ->
+		@relations.push rel
 
 if not window? then module.exports = Table

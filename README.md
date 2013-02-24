@@ -1,5 +1,18 @@
 # IN DEVELOPMENT
 
+## WORK PLAN
+1. Frontend modeler part
+	* creating table and relation objects	_in progress_
+	* making table structure by selected database type
+2. Backend modeler part
+  * reingeneering of tables and relations from tabase
+  * _possiblly creating of tables and relations from model at database_
+3. Managment of models part
+	* making image snapshoots from models
+	* versioning of models
+	* creation of packages to distribute model eg. as mail attachment
+
+
 ## TODO
 
 ### Table
@@ -13,8 +26,10 @@
 * create system of counting best point to connect relation
 
 ### Relation
-* create new object - relationship between tables
+* <s>create new object - relationship between tables</s>
 * cancel creating of relation if second point not defined
+* fix the problem of uncomplete relation when table is at bottom of canvas
+* get the relation between tables broken instead of straight
 
 ### Model
 * <s>create object that holds actual model - its table and relations</s>

@@ -6,7 +6,7 @@ ControlPanel =
 	activeTool: null
 	clueTable: null
 	clueRelation: null
-	relStart: x: null, y: null
+	relStart: x: null, y: null, id: null
 
 	###*
   * @param {jQueryObject} obj Control panel element selected by jQuery
@@ -70,7 +70,8 @@ ControlPanel =
 			unless ControlPanel.relStart.x? and ControlPanel.relStart.y?
 				pos = ControlPanel.relStart = 
 					'x': ev.clientX - canvasPos.left, 'y': ev.clientY - canvasPos.top
-				startPath = "M#{pos.x} #{pos.y}"	
+				startPath = "M#{pos.x} #{pos.y}"
+				ControlPanel.relStart.id = @.id	
 
 				# Create clue relation or only set start point to existing
 				unless ControlPanel.clueRelation?
@@ -82,7 +83,7 @@ ControlPanel =
 				Canvas.on 'mousemove', (ev) ->
 					ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.clientX - canvasPos.left} #{ev.clientY-canvasPos.top}"
 			else
-				App.actualModel.addRelation 
+				App.actualModel.addRelation Canvas.self, ControlPanel.relStart.id, @.id
 				ControlPanel.toolFinished()	
 
 	createRelationFinish: () ->
