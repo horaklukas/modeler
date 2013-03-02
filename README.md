@@ -28,7 +28,9 @@
 ### Relation
 * <s>create new object - relationship between tables</s>
 * cancel creating of relation if second point not defined
-* fix the problem of uncomplete relation when table is at bottom of canvas
+* <s>fix the problem of uncomplete relation when table is at bottom of canvas
+</s> _probably happens, when size of canvas changes, eg. when resizing Chrome
+ developer console_
 * get the relation between tables broken instead of straight
 
 ### Model
@@ -37,7 +39,7 @@
 
 ### Control Panel
 * <s>__fix error when select activated tool once again__</s>
-* fix tools icons to be exclusive
+* <s>fix tools icons to be exclusive</s>
 
 ### <s>Anchor</s> _object canceled_
 * <s>set right coordinates of anchor, in depend on its position</s>

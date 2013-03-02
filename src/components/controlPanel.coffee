@@ -18,19 +18,22 @@ ControlPanel =
 
 		if cb then cb()
 
-	toolActivated: (ev) ->
-		$tool = $(@)
+	toolActivated: (ev) =>
+		$tool = $(ev.target)
+		$activeTool = $('.active', @obj)
 
-		if $tool.hasClass 'active' then ControlPanel.toolFinished()
-		else
-			toolName = $tool.attr('name')
-			$tool.addClass 'active'
+		# End unfinished previously selected tool
+		if $activeTool.length then ControlPanel.toolFinished()
 
-			ControlPanel.activeTool = toolName
+		# Clicked same tool again, ended above, so let end
+		if $tool.is $activeTool then return false
 
-			ev.stopImmediatePropagation()
-			# Init tool
-			ControlPanel["#{toolName}Init"]() 
+		toolName = $tool.addClass('active').attr('name')
+		ControlPanel.activeTool = toolName
+
+		ev.stopImmediatePropagation()
+		# Call tool-specific initialization function
+		ControlPanel["#{toolName}Init"]() 
 
 	toolFinished: (ev)->
 		ControlPanel["#{ControlPanel.activeTool}Finish"]() 
@@ -87,7 +90,7 @@ ControlPanel =
 				ControlPanel.toolFinished()	
 
 	createRelationFinish: () ->
-		ControlPanel.clueRelation.hide()
+		ControlPanel.clueRelation?.hide()
 
 		Canvas.css 'cursor': 'default'
 		Canvas.off 'mousemove'

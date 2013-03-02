@@ -1,7 +1,8 @@
 /**
 * @module
 */
-var ControlPanel;
+var ControlPanel,
+  _this = this;
 
 ControlPanel = {
   obj: null,
@@ -23,17 +24,15 @@ ControlPanel = {
     if (cb) return cb();
   },
   toolActivated: function(ev) {
-    var $tool, toolName;
-    $tool = $(this);
-    if ($tool.hasClass('active')) {
-      return ControlPanel.toolFinished();
-    } else {
-      toolName = $tool.attr('name');
-      $tool.addClass('active');
-      ControlPanel.activeTool = toolName;
-      ev.stopImmediatePropagation();
-      return ControlPanel["" + toolName + "Init"]();
-    }
+    var $activeTool, $tool, toolName;
+    $tool = $(ev.target);
+    $activeTool = $('.active', _this.obj);
+    if ($activeTool.length) ControlPanel.toolFinished();
+    if ($tool.is($activeTool)) return false;
+    toolName = $tool.addClass('active').attr('name');
+    ControlPanel.activeTool = toolName;
+    ev.stopImmediatePropagation();
+    return ControlPanel["" + toolName + "Init"]();
   },
   toolFinished: function(ev) {
     ControlPanel["" + ControlPanel.activeTool + "Finish"]();
@@ -96,7 +95,8 @@ ControlPanel = {
     });
   },
   createRelationFinish: function() {
-    ControlPanel.clueRelation.hide();
+    var _ref;
+    if ((_ref = ControlPanel.clueRelation) != null) _ref.hide();
     Canvas.css({
       'cursor': 'default'
     });
