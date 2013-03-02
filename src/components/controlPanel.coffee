@@ -97,4 +97,4 @@ ControlPanel =
 		Canvas.off 'click', '.table'
 		@relStart = x: null, y: null
 
-if not window? then module.exports = ControlPanel		
+if not window? then module.exports = ControlPanel

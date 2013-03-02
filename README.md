@@ -5,8 +5,8 @@
 	* creating table and relation objects	_in progress_
 	* making table structure by selected database type
 2. Backend modeler part
-  * reingeneering of tables and relations from tabase
-  * _possiblly creating of tables and relations from model at database_
+  * reingeneering of tables and relations from database
+  * _possiblly creating of tables and relations from  database catalog_
 3. Managment of models part
 	* making image snapshoots from models
 	* versioning of models
@@ -31,7 +31,8 @@
 * <s>fix the problem of uncomplete relation when table is at bottom of canvas
 </s> _probably happens, when size of canvas changes, eg. when resizing Chrome
  developer console_
-* get the relation between tables broken instead of straight
+* <s>get the relation between tables broken instead of straight</s>
+* fix not disabled opossite points when counting path connection points
 
 ### Model
 * <s>create object that holds actual model - its table and relations</s>
