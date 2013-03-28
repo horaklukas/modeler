@@ -1,4 +1,5 @@
 express = require 'express.io'
+stylus = require 'stylus'
 routes = require './src/routes'
 
 # Main namespace on server part
@@ -13,6 +14,7 @@ app.http().io()
 app.configure ->
 	app.set 'view engine', 'jade'
 	app.set 'views', __dirname + '/views'
+	app.use stylus.middleware(src: __dirname + '/public')
 	app.use express.static __dirname + '/public'
 	app.use app.router
 
