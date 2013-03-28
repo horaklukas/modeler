@@ -22,8 +22,8 @@
   display: block;
   margin: 5px auto;
   border: 2px outset;
+  cursor: active;
 }
-#controlPanel .icon cursor: active,
 #controlPanel .icon:hover {
   cursor: pointer;
 }
@@ -45,10 +45,11 @@
   cursor: move;
 }
 .table .head {
+  display: block;
   width: inherit;
   height: 20px;
-  margin: 1px 0;
-  padding: 2px;
+  margin: 0;
+  padding: 0;
   border: 0;
   outline: 0;
   background-color: #ccc;
