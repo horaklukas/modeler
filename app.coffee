@@ -1,26 +1,23 @@
-fs = require 'fs'
-express = require('express.io')
+express = require 'express.io'
+routes = require './src/routes'
 
-app = express()
+# Main namespace on server part
+global.Server = Server = {}
+
+Server.app = app = express()
+Server.databases = {}
+Server.databases.list = []
+
 app.http().io()
-
-dbDefs = []
 
 app.configure ->
 	app.set 'view engine', 'jade'
 	app.set 'views', __dirname + '/views'
 	app.use express.static __dirname + '/public'
+	app.use app.router
 
-app.get '/', (req, res) ->	
-	unless dbDefs.length
-		fs.readdir 'defs', (err, files) ->
-			if err then console.log 'Error at reading defs dir!'
-			else dbDefs = files; res.render 'intro', dbs:files
-	else	
-		res.render 'intro', dbs: dbDefs
-
-app.get '/modeler', (req, res) ->
-	res.render 'main'
+app.get '/', routes.intro
+app.get '/modeler', routes.app
 
 port = 7076
 app.listen port, -> console.log 'Listening on port ' + port 	
