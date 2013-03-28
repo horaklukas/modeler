@@ -1,4 +1,4 @@
-Relation = require "#{srcDir}/components/model/relation"
+Relation = require "#{scriptsDir}/components/model/relation"
 rel = null
 canvas = path: sinon.spy()
 stab = getConnPoints: sinon.spy()

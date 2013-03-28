@@ -1,4 +1,4 @@
-Model = require "#{srcDir}/components/model/model"
+Model = require "#{scriptsDir}/components/model/model"
 model = null
 canvas = $('canvas')
 
