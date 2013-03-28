@@ -1,0 +1,14 @@
+div.dialog
+	label Logical name:
+	input(name="logical_name")
+
+	label Physical name:
+	input(name="physical_name")
+
+	div#columns_list
+		div.column
+
+	//
+		select
+			each type in types
+				option(value=type)= type
