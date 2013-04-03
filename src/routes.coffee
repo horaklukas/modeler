@@ -23,6 +23,7 @@ routes =
 			if req.method is 'GET' then res.redirect '/'; return
 		
 		options =
+			title: Server.databases.selected
 			types: Server.databases.dbs[Server.databases.selected].types
 
 		res.render 'main', options

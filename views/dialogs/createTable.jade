@@ -7,8 +7,11 @@ div.dialog
 
 	div#columns_list
 		div.column
-
-	//
-		select
-			each type in types
-				option(value=type)= type
+			div
+				input(type='text',name='name')
+			div
+				select(name='type')
+					each type in types
+						option(value=type)= type
+			div
+				checkbox.pkey

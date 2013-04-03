@@ -42,6 +42,7 @@ routes = {
       }
     }
     options = {
+      title: Server.databases.selected,
       types: Server.databases.dbs[Server.databases.selected].types
     };
     return res.render('main', options);
