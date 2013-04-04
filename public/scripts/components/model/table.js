@@ -127,6 +127,11 @@ Table = (function() {
     return this.relations.push(rel);
   };
 
+  Table.prototype.setName = function(name) {
+    this.name = name;
+    return $('.head', this.table).text(this.name);
+  };
+
   return Table;
 
 })();

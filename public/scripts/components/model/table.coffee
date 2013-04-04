@@ -69,4 +69,7 @@ class Table
 	addRelation: (rel) ->
 		@relations.push rel
 
+	setName: (@name) ->
+		$('.head', @table).text @name
+
 if not window? then module.exports = Table

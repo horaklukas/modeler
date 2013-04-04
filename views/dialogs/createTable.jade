@@ -1,17 +1,26 @@
-div.dialog
-	label Logical name:
-	input(name="logical_name")
-
-	label Physical name:
-	input(name="physical_name")
+div#createTable.dialog
+	names = {/*'logical': 'Logical',*/ 'physical': 'Physical' }
+	for label, id in names
+		div.row
+			span: label #{label} name:
+			span: input(name="#{id}_name")
+	
+	strong Columns
 
 	div#columns_list
-		div.column
-			div
-				input(type='text',name='name')
-			div
+		div.row.head
+			span Name
+			span Type
+			span PK
+			span Del
+		div.row
+			span: input(type='text',name='name')
+			span
 				select(name='type')
 					each type in types
 						option(value=type)= type
-			div
-				checkbox.pkey
+			span: input(type='checkbox').pkey
+			span: button D
+
+	button.ok OK
+	button.cancel CANCEL

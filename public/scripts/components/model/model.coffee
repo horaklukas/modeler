@@ -4,10 +4,24 @@ class Model
 		@tables = []
 		@relations = []
 
-	addTable: (canvas, x, y) ->
-		@tables.push new Table canvas, "tab_#{@tables.length}" , x, y, 100, 60
+	###*
+  * @returns {string} id of new table
+	###
+	addTable: (canvas, x, y) =>
+		tabId = "tab_#{@tables.length}"
+		@tables.push new Table canvas, tabId, x, y, 100, 60
+		return tabId
 
-	addRelation: (canvas, startTabId, endTabId) ->
+	###*
+  * Passed new values to table from table dialog
+  * @param {string} id Identificator of table to edit
+  * @param {string} name Name of table to set
+  * @param {strin} columns
+	###
+	editTable: (id, name, columns) =>
+		@tables[@getTabNumberId id].setName name
+
+	addRelation: (canvas, startTabId, endTabId) =>
 		startTab = @tables[@getTabNumberId startTabId]
 		endTab = @tables[@getTabNumberId endTabId]
 

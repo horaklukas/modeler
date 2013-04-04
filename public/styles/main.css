@@ -9,4 +9,9 @@
 .table{position:absolute;border:1px solid #000;}
 .table.move{opacity:.5;filter:alpha(opacity=50);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";cursor:move}
 .table .head{display:block;width:inherit;height:20px;margin:0;padding:0;border:0;outline:0;background-color:#ccc}
-.dialog{display:none;position:absolute;top:50px;left:50px}
+.dialog{display:none;position:absolute;top:40%;left:40%;border:2px outset;-webkit-border-radius:5px;border-radius:5px;background-color:#ddd;}
+.dialog.active{display:block}
+.dialog .row{display:table-row;}
+.dialog .row.head{background-color:#ccc}
+.dialog .row > span{display:table-cell;text-align:center}
+#columns_list{display:table}
