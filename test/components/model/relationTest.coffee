@@ -1,4 +1,4 @@
-Relation = require "#{srcDir}/components/model/relation"
+Relation = require "#{scriptsDir}/components/model/relation"
 rel = null
 # Fake canvas that returns obj with spy at attr method
 canvas = path: sinon.stub().returns { attr: sinon.spy() }

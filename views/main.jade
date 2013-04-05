@@ -1,0 +1,20 @@
+doctype 5
+html
+	head
+		link(rel="stylesheet", type="text/css", href="/styles/main.css")
+		//script(src="/socket.io/socket.io.js")
+		script(src="/scripts/lib/raphael.min.js")
+		script(src="/scripts/lib/jquery.min.js")
+		script(src="/scripts/components/canvas.js")
+		script(src="/scripts/components/controlPanel.js")
+		script(src="/scripts/components/model/model.js")
+		script(src="/scripts/components/model/relation.js")
+		script(src="/scripts/components/model/table.js")
+	body
+		div#app
+			div#controlPanel
+				button.icon.tool(name="createTable")
+				button.icon.tool(name="createRelation")
+			div#modelerCanvas
+	
+		script(src="/scripts/app.js")

@@ -12,3 +12,4 @@ $ = jQuery = require('jquery');
 
 // Directory containing source files
 global.srcDir = process.cwd() + '/src'
+global.scriptsDir = process.cwd() + '/public/scripts'

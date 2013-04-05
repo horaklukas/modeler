@@ -1,0 +1,23 @@
+{
+	"name": "Base SQL",
+	"data": {
+		"types": [
+			"bigint",
+			"bit"
+			"bit varying"
+			"boolean"
+			"character varying"
+			"character"
+			"date"
+			"double precision"
+			"integer"
+			"interval"
+			"numeric"
+			"real"
+			"smallint"
+			"time"
+			"timestamp"
+			"xml"
+		]
+	}
+}

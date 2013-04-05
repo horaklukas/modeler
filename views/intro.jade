@@ -1,0 +1,13 @@
+doctype 5
+html
+	head
+		title Select database to work with
+	body
+		h1 List of databases
+
+		form(action="/modeler")
+			select
+				each db in dbs
+					option(value=db)= db
+
+			input(type="submit", value="selectdb")
