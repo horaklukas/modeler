@@ -1,12 +1,10 @@
 class createTableDialog extends CommonDialog
-	constructor: ->
-		super 'createTable'
+	constructor: (types) ->
+		super 'createTable', types
 		@$name = $('[name=physical_name]', @dialog)
-		@$ok = $('.ok', @dialog)
-		@$cancel = $('.cancel', @dialog)
 
-		@$ok.on 'click', @passValsToCallback
-		@$cancel.on 'click', @hide
+		@dialog.on 'click', 'button.ok', @passValsToCallback
+		@dialog.on 'click', 'button.cancel', @hide
 
 	show: (table) ->
 		@relatedTable = table

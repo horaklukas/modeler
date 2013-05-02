@@ -37,7 +37,10 @@ Table = (function() {
       left: x,
       top: y
     };
-    this.table = $('<div class="table"><span class="head" ></div>').css(properties).attr('id', id);
+    this.table = jQuery(tmpls.components.model.table({
+      'id': 'id',
+      id: id
+    })).css(properties);
     this.table.appendTo(canvas);
     canvasMax = {
       maxX: (typeof canvas.width === "function" ? canvas.width() : void 0) || $(canvas).width(),

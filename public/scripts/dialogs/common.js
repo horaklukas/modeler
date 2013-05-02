@@ -4,9 +4,15 @@ var CommonDialog,
 
 CommonDialog = (function() {
 
-  function CommonDialog(id) {
+  function CommonDialog(name, types) {
     this.hide = __bind(this.hide, this);
-    this.show = __bind(this.show, this);    this.dialog = $('#' + id);
+    this.show = __bind(this.show, this);    this.dialog = $('#' + name);
+    if (!this.dialog.length) {
+      this.dialog = jQuery(tmpls.dialogs[name].dialog({
+        types: types
+      }));
+      this.dialog.appendTo(App.$elem);
+    }
   }
 
   CommonDialog.prototype.show = function() {

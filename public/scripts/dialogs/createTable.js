@@ -8,13 +8,11 @@ createTableDialog = (function(_super) {
 
   __extends(createTableDialog, _super);
 
-  function createTableDialog() {
-    this.passValsToCallback = __bind(this.passValsToCallback, this);    createTableDialog.__super__.constructor.call(this, 'createTable');
+  function createTableDialog(types) {
+    this.passValsToCallback = __bind(this.passValsToCallback, this);    createTableDialog.__super__.constructor.call(this, 'createTable', types);
     this.$name = $('[name=physical_name]', this.dialog);
-    this.$ok = $('.ok', this.dialog);
-    this.$cancel = $('.cancel', this.dialog);
-    this.$ok.on('click', this.passValsToCallback);
-    this.$cancel.on('click', this.hide);
+    this.dialog.on('click', 'button.ok', this.passValsToCallback);
+    this.dialog.on('click', 'button.cancel', this.hide);
   }
 
   createTableDialog.prototype.show = function(table) {

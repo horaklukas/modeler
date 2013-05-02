@@ -11,7 +11,7 @@ class Table
 		@relations = []	
 
 		properties = width: @w, height: @h, left: x, top: y
-		@table = $('<div class="table"><span class="head" ></div>').css(properties).attr 'id', id
+		@table = jQuery(tmpls.components.model.table {'id', id}).css properties 
 			
 		@table.appendTo canvas
 		canvasMax =

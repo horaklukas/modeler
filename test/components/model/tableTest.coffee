@@ -28,7 +28,7 @@ describe 'class Table', ->
 
 		it 'should create table object with header', ->
 			expect(tab.table.hasClass('table')).to.be.true
-			expect(tab.table.children('input.head')).to.have.length 1
+			expect(tab.table.children('span.head')).to.have.length 1
 
 		it 'should have passed x and y as proerties left and top', ->
 			expect(tab.table.css('left')).to.equal '70px'
