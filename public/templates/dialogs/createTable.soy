@@ -37,6 +37,7 @@
  */
 {template .columnsList}
 <div id="columns_list">
+	<button>Add column</button>
 	<div class="row head">
 		<span>Name</span><span>Type</span><span>PK</span><span></span>
 	</div>
@@ -71,6 +72,6 @@
 		</select>
 	</span>
 	<span><input type="checkbox" class="pkey" {if $pkey}checked{/if} /></span>
-	<span><button>D</button></span>
+	<span><button>Del</button></span>
 </div>
 {/template}

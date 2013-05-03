@@ -16,10 +16,13 @@ class Model
   * Passed new values to table from table dialog
   * @param {string} id Identificator of table to edit
   * @param {string} name Name of table to set
-  * @param {strin} columns
+  * @param {Object.<string, string|boolean>} columns
 	###
 	editTable: (id, name, columns) =>
-		@tables[@getTabNumberId id].setName name
+		tab = @tables[@getTabNumberId id]
+
+		tab.setName name
+		tab.setColumns columns
 
 	addRelation: (canvas, startTabId, endTabId) =>
 		startTab = @tables[@getTabNumberId startTabId]

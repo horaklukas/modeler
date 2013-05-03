@@ -17,7 +17,7 @@ tmpls.dialogs.createTable.name = function(opt_data, opt_ignored) {
 
 
 tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
-  var output = '<div id="columns_list"><div class="row head"><span>Name</span><span>Type</span><span>PK</span><span></span></div>' + tmpls.dialogs.createTable.tableColumn(opt_data);
+  var output = '<div id="columns_list"><button>Add column</button><div class="row head"><span>Name</span><span>Type</span><span>PK</span><span></span></div>' + tmpls.dialogs.createTable.tableColumn(opt_data);
   if (opt_data.columns) {
     var columnList22 = opt_data.columns;
     var columnListLen22 = columnList22.length;
@@ -39,6 +39,6 @@ tmpls.dialogs.createTable.tableColumn = function(opt_data, opt_ignored) {
     var typeData35 = typeList35[typeIndex35];
     output += '<option value="' + soy.$$escapeHtml(typeData35) + '">' + soy.$$escapeHtml(typeData35) + '</option>';
   }
-  output += '</select></span><span><input type="checkbox" class="pkey" ' + ((opt_data.pkey) ? 'checked' : '') + ' /></span><span><button>D</button></span></div>';
+  output += '</select></span><span><input type="checkbox" class="pkey" ' + ((opt_data.pkey) ? 'checked' : '') + ' /></span><span><button>Del</button></span></div>';
   return output;
 };
