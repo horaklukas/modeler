@@ -5,13 +5,24 @@ class createTableDialog extends CommonDialog
 		@$colslist = $('#columns_list', @dialog)
 
 		$('button:first', @$colslist).on  'click', @addColumn
+		@$colslist.on 'click', '.delete', @removeColumn
 		@dialog.on 'click', 'button.ok', @confirm
 		@dialog.on 'click', 'button.cancel', @hide
 
+	###*
+	* Show the dialog window
+	###
 	show: (table) ->
 		@relatedTable = table
 		super()
 
+	###*
+	* Return all `columns` in dialog that have filled name, columns with empty
+	* name are skipped
+	*
+	* @return {Array.<Object>} List of columns's objects, each object has
+	* property `name`, `type` and `pk`  
+	###
 	getColumns: ->
 		$cols = $('.row:not(.head)', @$colslist)
 		
@@ -26,23 +37,51 @@ class createTableDialog extends CommonDialog
 				name: name, type: $('[name=type]', $this).prop 'value'
 				pk: $('.pkey', $this).prop 'checked'
 
-	setColumns: (cols) ->
-		$('.row:not(.head)', @$colslist).remove()
-		@addColumn col.name, col.pk for col in cols
+	###*
+	* Return table name, filled in dialog
+	*
+	* @return {string} Table name
+	###
+	getName: ->
+		@$name.prop 'value'
 
-	addColumn: (name, pk) =>
-		opts = types: @types  
+	###*
+	* Set table values (name and columns) to dialog, used when editing table
+	*
+	* @param {string} name
+	* @param {Array.<Object>} cols
+	###
+	setValues: (name, cols) ->
+		@$name.prop 'value', name		
+
+		$('.row:not(.head)', @$colslist).remove()
+		@addColumn col.name, col.type, col.pk for col in cols
+
+	###*
+	* Add new `column` row to dialog, empty or set in depend if values are passed
+	*
+	* @param {string} name
+	* @param {string} type
+	* @param {boolean} pk
+	###
+	addColumn: (name, type, pk) =>
+		opts = types: @types
+
 		if name? and typeof name is 'string' then opts.name = name
-		if pk? then opts.pk = pk
+		if type? and typeof type is 'string' then opts.colType = type
+		if pk? then opts.pkey = pk
 
 		@$colslist.append tmpls.dialogs.createTable.tableColumn opts
+
+	removeColumn: ->
+		$(@).closest('.row').remove()
 
 	onConfirm: (cb) ->
 		@confirmCb = cb
 
 	confirm: =>
 		if @confirmCb?
-			tabName = @$name.prop 'value'
+			tabName = @getName()
 			columns = @getColumns()	
 
 			@confirmCb @relatedTable, tabName, columns

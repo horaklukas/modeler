@@ -37,8 +37,8 @@ tmpls.dialogs.createTable.tableColumn = function(opt_data, opt_ignored) {
   var typeListLen35 = typeList35.length;
   for (var typeIndex35 = 0; typeIndex35 < typeListLen35; typeIndex35++) {
     var typeData35 = typeList35[typeIndex35];
-    output += '<option value="' + soy.$$escapeHtml(typeData35) + '">' + soy.$$escapeHtml(typeData35) + '</option>';
+    output += '<option value="' + soy.$$escapeHtml(typeData35) + '" ' + ((opt_data.colType == typeData35) ? 'selected' : '') + '>' + soy.$$escapeHtml(typeData35) + '</option>';
   }
-  output += '</select></span><span><input type="checkbox" class="pkey" ' + ((opt_data.pkey) ? 'checked' : '') + ' /></span><span><button>Del</button></span></div>';
+  output += '</select></span><span><input type="checkbox" class="pkey" ' + ((opt_data.pkey == true) ? 'checked' : '') + ' /></span><span><button class="delete">Del</button></span></div>';
   return output;
 };

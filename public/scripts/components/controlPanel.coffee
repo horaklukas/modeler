@@ -50,9 +50,11 @@ ControlPanel =
 		# When click on canvas create new table and finish tool action
 		Canvas.on 'click', (ev) -> 
 			id = App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
-			ControlPanel.toolFinished() 
+			ControlPanel.toolFinished()
+
+			App.dialogs.createTable.setValues '', [{name: '',pk: false}]
 			App.dialogs.createTable.show id
-			App.dialogs.createTable.onConfirm App.actualModel.editTable
+			App.dialogs.createTable.onConfirm App.actualModel.setTable
 		
 		$(document).on 'click', @toolFinished
 

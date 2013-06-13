@@ -7,3 +7,9 @@ App.actualModel = new Model('Model1')
  
 Canvas.init $('#modelerCanvas')
 ControlPanel.init $('#controlPanel')
+
+Canvas.on 'dblclick', '.table', ->
+	tab = App.actualModel.getTable this.id
+
+	App.dialogs.createTable.show this.id
+	App.dialogs.createTable.setValues tab.getName(), tab.getColumns() 

@@ -73,6 +73,8 @@ class Table
 	setName: (@name) ->
 		$('.head', @table).text @name
 
+	getName: -> @name
+
 	setColumns: (@columns) ->
 		$('.body', @table).html tmpls.components.model.tabColumns cols: columns
 

@@ -5,6 +5,8 @@ class Model
 		@relations = []
 
 	###*
+	* Add table to canvas and to model's list of tables
+	*
   * @returns {string} id of new table
 	###
 	addTable: (canvas, x, y) =>
@@ -13,17 +15,30 @@ class Model
 		return tabId
 
 	###*
-  * Passed new values to table from table dialog
+  * Pass new values from table dialog to table
+  *
   * @param {string} id Identificator of table to edit
   * @param {string} name Name of table to set
   * @param {Object.<string, string|boolean>} columns
 	###
-	editTable: (id, name, columns) =>
+	setTable: (id, name, columns) =>
 		tab = @tables[@getTabNumberId id]
 
 		tab.setName name
 		tab.setColumns columns
 
+	###*
+	* Returns table object by table id
+	*
+	* @return {Table}
+	###
+	getTable: (id) ->
+		@tables[@getTabNumberId id]
+
+	###*
+  * Add relation to canvas, the add relation to list of model's relations and
+  * to both table list of related relations
+	###
 	addRelation: (canvas, startTabId, endTabId) =>
 		startTab = @tables[@getTabNumberId startTabId]
 		endTab = @tables[@getTabNumberId endTabId]

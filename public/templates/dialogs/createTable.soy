@@ -59,6 +59,7 @@
 /**
  * @param? name
  * @param types
+ * @param? colType
  * @param? pkey
  */
 {template .tableColumn}
@@ -67,11 +68,15 @@
 	<span>
 		<select name="type">
 			{foreach $type in $types}
-				<option value="{$type}">{$type}</option>
+				<option value="{$type}" {if $colType == $type}selected{/if}>
+					{$type}
+				</option>
 			{/foreach}
 		</select>
 	</span>
-	<span><input type="checkbox" class="pkey" {if $pkey}checked{/if} /></span>
-	<span><button>Del</button></span>
+	<span>
+		<input type="checkbox" class="pkey" {if $pkey == true}checked{/if} />
+	</span>
+	<span><button class="delete">Del</button></span>
 </div>
 {/template}

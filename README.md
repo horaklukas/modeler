@@ -12,7 +12,6 @@
 	* versioning of models
 	* creation of packages to distribute model eg. as mail attachment
 
-
 ## TODO
 
 ### Table
@@ -37,7 +36,7 @@
 
 ### Control Panel
 * <s>__fix error when select activated tool once again__</s>
-* fix tools icons to be exclusive
+* <s>fix tools icons to be exclusive</s>
 
 ### <s>Anchor</s> _object canceled_
 * <s>set right coordinates of anchor, in depend on its position</s>

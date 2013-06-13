@@ -135,6 +135,10 @@ Table = (function() {
     return $('.head', this.table).text(this.name);
   };
 
+  Table.prototype.getName = function() {
+    return this.name;
+  };
+
   Table.prototype.setColumns = function(columns) {
     this.columns = columns;
     return $('.body', this.table).html(tmpls.components.model.tabColumns({
