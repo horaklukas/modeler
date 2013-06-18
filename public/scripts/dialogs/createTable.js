@@ -11,6 +11,7 @@ createTableDialog = (function(_super) {
   function createTableDialog(types) {
     this.types = types;
     this.confirm = __bind(this.confirm, this);
+    this.removeColumn = __bind(this.removeColumn, this);
     this.addColumn = __bind(this.addColumn, this);
     createTableDialog.__super__.constructor.call(this, 'createTable', types);
     this.$name = $('[name=physical_name]', this.dialog);
@@ -73,18 +74,27 @@ createTableDialog = (function(_super) {
   /**
   	* Set table values (name and columns) to dialog, used when editing table
   	*
-  	* @param {string} name
-  	* @param {Array.<Object>} cols
+  	* @param {string=} name
+  	* @param {Array.<Object>=} cols
   */
 
 
   createTableDialog.prototype.setValues = function(name, cols) {
-    var col, _i, _len, _results;
+    var col, cols2set, _i, _len, _results;
+    if (name == null) name = '';
+    if (cols == null) cols = [];
     this.$name.prop('value', name);
+    cols2set = cols.concat([
+      {
+        name: '',
+        type: null,
+        pk: false
+      }
+    ]);
     $('.row:not(.head)', this.$colslist).remove();
     _results = [];
-    for (_i = 0, _len = cols.length; _i < _len; _i++) {
-      col = cols[_i];
+    for (_i = 0, _len = cols2set.length; _i < _len; _i++) {
+      col = cols2set[_i];
       _results.push(this.addColumn(col.name, col.type, col.pk));
     }
     return _results;
@@ -93,9 +103,9 @@ createTableDialog = (function(_super) {
   /**
   	* Add new `column` row to dialog, empty or set in depend if values are passed
   	*
-  	* @param {string} name
-  	* @param {string} type
-  	* @param {boolean} pk
+  	* @param {string=} name
+  	* @param {string=} type
+  	* @param {boolean=} pk
   */
 
 
@@ -110,8 +120,11 @@ createTableDialog = (function(_super) {
     return this.$colslist.append(tmpls.dialogs.createTable.tableColumn(opts));
   };
 
-  createTableDialog.prototype.removeColumn = function() {
-    return $(this).closest('.row').remove();
+  createTableDialog.prototype.removeColumn = function(ev) {
+    var $row;
+    $row = $(ev.target).closest('.row');
+    if (!$row.siblings('.row:not(.head)').length) this.addColumn();
+    return $row.remove();
   };
 
   createTableDialog.prototype.onConfirm = function(cb) {

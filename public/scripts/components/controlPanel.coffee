@@ -52,7 +52,7 @@ ControlPanel =
 			id = App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
 			ControlPanel.toolFinished()
 
-			App.dialogs.createTable.setValues '', [{name: '',pk: false}]
+			App.dialogs.createTable.setValues()
 			App.dialogs.createTable.show id
 			App.dialogs.createTable.onConfirm App.actualModel.setTable
 		

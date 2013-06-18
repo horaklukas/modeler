@@ -48,21 +48,24 @@ class createTableDialog extends CommonDialog
 	###*
 	* Set table values (name and columns) to dialog, used when editing table
 	*
-	* @param {string} name
-	* @param {Array.<Object>} cols
+	* @param {string=} name
+	* @param {Array.<Object>=} cols
 	###
-	setValues: (name, cols) ->
-		@$name.prop 'value', name		
+	setValues: (name = '', cols = []) ->
+		@$name.prop 'value', name
+
+		# one more empty column for add at the end
+		cols2set = cols.concat [{ name: '', type: null, pk: false }]
 
 		$('.row:not(.head)', @$colslist).remove()
-		@addColumn col.name, col.type, col.pk for col in cols
+		@addColumn col.name, col.type, col.pk for col in cols2set
 
 	###*
 	* Add new `column` row to dialog, empty or set in depend if values are passed
 	*
-	* @param {string} name
-	* @param {string} type
-	* @param {boolean} pk
+	* @param {string=} name
+	* @param {string=} type
+	* @param {boolean=} pk
 	###
 	addColumn: (name, type, pk) =>
 		opts = types: @types
@@ -73,8 +76,13 @@ class createTableDialog extends CommonDialog
 
 		@$colslist.append tmpls.dialogs.createTable.tableColumn opts
 
-	removeColumn: ->
-		$(@).closest('.row').remove()
+	removeColumn: (ev) =>
+		$row = $(ev.target).closest '.row'
+
+		# last row isnt removed, only cleaned
+		unless $row.siblings('.row:not(.head)').length then @addColumn()
+
+		$row.remove()
 
 	onConfirm: (cb) ->
 		@confirmCb = cb
