@@ -21,5 +21,5 @@ app.configure ->
 app.get '/', routes.intro
 app.get '/modeler', routes.app
 
-port = proces.env.port or 5000
+port = process.env.port or 5000
 app.listen port, -> console.log 'Listening on port ' + port 	
