@@ -31,7 +31,7 @@ app.get('/', routes.intro);
 
 app.get('/modeler', routes.app);
 
-port = process.env.port || 5000;
+port = process.env.PORT || 5000;
 
 app.listen(port, function() {
   return console.log('Listening on port ' + port);
