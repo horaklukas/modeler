@@ -18,9 +18,9 @@ ControlPanel =
 
 		if cb then cb()
 
-	toolActivated: (ev) =>
+	toolActivated: (ev) ->
 		$tool = $(ev.target)
-		$activeTool = $('.active', @obj)
+		$activeTool = $('.active', ControlPanel.obj)
 
 		# End unfinished previously selected tool
 		if $activeTool.length then ControlPanel.toolFinished()
@@ -52,8 +52,12 @@ ControlPanel =
 
 		# When click on canvas create new table and finish tool action
 		Canvas.on 'click', (ev) -> 
-			App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
-			ControlPanel.toolFinished() 
+			id = App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
+			ControlPanel.toolFinished()
+
+			App.dialogs.createTable.setValues()
+			App.dialogs.createTable.show id
+			App.dialogs.createTable.onConfirm App.actualModel.setTable
 		
 		$(document).on 'click', @toolFinished
 

@@ -1,0 +1,15 @@
+.dialog
+	display: none
+	absolute: top 40% left 40%
+	border: 2px outset
+	border-radius: 5px
+	background-color: #ddd
+	&.active
+		display: block
+	.row
+		display: table-row
+		&.head
+			background-color: #ccc
+		& > span
+			display: table-cell
+			text-align: center

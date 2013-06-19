@@ -18,7 +18,6 @@ _The uploaded application needn't corespond to last state_
 	* versioning of models
 	* creation of packages to distribute model eg. as mail attachment
 
-
 ## TODO
 
 ### Table

@@ -10,8 +10,9 @@ class Table
 		# Table's list of related relations
 		@relations = []	
 
-		properties = width: @w, height: @h, left: x, top: y
-		@table = $('<div class="table"><span class="head" ></div>').css(properties).attr 'id', id
+		#properties = width: @w, height: @h, left: x, top: y
+		properties = left: x, top: y
+		@table = jQuery(tmpls.components.model.table {'id', id}).css properties 
 			
 		@table.appendTo canvas
 		canvasMax =
@@ -68,5 +69,15 @@ class Table
 
 	addRelation: (rel) ->
 		@relations.push rel
+
+	setName: (@name) ->
+		$('.head', @table).text @name
+
+	getName: -> @name
+
+	setColumns: (@columns) ->
+		$('.body', @table).html tmpls.components.model.tabColumns cols: columns
+
+	getColumns: -> @columns		
 
 if not window? then module.exports = Table
