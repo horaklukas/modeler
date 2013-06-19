@@ -1,5 +1,11 @@
 # IN DEVELOPMENT
 
+## DEMO 
+
+_The uploaded application needn't corespond to last state_
+
+[Demo on Heroku](http://desolate-peak-6141.herokuapp.com/) 
+
 ## WORK PLAN
 1. Frontend modeler part
 	* creating table and relation objects	_in progress_
@@ -16,6 +22,7 @@
 ## TODO
 
 ### Table
+* column indexes (unique, not null)
 * <s> __resolve marking table as a group, eg. for detecting if clicked on 
   table__ possible solution is creating tables as div elements, next the
   svg and svg use for drawing relations</s>
@@ -26,6 +33,8 @@
 * create system of counting best point to connect relation
 
 ### Relation
+* multiple relations on same table side
+* types of relation - identifying, non-identifyig
 * <s>create new object - relationship between tables</s>
 * cancel creating of relation if second point not defined
 * <s>fix the problem of uncomplete relation when table is at bottom of canvas
