@@ -1,56 +1,17 @@
-#app {
-  width: 95%;
-  height: 94%;
-  margin: 2% auto;
-  border: 1px solid #000;
-}
-#modelerCanvas {
-  position: relative;
-  height: 100%;
-  margin-right: 25px;
-}
-#controlPanel {
-  width: 24px;
-  height: 100%;
-  float: right;
-  border-left: 1px solid #000;
-  background-color: #eee;
-}
-#controlPanel .icon {
-  width: 20px;
-  height: 20px;
-  display: block;
-  margin: 5px auto;
-  border: 2px outset;
-  cursor: active;
-}
-#controlPanel .icon:hover {
-  cursor: pointer;
-}
-#controlPanel .icon.active {
-  border-style: inset;
-}
-#controlPanel .icon[name=createTable] {
-  background: url("./images/icons/table.png");
-}
-#controlPanel .icon[name=createRelation] {
-  background: url("./images/icons/relationship.png");
-}
-.table {
-  position: absolute;
-  border: 1px solid #000;
-}
-.table.move {
-  opacity: 0.5;
-  cursor: move;
-}
-.table .head {
-  display: block;
-  width: inherit;
-  height: 20px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  background-color: #ccc;
-}
+#app{width:95%;height:94%;margin:2% auto;border:1px solid #000}
+#modelerCanvas{position:relative;height:100%;margin-right:25px}
+#controlPanel{width:24px;height:100%;float:right;border-left:1px solid #000;background-color:#eee;}
+#controlPanel .icon{width:20px;height:20px;display:block;margin:5px auto;border:2px outset;cursor:active;}
+#controlPanel .icon:hover{cursor:pointer}
+#controlPanel .icon.active{border-style:inset}
+#controlPanel .icon[name=createTable]{background:url("./images/icons/table.png")}
+#controlPanel .icon[name=createRelation]{background:url("./images/icons/relationship.png")}
+.table{position:absolute;min-width:100px;min-height:80px;border:1px solid #000;}
+.table.move{opacity:.5;filter:alpha(opacity=50);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";cursor:move}
+.table .head{display:block;width:inherit;height:20px;margin:0;padding:0;border:0;outline:0;background-color:#ccc}
+.dialog{display:none;position:absolute;top:40%;left:40%;border:2px outset;-webkit-border-radius:5px;border-radius:5px;background-color:#ddd;}
+.dialog.active{display:block}
+.dialog .row{display:table-row;}
+.dialog .row.head{background-color:#ccc}
+.dialog .row > span{display:table-cell;text-align:center}
+#columns_list{display:table}

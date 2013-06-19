@@ -1,0 +1,82 @@
+{namespace tmpls.dialogs.createTable}
+
+/**
+ * Main function for creating dialog
+ * @param types
+ * @param? columns
+ */
+{template .dialog}
+<div id="createTable" class="dialog">
+	{call .name}
+		{param id: 'physical' /}
+		{param label: 'Physical' /}
+	{/call}
+
+	<strong>Columns</strong>
+	{call .columnsList data="all" /}
+
+	<button class="ok">OK</button>
+	<button class="cancel">CANCEL</button>
+</div>
+{/template}
+
+/**
+ * @param id
+ * @param label
+ */
+{template .name}
+	<div class="row">
+			<span><label>{$label} name</label></span>
+			<span><input name="{$id}_name" /></span>
+	</div>
+{/template}
+
+/**
+ * @param types
+ * @param? columns
+ */
+{template .columnsList}
+<div id="columns_list">
+	<button>Add column</button>
+	<div class="row head">
+		<span>Name</span><span>Type</span><span>PK</span><span></span>
+	</div>
+	{call .tableColumn}
+		{param types: $types /}
+	{/call}
+	{if $columns}
+		{foreach $column in $columns}
+			{call .tableColumn}
+				{param name: $column.name /}
+				{param types: $types /}
+				{param pkey: $column.pkey /}
+			{/call}
+		{/foreach}
+	{/if}
+</div>
+{/template}
+
+/**
+ * @param? name
+ * @param types
+ * @param? colType
+ * @param? pkey
+ */
+{template .tableColumn}
+<div class="row">
+	<span><input type="text" name="name" value="{if $name}{$name}{/if}"/></span>
+	<span>
+		<select name="type">
+			{foreach $type in $types}
+				<option value="{$type}" {if $colType == $type}selected{/if}>
+					{$type}
+				</option>
+			{/foreach}
+		</select>
+	</span>
+	<span>
+		<input type="checkbox" class="pkey" {if $pkey == true}checked{/if} />
+	</span>
+	<span><button class="delete">Del</button></span>
+</div>
+{/template}
