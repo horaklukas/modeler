@@ -5,8 +5,7 @@ var Table,
 Table = (function() {
 
   function Table(canvas, id, x, y, w, h) {
-    var canvasMax, properties,
-      _this = this;
+    var canvasMax, properties;
     this.x = x;
     this.y = y;
     this.w = w != null ? w : 100;
@@ -14,15 +13,22 @@ Table = (function() {
     this.stopTable = __bind(this.stopTable, this);
     this.moveTable = __bind(this.moveTable, this);
     this.startTable = __bind(this.startTable, this);
+    this.graspTable = __bind(this.graspTable, this);
+    canvasMax = {
+      maxX: (typeof canvas.width === "function" ? canvas.width() : void 0) || $(canvas).width(),
+      maxY: (typeof canvas.height === "function" ? canvas.height() : void 0) || $(canvas).height()
+    };
+    if (x + this.w > canvasMax.maxX) this.x = canvasMax.maxX - this.w;
+    if (y + this.h > canvasMax.maxY) this.y = canvasMax.maxY - this.h;
     this.position = {
       current: {
-        x: x,
-        y: y
+        x: this.x,
+        y: this.y
       },
       startmove: {
         relative: {
-          x: x,
-          y: y
+          x: this.x,
+          y: this.y
         },
         absolute: {
           x: null,
@@ -32,27 +38,33 @@ Table = (function() {
     };
     this.relations = [];
     properties = {
-      left: x,
-      top: y
+      left: this.x,
+      top: this.y
     };
     this.table = jQuery(tmpls.components.model.table({
-      'id': 'id',
-      id: id
-    })).css(properties);
+      'id': id
+    }));
+    this.table.css(properties);
     this.table.appendTo(canvas);
-    canvasMax = {
-      maxX: (typeof canvas.width === "function" ? canvas.width() : void 0) || $(canvas).width(),
-      maxY: (typeof canvas.height === "function" ? canvas.height() : void 0) || $(canvas).height()
-    };
-    this.table.on('mousedown', function(ev) {
-      _this.startTable(ev);
-      $(document).on('mousemove', canvasMax, _this.moveTable);
-      return $(document).one('mouseup', function() {
-        $(document).off('mousemove', _this.moveTable);
-        return _this.stopTable();
-      });
-    });
+    this.table.on('mousedown', canvasMax, this.graspTable);
   }
+
+  /**
+   * Callback that is called when user grasp table with intent to move it
+  */
+
+
+  Table.prototype.graspTable = function(ev) {
+    var canvasMax,
+      _this = this;
+    canvasMax = ev.data;
+    this.startTable(ev);
+    $(document).on('mousemove', canvasMax, this.moveTable);
+    return $(document).one('mouseup', function() {
+      $(document).off('mousemove', _this.moveTable);
+      return _this.stopTable();
+    });
+  };
 
   Table.prototype.startTable = function(ev) {
     var left, top, _ref;

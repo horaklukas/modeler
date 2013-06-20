@@ -14,8 +14,11 @@ Canvas.on 'dblclick', '.table', ->
 	App.dialogs.createTable.show this.id
 	App.dialogs.createTable.setValues tab.getName(), tab.getColumns() 
 
-App.actualModel.addTable Canvas.obj, 100, 75
-App.actualModel.addTable Canvas.obj, 500, 280
-App.actualModel.addTable Canvas.obj, 100, 280
-App.actualModel.addRelation Canvas.self, 'tab_0', 'tab_1'
-App.actualModel.addRelation Canvas.self, 'tab_0', 'tab_2'
+App.dialogs.createTable.onConfirm App.actualModel.setTable
+
+# Some test objects
+tab0 = App.actualModel.addTable Canvas.obj, 100, 75, 'table1'
+tab1 = App.actualModel.addTable Canvas.obj, 500, 280, 'table2'
+tab2 = App.actualModel.addTable Canvas.obj, 100, 280, 'table3'
+App.actualModel.addRelation Canvas.self, tab0, tab1
+App.actualModel.addRelation Canvas.self, tab0, tab2

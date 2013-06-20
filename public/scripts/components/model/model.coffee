@@ -7,11 +7,19 @@ class Model
 	###*
 	* Add table to canvas and to model's list of tables
 	*
-  * @returns {string} id of new table
+	* @param {Canvas} canvas Place where to create table
+	* @param {number} x Horizontal position of table on canvas
+	* @param {number} y Vertical position of table on canvas
+	* @param {string=} name Table name
+  * @return {string} id of new table
 	###
-	addTable: (canvas, x, y) =>
+	addTable: (canvas, x, y, name) =>
 		tabId = "tab_#{@tables.length}"
-		@tables.push new Table canvas, tabId, x, y, 100, 60
+		table = new Table canvas, tabId, x, y
+		
+		if name? then table.setName name
+		@tables.push table
+		
 		return tabId
 
 	###*

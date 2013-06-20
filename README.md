@@ -22,6 +22,8 @@ _The uploaded application needn't corespond to last state_
 
 ### Table
 * column indexes (unique, not null)
+* create system of counting best point to connect relation
+* <s>fix positions of relation endpoints</s>
 * <s> __resolve marking table as a group, eg. for detecting if clicked on 
   table__ possible solution is creating tables as div elements, next the
   svg and svg use for drawing relations</s>
@@ -29,20 +31,20 @@ _The uploaded application needn't corespond to last state_
   </s>
 * <s>dont allow to move table outside canvas</s>
 * <s>change mouse cursor type to four-arrow when moving table</s>
-* create system of counting best point to connect relation
 
 ### Relation
 * multiple relations on same table side
 * types of relation - identifying, non-identifyig
-* <s>create new object - relationship between tables</s>
+* fix not disabled opossite points when counting path connection points
 * cancel creating of relation if second point not defined
+* <s>create new object - relationship between tables</s>
 * <s>fix the problem of uncomplete relation when table is at bottom of canvas
 </s> _probably happens, when size of canvas changes, eg. when resizing Chrome
  developer console_
 * <s>get the relation between tables broken instead of straight</s>
-* fix not disabled opossite points when counting path connection points
 
 ### Model
+* create autodesigner that space out object holded as data
 * <s>create object that holds actual model - its table and relations</s>
 * <s>holds methods for placing object to canvas</s>
 

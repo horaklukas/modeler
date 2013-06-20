@@ -1,6 +1,13 @@
 Table = require "#{scriptsDir}/components/model/table"
 tab = null
+
 canvas = $('canvas')
+sinon.stub(canvas, 'width').returns 600
+sinon.stub(canvas, 'height').returns 800
+
+global.tmpls = components: model:
+	table: sinon.stub().returns $('<div>') 
+	tabColumns: sinon.spy()
 
 describe 'class Table', ->
 	describe 'constructor', ->
@@ -8,7 +15,7 @@ describe 'class Table', ->
 			tab = new Table canvas, 'tab25' , 70, 50
 
 		it 'should set `id` attribute to table', ->
-			expect(tab.table.attr 'id').to.equal 'tab25'
+			expect(tmpls.components.model.table).to.be.calledWith id: 'tab25'
 
 		it 'should have position properties', ->
 			tab.should.have.deep.property 'position.current.x'
@@ -26,24 +33,32 @@ describe 'class Table', ->
 			expect(tab.position.startmove.absolute.x).to.equal null
 			expect(tab.position.startmove.absolute.y).to.equal null
 
-		it 'should create table object with header', ->
-			expect(tab.table.hasClass('table')).to.be.true
-			expect(tab.table.children('span.head')).to.have.length 1
-
 		it 'should have passed x and y as proerties left and top', ->
 			expect(tab.table.css('left')).to.equal '70px'
 			expect(tab.table.css('top')).to.equal '50px'
 
 		it 'should set default size if no passed', ->
-			expect(tab.table.width()).to.equal 100
-			expect(tab.table.height()).to.equal 80
+			expect(tab).to.have.property 'w', 100
+			expect(tab).to.have.property 'h', 80
 
 		it 'should set the size if passed', ->
 			tab2 = new Table canvas, 'id', 0, 0, 40, 120
-			expect(tab2.table.width()).to.equal 40
-			expect(tab2.table.height()).to.equal 120
+			
+			expect(tab2).to.have.property 'w', 40
+			expect(tab2).to.have.property 'h', 120
+
+		it 'should recount coordinates if table is outside canvas', ->
+			tab3 = new Table canvas, 'idd', 500, 750, 160, 60
+
+			expect(tab3).to.have.property 'x', 440
+			expect(tab3).to.have.property 'y', 740
+
+			tab4 = new Table canvas, 'idd', 530, 730
+
+			expect(tab4).to.have.property 'x', 500
+			expect(tab4).to.have.property 'y', 720
 	
-	describe 'startTable', ->
+	describe 'method startTable', ->
 		fakeEv = pageX: 110, pageY: 230
 		mPos = null
 
@@ -61,7 +76,7 @@ describe 'class Table', ->
 			tab.position.startmove.relative.should.deep.equal x: 60, y: 100
 			tab.position.startmove.absolute.should.deep.equal x: 110, y: 230
 
-	describe 'moveTable', ->
+	describe 'method moveTable', ->
 		fakeEv = pageX: 100, pageY: 150, data: {maxX: 300, maxY: 500}
 		startEv = pageX: 100, pageY: 150
 		mPos = null
@@ -128,7 +143,7 @@ describe 'class Table', ->
 
 			cb.should.been.calledTwice	
 
-	describe 'stopTable', ->
+	describe 'method stopTable', ->
 		before ->
 			tab = new Table canvas, 'id', 0, 0
 

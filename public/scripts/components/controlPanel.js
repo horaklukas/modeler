@@ -60,8 +60,7 @@ ControlPanel = {
       id = App.actualModel.addTable(Canvas.obj, ev.offsetX, ev.offsetY);
       ControlPanel.toolFinished();
       App.dialogs.createTable.setValues();
-      App.dialogs.createTable.show(id);
-      return App.dialogs.createTable.onConfirm(App.actualModel.setTable);
+      return App.dialogs.createTable.show(id);
     });
     return $(document).on('click', this.toolFinished);
   },

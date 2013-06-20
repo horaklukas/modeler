@@ -57,7 +57,6 @@ ControlPanel =
 
 			App.dialogs.createTable.setValues()
 			App.dialogs.createTable.show id
-			App.dialogs.createTable.onConfirm App.actualModel.setTable
 		
 		$(document).on 'click', @toolFinished
 
