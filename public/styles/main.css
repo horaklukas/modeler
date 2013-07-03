@@ -6,8 +6,8 @@
 #controlPanel .icon.active{border-style:inset}
 #controlPanel .icon[name=createTable]{background:url("./images/icons/table.png")}
 #controlPanel .icon[name=createRelation]{background:url("./images/icons/relationship.png")}
-.table{position:absolute;min-width:100px;min-height:80px;border:1px solid #000;}
-.table.move{opacity:.5;filter:alpha(opacity=50);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";cursor:move}
+.table{position:absolute;min-width:100px;min-height:80px;border:1px solid #000;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+.table.move{opacity:.5;filter:alpha(opacity=50);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";cursor:move !important}
 .table .head{display:block;width:inherit;height:20px;margin:0;padding:0;border:0;outline:0;background-color:#ccc}
 .dialog{display:none;position:absolute;top:40%;left:40%;border:2px outset;-webkit-border-radius:5px;border-radius:5px;background-color:#ddd;}
 .dialog.active{display:block}

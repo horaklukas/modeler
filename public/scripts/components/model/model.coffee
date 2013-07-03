@@ -10,14 +10,12 @@ class Model
 	* @param {Canvas} canvas Place where to create table
 	* @param {number} x Horizontal position of table on canvas
 	* @param {number} y Vertical position of table on canvas
-	* @param {string=} name Table name
   * @return {string} id of new table
 	###
 	addTable: (canvas, x, y, name) =>
 		tabId = "tab_#{@tables.length}"
 		table = new Table canvas, tabId, x, y
 		
-		if name? then table.setName name
 		@tables.push table
 		
 		return tabId
@@ -27,13 +25,13 @@ class Model
   *
   * @param {string} id Identificator of table to edit
   * @param {string} name Name of table to set
-  * @param {Object.<string, string|boolean>} columns
+  * @param {Object.<string,*>=} columns
 	###
 	setTable: (id, name, columns) =>
 		tab = @tables[@getTabNumberId id]
 
 		tab.setName name
-		tab.setColumns columns
+		if columns? then tab.setColumns columns
 
 	###*
 	* Returns table object by table id
@@ -51,7 +49,7 @@ class Model
 		startTab = @tables[@getTabNumberId startTabId]
 		endTab = @tables[@getTabNumberId endTabId]
 
-		if startTab isnt undefined and endTab isnt undefined
+		if startTab? and endTab?
 			relLen = @relations.push new Relation canvas, startTab, endTab
 			startTab.addRelation @relations[relLen - 1]
 			endTab.addRelation @relations[relLen - 1]

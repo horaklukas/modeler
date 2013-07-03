@@ -18,7 +18,6 @@ Model = (function() {
   	* @param {Canvas} canvas Place where to create table
   	* @param {number} x Horizontal position of table on canvas
   	* @param {number} y Vertical position of table on canvas
-  	* @param {string=} name Table name
    * @return {string} id of new table
   */
 
@@ -27,7 +26,6 @@ Model = (function() {
     var tabId, table;
     tabId = "tab_" + this.tables.length;
     table = new Table(canvas, tabId, x, y);
-    if (name != null) table.setName(name);
     this.tables.push(table);
     return tabId;
   };
@@ -37,7 +35,7 @@ Model = (function() {
    *
    * @param {string} id Identificator of table to edit
    * @param {string} name Name of table to set
-   * @param {Object.<string, string|boolean>} columns
+   * @param {Object.<string,*>=} columns
   */
 
 
@@ -45,7 +43,7 @@ Model = (function() {
     var tab;
     tab = this.tables[this.getTabNumberId(id)];
     tab.setName(name);
-    return tab.setColumns(columns);
+    if (columns != null) return tab.setColumns(columns);
   };
 
   /**
@@ -69,7 +67,7 @@ Model = (function() {
     var endTab, relLen, startTab;
     startTab = this.tables[this.getTabNumberId(startTabId)];
     endTab = this.tables[this.getTabNumberId(endTabId)];
-    if (startTab !== void 0 && endTab !== void 0) {
+    if ((startTab != null) && (endTab != null)) {
       relLen = this.relations.push(new Relation(canvas, startTab, endTab));
       startTab.addRelation(this.relations[relLen - 1]);
       return endTab.addRelation(this.relations[relLen - 1]);

@@ -2,7 +2,7 @@
 
 ## DEMO 
 
-_The uploaded application needn't corespond to last state_
+_The uploaded application needn't corespond to latest state_
 
 [Demo on Heroku](http://desolate-peak-6141.herokuapp.com/) 
 
@@ -23,6 +23,8 @@ _The uploaded application needn't corespond to last state_
 ### Table
 * column indexes (unique, not null)
 * create system of counting best point to connect relation
+* change mouse cursor type to `move` when moving table - as listed out  in
+[this topic](http://stackoverflow.com/questions/8942805/chrome-bug-cursor-changes-on-mouse-down-move/), for absolute positioned elements at chrome it may be impossible
 * <s>fix positions of relation endpoints</s>
 * <s> __resolve marking table as a group, eg. for detecting if clicked on 
   table__ possible solution is creating tables as div elements, next the
@@ -30,7 +32,6 @@ _The uploaded application needn't corespond to last state_
 * <s>Add text input to table head for typing table name right after create it
   </s>
 * <s>dont allow to move table outside canvas</s>
-* <s>change mouse cursor type to four-arrow when moving table</s>
 
 ### Relation
 * multiple relations on same table side
@@ -44,7 +45,7 @@ _The uploaded application needn't corespond to last state_
 * <s>get the relation between tables broken instead of straight</s>
 
 ### Model
-* create autodesigner that space out object holded as data
+* create autodesigner that space out objects hold as the data
 * <s>create object that holds actual model - its table and relations</s>
 * <s>holds methods for placing object to canvas</s>
 
