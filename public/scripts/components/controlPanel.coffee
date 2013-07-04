@@ -1,7 +1,11 @@
+goog.provide 'dm.components.ControlPanel'
+
+goog.require 'dm.components.Canvas'
+
 ###*
 * @module
 ###
-ControlPanel =
+dm.components.ControlPanel =
 	obj: null
 	activeTool: null
 	clueTable: null
@@ -52,11 +56,11 @@ ControlPanel =
 
 		# When click on canvas create new table and finish tool action
 		Canvas.on 'click', (ev) -> 
-			id = App.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
+			id = dm.actualModel.addTable Canvas.obj, ev.offsetX, ev.offsetY
 			ControlPanel.toolFinished()
 
-			App.dialogs.createTable.setValues()
-			App.dialogs.createTable.show id
+			dm.dialogs.createTable.setValues()
+			dm.dialogs.createTable.show id
 		
 		$(document).on 'click', @toolFinished
 
@@ -89,7 +93,7 @@ ControlPanel =
 				Canvas.on 'mousemove', (ev) ->
 					ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.clientX - canvasPos.left} #{ev.clientY-canvasPos.top}"
 			else
-				App.actualModel.addRelation Canvas.self, ControlPanel.relStart.id, @.id
+				dm.actualModel.addRelation Canvas.self, ControlPanel.relStart.id, @.id
 				ControlPanel.toolFinished()	
 
 	createRelationFinish: () ->

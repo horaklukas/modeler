@@ -1,36 +1,43 @@
-App = {}
-App.db = {}
-App.$elem = $('#app')
-App.dialogs = {}
-App.dialogs.createTable = new createTableDialog DB.types
-App.actualModel = new Model('Model1')
- 
-Canvas.init $('#modelerCanvas')
-ControlPanel.init $('#controlPanel')
+goog.provide 'dm'
 
-Canvas.on 'dblclick', '.table', ->
-	tab = App.actualModel.getTable this.id
+goog.require 'dm.dialogs.CreateTableDialog'
+goog.require 'dm.components.model.Model'
+goog.require 'dm.components.Canvas'
+goog.require 'dm.components.ControlPanel'
 
-	App.dialogs.createTable.show this.id
-	App.dialogs.createTable.setValues tab.getName(), tab.getColumns() 
+dm.init = ->
+	dm.db = {}
+	dm.$elem = $('#app')
+	dm.dialogss = {}
+	dm.dialogss.createTable = new dm.dialogs.CreateTableDialog DB.types
+	dm.actualModel = new dm.components.model.Model('Model1')
+	 
+	dm.components.Canvas.init $('#modelerCanvas')
+	dm.components.ControlPanel.init $('#controlPanel')
 
-App.dialogs.createTable.onConfirm App.actualModel.setTable
+	dm.components.Canvas.on 'dblclick', '.table', ->
+		tab = dm.actualModel.getTable this.id
 
-# Some test objects
-tab0 = App.actualModel.addTable Canvas.obj, 100, 75
-tabCols = [
-	{ name: 'column_1', type: 'smallint', pk: true }
-	{ name: 'column_2', type: 'character varcharying', pk: false }
-	{ name: 'column_3', type: 'numeric', pk: false }
-]
+		dm.dialogs.createTable.show this.id
+		dm.dialogs.createTable.setValues tab.getName(), tab.getColumns() 
 
-App.actualModel.setTable tab0, 'table1', tabCols
+	dm.dialogss.createTable.onConfirm dm.actualModel.setTable
 
-tab1 = App.actualModel.addTable Canvas.obj, 500, 280
-App.actualModel.setTable tab1, 'table2'
+	# Some test objects
+	tab0 = dm.actualModel.addTable dm.components.Canvas.obj, 100, 75
+	tabCols = [
+		{ name: 'column_1', type: 'smallint', pk: true }
+		{ name: 'column_2', type: 'character varcharying', pk: false }
+		{ name: 'column_3', type: 'numeric', pk: false }
+	]
 
-tab2 = App.actualModel.addTable Canvas.obj, 100, 280
-App.actualModel.setTable tab2, 'table3'
+	dm.actualModel.setTable tab0, 'table1', tabCols
 
-App.actualModel.addRelation Canvas.self, tab0, tab1
-App.actualModel.addRelation Canvas.self, tab0, tab2
+	tab1 = dm.actualModel.addTable dm.components.Canvas.obj, 500, 280
+	dm.actualModel.setTable tab1, 'table2'
+
+	tab2 = dm.actualModel.addTable dm.components.Canvas.obj, 100, 280
+	dm.actualModel.setTable tab2, 'table3'
+
+	dm.actualModel.addRelation dm.components.Canvas.self, tab0, tab1
+	dm.actualModel.addRelation dm.components.Canvas.self, tab0, tab2

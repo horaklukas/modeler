@@ -1,7 +1,9 @@
+goog.provide 'dm.components.Canvas'
+
 ###*
 * @module
 ###
-Canvas =
+dm.components.Canvas =
 	###*
   * 
   * @param {jQueryObject} id Id of element to init canvas on

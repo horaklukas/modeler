@@ -1,4 +1,8 @@
-class Table
+goog.provide 'dm.components.model.Table'
+
+goog.require 'tmpls.components.model'
+
+class dm.components.model.Table
 	constructor: (canvas, id, @x, @y, @w = 100, @h = 80) ->
 		# coordinates of canvas's right bottom corner
 		canvasMax =

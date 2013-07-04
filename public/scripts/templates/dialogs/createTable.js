@@ -1,21 +1,40 @@
 // This file was automatically generated from createTable.soy.
 // Please don't edit this file by hand.
 
-if (typeof tmpls == 'undefined') { var tmpls = {}; }
-if (typeof tmpls.dialogs == 'undefined') { tmpls.dialogs = {}; }
-if (typeof tmpls.dialogs.createTable == 'undefined') { tmpls.dialogs.createTable = {}; }
+goog.provide('tmpls.dialogs.createTable');
+
+goog.require('soy');
+goog.require('soydata');
 
 
+/**
+ * @param {Object.<string, *>=} opt_data
+ * @param {(null|undefined)=} opt_ignored
+ * @return {string}
+ * @notypecheck
+ */
 tmpls.dialogs.createTable.dialog = function(opt_data, opt_ignored) {
   return '<div id="createTable" class="dialog">' + tmpls.dialogs.createTable.name({id: 'physical', label: 'Physical'}) + '<strong>Columns</strong>' + tmpls.dialogs.createTable.columnsList(opt_data) + '<button class="ok">OK</button><button class="cancel">CANCEL</button></div>';
 };
 
 
+/**
+ * @param {Object.<string, *>=} opt_data
+ * @param {(null|undefined)=} opt_ignored
+ * @return {string}
+ * @notypecheck
+ */
 tmpls.dialogs.createTable.name = function(opt_data, opt_ignored) {
   return '\t<div class="row"><span><label>' + soy.$$escapeHtml(opt_data.label) + ' name</label></span><span><input name="' + soy.$$escapeHtml(opt_data.id) + '_name" /></span></div>';
 };
 
 
+/**
+ * @param {Object.<string, *>=} opt_data
+ * @param {(null|undefined)=} opt_ignored
+ * @return {string}
+ * @notypecheck
+ */
 tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
   var output = '<div id="columns_list"><button>Add column</button><div class="row head"><span>Name</span><span>Type</span><span>PK</span><span></span></div>' + tmpls.dialogs.createTable.tableColumn(opt_data);
   if (opt_data.columns) {
@@ -31,6 +50,12 @@ tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
 };
 
 
+/**
+ * @param {Object.<string, *>=} opt_data
+ * @param {(null|undefined)=} opt_ignored
+ * @return {string}
+ * @notypecheck
+ */
 tmpls.dialogs.createTable.tableColumn = function(opt_data, opt_ignored) {
   var output = '<div class="row"><span><input type="text" name="name" value="' + ((opt_data.name) ? soy.$$escapeHtml(opt_data.name) : '') + '"/></span><span><select name="type">';
   var typeList35 = opt_data.types;

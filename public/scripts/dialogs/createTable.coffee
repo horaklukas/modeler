@@ -1,4 +1,9 @@
-class createTableDialog extends CommonDialog
+goog.provide 'dm.dialogs.CreateTableDialog'
+
+goog.require 'dm.dialogs.CommonDialog'
+goog.require 'tmpls.dialogs.createTable'
+
+class dm.dialogs.CreateTableDialog extends dm.dialogs.CommonDialog
 	constructor: (@types) ->
 		super 'createTable', types
 		@$name = $('[name=physical_name]', @dialog)

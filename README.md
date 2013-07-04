@@ -57,3 +57,10 @@ _The uploaded application needn't corespond to latest state_
 * <s>set right coordinates of anchor, in depend on its position</s>
 * <s>create anchor test with mocked canvas</s>
 * <s>move anchors when moving table</s>
+
+## Google Closure build
+**dependencies**
+python ./lib/closure/bin/build/depswriter.py --root_with_prefix="/srv/git/modeler/public/scripts ../../.." --output_file /srv/git/modeler/public/scripts/app-deps.js
+
+**templates**
+java -jar /srv/www/GoogleClosure/templates/SoyCompiler/SoyToJsSrcCompiler.jar --outputPathFormat {INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js --shouldGenerateJsdoc --shouldProvideRequireSoyNamespaces --srcs /srv/git/modeler/public/templates/dialogs/createTable.soy /srv/git/modeler/public/templates/components/model/table.soy
