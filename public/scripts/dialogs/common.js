@@ -3,25 +3,29 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 
 goog.provide('dm.dialogs.CommonDialog');
 
+goog.require('goog.dom');
+
+goog.require('goog.dom.classes');
+
 dm.dialogs.CommonDialog = (function() {
 
   function CommonDialog(name, types) {
     this.hide = __bind(this.hide, this);
-    this.show = __bind(this.show, this);    this.dialog = $('#' + name);
-    if (!this.dialog.length) {
-      this.dialog = jQuery(tmpls.dialogs[name].dialog({
+    this.show = __bind(this.show, this);    this.dialog = goog.dom.getElement(name);
+    if (!goog.isDefAndNotNull(this.dialog)) {
+      this.dialog = goog.soy.renderAsElement(tmpls.dialogs[name].dialog, {
         types: types
-      }));
-      this.dialog.appendTo(dm.$elem);
+      });
+      goog.dom.appendChild(dm.$elem, this.dialog);
     }
   }
 
   CommonDialog.prototype.show = function() {
-    return this.dialog.addClass('active');
+    return goog.dom.classes.add(this.dialog, 'active');
   };
 
   CommonDialog.prototype.hide = function() {
-    return this.dialog.removeClass('active');
+    return goog.dom.classes.remove(this.dialog, 'active');
   };
 
   return CommonDialog;

@@ -1,17 +1,22 @@
 goog.provide 'dm.dialogs.CommonDialog'
 
-#goog.require 'tmpls.dialogs'
+goog.require 'goog.dom'
+goog.require 'goog.dom.classes'
 
 class dm.dialogs.CommonDialog
 	constructor: (name, types) ->
-		@dialog = $('#'+name)
+		@dialog = goog.dom.getElement name
 		
-		unless @dialog.length
-			@dialog = jQuery tmpls.dialogs[name].dialog {types: types}
-			@dialog.appendTo dm.$elem
+		unless goog.isDefAndNotNull @dialog
+			@dialog = goog.soy.renderAsElement( 
+				tmpls.dialogs[name].dialog,
+				{types: types}
+			)
+			
+			goog.dom.appendChild dm.$elem, @dialog
 
 	show: =>
-		@dialog.addClass 'active'
+		goog.dom.classes.add @dialog, 'active'
 
 	hide: =>
-		@dialog.removeClass 'active'
+		goog.dom.classes.remove @dialog, 'active'

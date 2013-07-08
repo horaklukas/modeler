@@ -9,22 +9,44 @@ goog.require('dm.dialogs.CommonDialog');
 
 goog.require('tmpls.dialogs.createTable');
 
+goog.require('goog.dom');
+
+goog.require('goog.soy');
+
+goog.require('goog.events');
+
+goog.require('goog.dom.classes');
+
+goog.require('goog.array');
+
 dm.dialogs.CreateTableDialog = (function(_super) {
 
   __extends(CreateTableDialog, _super);
 
   function CreateTableDialog(types) {
+    var addBtn, btns, cancBtn, click, okBtn,
+      _this = this;
     this.types = types;
     this.confirm = __bind(this.confirm, this);
     this.removeColumn = __bind(this.removeColumn, this);
     this.addColumn = __bind(this.addColumn, this);
     CreateTableDialog.__super__.constructor.call(this, 'createTable', types);
-    this.$name = $('[name=physical_name]', this.dialog);
-    this.$colslist = $('#columns_list', this.dialog);
-    $('button:first', this.$colslist).on('click', this.addColumn);
-    this.$colslist.on('click', '.delete', this.removeColumn);
-    this.dialog.on('click', 'button.ok', this.confirm);
-    this.dialog.on('click', 'button.cancel', this.hide);
+    this.columnsCount = 0;
+    this.nameField = goog.dom.getElement('table_name');
+    this.colslist = goog.dom.getElement('columns_list');
+    btns = goog.dom.getElementsByTagNameAndClass('button', null, this.colslist);
+    addBtn = btns[0];
+    click = goog.events.EventType.CLICK;
+    goog.events.listen(addBtn, click, this.addColumn);
+    goog.events.listen(this.colslist, click, function(e) {
+      if (goog.dom.classes.has(e.target, 'delete')) {
+        return _this.removeColumn(e.target);
+      }
+    });
+    okBtn = goog.dom.getElementsByTagNameAndClass('button', 'ok', this.dialog);
+    cancBtn = goog.dom.getElementsByTagNameAndClass('button', 'cancel', this.dialog);
+    goog.events.listen(okBtn[0], click, this.confirm);
+    goog.events.listen(cancBtn[0], click, this.hide);
   }
 
   /**
@@ -47,21 +69,23 @@ dm.dialogs.CreateTableDialog = (function(_super) {
 
 
   CreateTableDialog.prototype.getColumns = function() {
-    var $cols;
-    $cols = $('.row:not(.head)', this.$colslist);
-    return $.map($cols, function(elem, val) {
-      var $this, name;
-      $this = $(elem);
-      name = $('[name=name]', $this).prop('value');
-      if ((name == null) || name === '') {
-        return null;
-      } else {
-        return {
-          name: name,
-          type: $('[name=type]', $this).prop('value'),
-          pk: $('.pkey', $this).prop('checked')
-        };
-      }
+    var cols, colsValues;
+    cols = goog.dom.getElementsByTagNameAndClass(void 0, 'row', this.colslist);
+    colsValues = goog.array.map(cols, function(elem) {
+      var name, pkey, type;
+      if (goog.dom.classes.has(elem, 'head')) return null;
+      name = goog.dom.getElementsByTagNameAndClass(void 0, 'name', elem)[0];
+      if ((name.value == null) || name.value === '') return null;
+      type = goog.dom.getElementsByTagNameAndClass(void 0, 'type', elem)[0];
+      pkey = goog.dom.getElementsByTagNameAndClass(void 0, 'pkey', elem)[0];
+      return {
+        name: name.value,
+        type: type.value,
+        pk: pkey.value
+      };
+    });
+    return goog.array.filter(colsValues, function(elem) {
+      return elem != null;
     });
   };
 
@@ -73,7 +97,7 @@ dm.dialogs.CreateTableDialog = (function(_super) {
 
 
   CreateTableDialog.prototype.getName = function() {
-    return this.$name.prop('value');
+    return this.nameField.value;
   };
 
   /**
@@ -85,10 +109,12 @@ dm.dialogs.CreateTableDialog = (function(_super) {
 
 
   CreateTableDialog.prototype.setValues = function(name, cols) {
-    var col, cols2set, _i, _len, _results;
+    var col, cols2set, oldcol, oldcols, _i, _j, _len, _len1, _ref, _results;
     if (name == null) name = '';
     if (cols == null) cols = [];
-    this.$name.prop('value', name);
+    goog.dom.setProperties(this.nameField, {
+      'value': name
+    });
     cols2set = cols.concat([
       {
         name: '',
@@ -96,10 +122,15 @@ dm.dialogs.CreateTableDialog = (function(_super) {
         pk: false
       }
     ]);
-    $('.row:not(.head)', this.$colslist).remove();
+    oldcols = goog.dom.getElementsByTagNameAndClass(void 0, 'row', this.colslist);
+    _ref = goog.array.slice(oldcols, 1);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      oldcol = _ref[_i];
+      goog.dom.removeNode(oldcol);
+    }
     _results = [];
-    for (_i = 0, _len = cols2set.length; _i < _len; _i++) {
-      col = cols2set[_i];
+    for (_j = 0, _len1 = cols2set.length; _j < _len1; _j++) {
+      col = cols2set[_j];
       _results.push(this.addColumn(col.name, col.type, col.pk));
     }
     return _results;
@@ -115,21 +146,24 @@ dm.dialogs.CreateTableDialog = (function(_super) {
 
 
   CreateTableDialog.prototype.addColumn = function(name, type, pk) {
-    var opts;
+    var col, opts;
     opts = {
       types: this.types
     };
     if ((name != null) && typeof name === 'string') opts.name = name;
     if ((type != null) && typeof type === 'string') opts.colType = type;
     if (pk != null) opts.pkey = pk;
-    return this.$colslist.append(tmpls.dialogs.createTable.tableColumn(opts));
+    col = goog.soy.renderAsElement(tmpls.dialogs.createTable.tableColumn, opts);
+    goog.dom.appendChild(this.colslist, col);
+    return this.columnsCount++;
   };
 
-  CreateTableDialog.prototype.removeColumn = function(ev) {
-    var $row;
-    $row = $(ev.target).closest('.row');
-    if (!$row.siblings('.row:not(.head)').length) this.addColumn();
-    return $row.remove();
+  CreateTableDialog.prototype.removeColumn = function(deleteBtn) {
+    var columnRow;
+    columnRow = goog.dom.getAncestorByClass(deleteBtn, 'row');
+    if (this.columnsCount === 1) this.addColumn();
+    goog.dom.removeNode(columnRow);
+    return this.columnsCount--;
   };
 
   CreateTableDialog.prototype.onConfirm = function(cb) {

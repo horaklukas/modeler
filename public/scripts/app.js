@@ -10,10 +10,12 @@ goog.require('dm.components.Canvas');
 
 goog.require('dm.components.ControlPanel');
 
+goog.require('goog.dom');
+
 dm.init = function() {
   var tab0, tab1, tab2, tabCols;
   dm.db = {};
-  dm.$elem = $('#app');
+  dm.$elem = goog.dom.getElement('app');
   dm.dialogss = {};
   dm.dialogss.createTable = new dm.dialogs.CreateTableDialog(DB.types);
   dm.actualModel = new dm.components.model.Model('Model1');
@@ -22,8 +24,8 @@ dm.init = function() {
   dm.components.Canvas.on('dblclick', '.table', function() {
     var tab;
     tab = dm.actualModel.getTable(this.id);
-    dm.dialogs.createTable.show(this.id);
-    return dm.dialogs.createTable.setValues(tab.getName(), tab.getColumns());
+    dm.dialogss.createTable.show(this.id);
+    return dm.dialogss.createTable.setValues(tab.getName(), tab.getColumns());
   });
   dm.dialogss.createTable.onConfirm(dm.actualModel.setTable);
   tab0 = dm.actualModel.addTable(dm.components.Canvas.obj, 100, 75);

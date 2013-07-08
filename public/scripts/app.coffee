@@ -4,10 +4,11 @@ goog.require 'dm.dialogs.CreateTableDialog'
 goog.require 'dm.components.model.Model'
 goog.require 'dm.components.Canvas'
 goog.require 'dm.components.ControlPanel'
+goog.require 'goog.dom'
 
 dm.init = ->
 	dm.db = {}
-	dm.$elem = $('#app')
+	dm.$elem = goog.dom.getElement 'app'
 	dm.dialogss = {}
 	dm.dialogss.createTable = new dm.dialogs.CreateTableDialog DB.types
 	dm.actualModel = new dm.components.model.Model('Model1')
@@ -18,8 +19,8 @@ dm.init = ->
 	dm.components.Canvas.on 'dblclick', '.table', ->
 		tab = dm.actualModel.getTable this.id
 
-		dm.dialogs.createTable.show this.id
-		dm.dialogs.createTable.setValues tab.getName(), tab.getColumns() 
+		dm.dialogss.createTable.show this.id
+		dm.dialogss.createTable.setValues tab.getName(), tab.getColumns() 
 
 	dm.dialogss.createTable.onConfirm dm.actualModel.setTable
 
