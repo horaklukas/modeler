@@ -47,12 +47,9 @@ dm.ui.ControlPanel = (function(_super) {
     this.obj = cp;
     canvas = dm.ui.Canvas.getInstance();
     goog.events.listen(this.obj, goog.events.EventType.CLICK, this.onClicked);
-    return goog.events.listen(canvas.html, goog.events.EventType.CLICK, function(ev) {
-      var clickObj, clickPos;
+    return goog.events.listen(canvas, dm.ui.Canvas.EventType.CLICK, function(ev) {
       if (!_this.activeTool) return false;
-      clickPos = goog.style.getRelativePosition(ev, ev.currentTarget);
-      clickObj = goog.dom.getAncestorByClass(ev.target, 'table');
-      return _this.toolFinished(clickPos, clickObj);
+      return _this.toolFinished(ev.position, ev.object);
     });
   };
 

@@ -24,13 +24,10 @@ class dm.ui.ControlPanel extends goog.events.EventTarget
 		canvas = dm.ui.Canvas.getInstance()
 
 		goog.events.listen @obj, goog.events.EventType.CLICK, @onClicked 
-		goog.events.listen canvas.html, goog.events.EventType.CLICK, (ev) =>
+		goog.events.listen canvas, dm.ui.Canvas.EventType.CLICK, (ev) =>
 			unless @activeTool then return false
 			
-			clickPos = goog.style.getRelativePosition ev, ev.currentTarget
-			clickObj = goog.dom.getAncestorByClass ev.target, 'table'
-			
-			@toolFinished clickPos, clickObj
+			@toolFinished ev.position, ev.object
 
 	###*
   * @param {goog.events.Event} e

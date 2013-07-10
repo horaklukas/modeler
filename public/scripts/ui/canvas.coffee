@@ -1,4 +1,5 @@
 goog.provide 'dm.ui.Canvas'
+goog.provide 'dm.ui.Canvas.Click'
 
 goog.require 'goog.dom'
 goog.require 'goog.style'
@@ -25,7 +26,8 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		@clueTable = @svg.rect 0, 0, 100, 80, 2 
 		@clueTable.attr(fill:'#CCC', opacity: 0.5).hide()
 
-		goog.events.listen @, goog.events.EventType.DBLCLICK, @onDblClick
+		goog.events.listen @html, goog.events.EventType.DBLCLICK, @onDblClick
+		goog.events.listen @html, goog.events.EventType.CLICK, @onClick
 
 	###*
   * @param {goog.events.Event} ev
@@ -34,6 +36,15 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		table = goog.dom.getAncestorByClass ev.target, 'table'
 
 		if table then @clickedTable table
+
+	###*
+  * @param {goog.events.Event} ev
+  ###
+	onClick: (ev) =>
+		clickPos = goog.style.getRelativePosition ev, ev.currentTarget
+		clickObj = goog.dom.getAncestorByClass ev.target, 'table'
+
+		@dispatchEvent new dm.ui.Canvas.Click clickPos, clickObj
 
 	###*
   * @param {dm.model.Table} table
@@ -76,6 +87,21 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		@clueRelation.hide()
 		@startRelationPath = undefined
 
-		
+dm.ui.Canvas.EventType = 
+	CLICK: goog.events.getUniqueId 'canvas-click'	
 
 goog.addSingletonGetter dm.ui.Canvas
+
+class dm.ui.Canvas.Click extends goog.events.Event
+	constructor: (pos, obj) ->
+		super dm.ui.Canvas.EventType.CLICK, dm.ui.Canvas.getInstance()
+
+		###*
+    * @type {goog.math.Coordinate}
+		###
+		@position = pos
+		
+		###*
+    * @type {?HTMLElement}
+		###
+		@object = obj

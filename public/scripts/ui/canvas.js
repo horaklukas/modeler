@@ -5,6 +5,8 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 
 goog.provide('dm.ui.Canvas');
 
+goog.provide('dm.ui.Canvas.Click');
+
 goog.require('goog.dom');
 
 goog.require('goog.style');
@@ -28,6 +30,7 @@ dm.ui.Canvas = (function(_super) {
     this.moveEndRelationPoint = __bind(this.moveEndRelationPoint, this);
     this.placeTable = __bind(this.placeTable, this);
     this.moveTable = __bind(this.moveTable, this);
+    this.onClick = __bind(this.onClick, this);
     this.onDblClick = __bind(this.onDblClick, this);    Canvas.__super__.constructor.call(this);
   }
 
@@ -46,7 +49,8 @@ dm.ui.Canvas = (function(_super) {
       fill: '#CCC',
       opacity: 0.5
     }).hide();
-    return goog.events.listen(this, goog.events.EventType.DBLCLICK, this.onDblClick);
+    goog.events.listen(this.html, goog.events.EventType.DBLCLICK, this.onDblClick);
+    return goog.events.listen(this.html, goog.events.EventType.CLICK, this.onClick);
   };
 
   /**
@@ -58,6 +62,18 @@ dm.ui.Canvas = (function(_super) {
     var table;
     table = goog.dom.getAncestorByClass(ev.target, 'table');
     if (table) return this.clickedTable(table);
+  };
+
+  /**
+   * @param {goog.events.Event} ev
+  */
+
+
+  Canvas.prototype.onClick = function(ev) {
+    var clickObj, clickPos;
+    clickPos = goog.style.getRelativePosition(ev, ev.currentTarget);
+    clickObj = goog.dom.getAncestorByClass(ev.target, 'table');
+    return this.dispatchEvent(new dm.ui.Canvas.Click(clickPos, clickObj));
   };
 
   /**
@@ -121,4 +137,30 @@ dm.ui.Canvas = (function(_super) {
 
 })(goog.events.EventTarget);
 
+dm.ui.Canvas.EventType = {
+  CLICK: goog.events.getUniqueId('canvas-click')
+};
+
 goog.addSingletonGetter(dm.ui.Canvas);
+
+dm.ui.Canvas.Click = (function(_super) {
+
+  __extends(Click, _super);
+
+  function Click(pos, obj) {
+    Click.__super__.constructor.call(this, dm.ui.Canvas.EventType.CLICK, dm.ui.Canvas.getInstance());
+    /**
+      * @type {goog.math.Coordinate}
+    */
+
+    this.position = pos;
+    /**
+      * @type {?HTMLElement}
+    */
+
+    this.object = obj;
+  }
+
+  return Click;
+
+})(goog.events.Event);

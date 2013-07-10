@@ -895,5 +895,5 @@ goog.addDependency('../../../model/relation.js', ['dm.model.Relation'], []);
 goog.addDependency('../../../model/table.js', ['dm.model.Table'], ['tmpls.model']);
 goog.addDependency('../../../templates/dialogs/createTable.js', ['tmpls.dialogs.createTable'], ['soy', 'soydata']);
 goog.addDependency('../../../templates/model/table.js', ['tmpls.model'], ['soy', 'soydata']);
-goog.addDependency('../../../ui/canvas.js', ['dm.ui.Canvas'], ['goog.dom', 'goog.events', 'goog.events.EventTarget', 'goog.style']);
+goog.addDependency('../../../ui/canvas.js', ['dm.ui.Canvas', 'dm.ui.Canvas.Click'], ['goog.dom', 'goog.events', 'goog.events.EventTarget', 'goog.style']);
 goog.addDependency('../../../ui/controlPanel.js', ['dm.ui.ControlPanel'], ['dm.ui.Canvas', 'goog.dom', 'goog.dom.classes', 'goog.events', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.style']);
