@@ -2,9 +2,9 @@
 var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-goog.provide('dm.components.model.Relation');
+goog.provide('dm.model.Relation');
 
-dm.components.model.Relation = (function() {
+dm.model.Relation = (function() {
 
   function Relation(canvas, startTab, endTab, type) {
     this.startTab = startTab;

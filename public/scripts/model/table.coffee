@@ -1,8 +1,8 @@
-goog.provide 'dm.components.model.Table'
+goog.provide 'dm.model.Table'
 
-goog.require 'tmpls.components.model'
+goog.require 'tmpls.model'
 
-class dm.components.model.Table
+class dm.model.Table
 	constructor: (canvas, id, @x, @y, @w = 100, @h = 80) ->
 		# coordinates of canvas's right bottom corner
 		canvasMax =
@@ -26,7 +26,7 @@ class dm.components.model.Table
 
 		#properties = width: @w, height: @h, left: x, top: y
 		properties = left: @x, top: @y
-		@table = jQuery tmpls.components.model.table 'id': id
+		@table = jQuery tmpls.model.table 'id': id
 		@table.css properties 
 			
 		@table.appendTo canvas
@@ -94,7 +94,7 @@ class dm.components.model.Table
 	getName: -> @name
 
 	setColumns: (@columns) ->
-		$('.body', @table).html tmpls.components.model.tabColumns cols: columns
+		$('.body', @table).html tmpls.model.tabColumns cols: columns
 
 	getColumns: -> @columns		
 

@@ -1,9 +1,9 @@
-goog.provide 'dm.components.model.Model'
+goog.provide 'dm.model.Model'
 
-goog.require 'dm.components.model.Table'
-goog.require 'dm.components.model.Relation'
+goog.require 'dm.model.Table'
+goog.require 'dm.model.Relation'
 
-class dm.components.model.Model
+class dm.model.Model
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
 		@tables = []
@@ -19,7 +19,7 @@ class dm.components.model.Model
 	###
 	addTable: (canvas, x, y, name) =>
 		tabId = "tab_#{@tables.length}"
-		table = new dm.components.model.Table canvas, tabId, x, y
+		table = new dm.model.Table canvas, tabId, x, y
 		
 		@tables.push table
 		
@@ -55,7 +55,7 @@ class dm.components.model.Model
 		endTab = @tables[@getTabNumberId endTabId]
 
 		if startTab? and endTab?
-			newRelation = new dm.components.model.Relation canvas, startTab, endTab
+			newRelation = new dm.model.Relation canvas, startTab, endTab
 			relLen = @relations.push newRelation
 			
 			startTab.addRelation @relations[relLen - 1]

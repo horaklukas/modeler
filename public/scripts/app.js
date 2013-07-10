@@ -2,33 +2,30 @@
 
 goog.provide('dm');
 
-goog.require('dm.dialogs.CreateTableDialog');
+goog.require('dm.dialogs.TableDialog');
 
-goog.require('dm.components.model.Model');
+goog.require('dm.model.Model');
 
-goog.require('dm.components.Canvas');
+goog.require('dm.ui.Canvas');
 
-goog.require('dm.components.ControlPanel');
+goog.require('dm.ui.ControlPanel');
 
 goog.require('goog.dom');
 
+goog.require('goog.dom.classes');
+
+goog.require('goog.events');
+
 dm.init = function() {
-  var tab0, tab1, tab2, tabCols;
-  dm.db = {};
+  var canvas, tab0, tab1, tab2, tabCols;
   dm.$elem = goog.dom.getElement('app');
-  dm.dialogss = {};
-  dm.dialogss.createTable = new dm.dialogs.CreateTableDialog(DB.types);
-  dm.actualModel = new dm.components.model.Model('Model1');
-  dm.components.Canvas.init($('#modelerCanvas'));
-  dm.components.ControlPanel.init($('#controlPanel'));
-  dm.components.Canvas.on('dblclick', '.table', function() {
-    var tab;
-    tab = dm.actualModel.getTable(this.id);
-    dm.dialogss.createTable.show(this.id);
-    return dm.dialogss.createTable.setValues(tab.getName(), tab.getColumns());
-  });
-  dm.dialogss.createTable.onConfirm(dm.actualModel.setTable);
-  tab0 = dm.actualModel.addTable(dm.components.Canvas.obj, 100, 75);
+  dm.tableDialog = new dm.dialogs.TableDialog(DB.types);
+  dm.actualModel = new dm.model.Model('Model1');
+  canvas = dm.ui.Canvas.getInstance();
+  canvas.init('modelerCanvas');
+  dm.ui.ControlPanel.getInstance().init(goog.dom.getElement('controlPanel'));
+  goog.events.listen(dm.tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, dm.actualModel.setTable);
+  tab0 = dm.actualModel.addTable(canvas.html, 100, 75);
   tabCols = [
     {
       name: 'column_1',
@@ -45,10 +42,10 @@ dm.init = function() {
     }
   ];
   dm.actualModel.setTable(tab0, 'table1', tabCols);
-  tab1 = dm.actualModel.addTable(dm.components.Canvas.obj, 500, 280);
+  tab1 = dm.actualModel.addTable(canvas.html, 500, 280);
   dm.actualModel.setTable(tab1, 'table2');
-  tab2 = dm.actualModel.addTable(dm.components.Canvas.obj, 100, 280);
+  tab2 = dm.actualModel.addTable(canvas.html, 100, 280);
   dm.actualModel.setTable(tab2, 'table3');
-  dm.actualModel.addRelation(dm.components.Canvas.self, tab0, tab1);
-  return dm.actualModel.addRelation(dm.components.Canvas.self, tab0, tab2);
+  dm.actualModel.addRelation(canvas.svg, tab0, tab1);
+  return dm.actualModel.addRelation(canvas.svg, tab0, tab2);
 };

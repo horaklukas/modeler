@@ -1,4 +1,4 @@
-goog.provide 'dm.dialogs.CreateTableDialog'
+goog.provide 'dm.dialogs.TableDialog'
 
 goog.require 'dm.dialogs.CommonDialog'
 goog.require 'tmpls.dialogs.createTable'
@@ -8,7 +8,7 @@ goog.require 'goog.events'
 goog.require 'goog.dom.classes'
 goog.require 'goog.array'
 
-class dm.dialogs.CreateTableDialog extends dm.dialogs.CommonDialog
+class dm.dialogs.TableDialog extends dm.dialogs.CommonDialog
 	constructor: (@types) ->
 		super 'createTable', types
 		@columnsCount = 0
@@ -118,13 +118,12 @@ class dm.dialogs.CreateTableDialog extends dm.dialogs.CommonDialog
 		goog.dom.removeNode columnRow
 		@columnsCount--
 
-	onConfirm: (cb) ->
-		@confirmCb = cb
-
 	confirm: =>
-		if @confirmCb?
-			tabName = @getName()
-			columns = @getColumns()	
+		tabName = @getName()
+		columns = @getColumns()	
 
-			@confirmCb @relatedTable, tabName, columns
+		this.dispatchEvent dm.dialogs.TableDialog.EventType.CONFIRM, @relatedTable, tabName, columns
 		@hide()
+
+dm.dialogs.TableDialog.EventType =
+	CONFIRM: goog.events.getUniqueId 'dialog-confirmed'

@@ -63,4 +63,4 @@ _The uploaded application needn't corespond to latest state_
 python /srv/git/modeler/public/scripts/lib/closure/bin/build/depswriter.py --root_with_prefix="/srv/git/modeler/public/scripts ../../.." --output_file /srv/git/modeler/public/scripts/app-deps.js
 
 **templates**
-java -jar /srv/www/GoogleClosure/templates/SoyCompiler/SoyToJsSrcCompiler.jar --outputPathFormat {INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js --shouldGenerateJsdoc --shouldProvideRequireSoyNamespaces --srcs /srv/git/modeler/public/scripts/templates/dialogs/createTable.soy,/srv/git/modeler/public/scripts/templates/components/model/table.soy
+java -jar /srv/www/GoogleClosure/templates/SoyCompiler/SoyToJsSrcCompiler.jar --outputPathFormat {INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js --shouldGenerateJsdoc --shouldProvideRequireSoyNamespaces --srcs /srv/git/modeler/public/scripts/templates/dialogs/createTable.soy,/srv/git/modeler/public/scripts/templates/model/table.soy

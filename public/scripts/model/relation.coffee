@@ -1,6 +1,6 @@
-goog.provide 'dm.components.model.Relation'
+goog.provide 'dm.model.Relation'
 
-class dm.components.model.Relation
+class dm.model.Relation
 	constructor: (canvas, @startTab, @endTab, type) ->
 		@obj = canvas.path()
 		@recountPosition()

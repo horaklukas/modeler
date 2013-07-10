@@ -2,9 +2,11 @@ goog.provide 'dm.dialogs.CommonDialog'
 
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
+goog.require 'goog.events.EventTarget'
 
-class dm.dialogs.CommonDialog
+class dm.dialogs.CommonDialog extends goog.events.EventTarget
 	constructor: (name, types) ->
+		super()
 		@dialog = goog.dom.getElement name
 		
 		unless goog.isDefAndNotNull @dialog

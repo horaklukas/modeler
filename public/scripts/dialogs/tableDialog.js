@@ -3,7 +3,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-goog.provide('dm.dialogs.CreateTableDialog');
+goog.provide('dm.dialogs.TableDialog');
 
 goog.require('dm.dialogs.CommonDialog');
 
@@ -19,18 +19,18 @@ goog.require('goog.dom.classes');
 
 goog.require('goog.array');
 
-dm.dialogs.CreateTableDialog = (function(_super) {
+dm.dialogs.TableDialog = (function(_super) {
 
-  __extends(CreateTableDialog, _super);
+  __extends(TableDialog, _super);
 
-  function CreateTableDialog(types) {
+  function TableDialog(types) {
     var addBtn, btns, cancBtn, click, okBtn,
       _this = this;
     this.types = types;
     this.confirm = __bind(this.confirm, this);
     this.removeColumn = __bind(this.removeColumn, this);
     this.addColumn = __bind(this.addColumn, this);
-    CreateTableDialog.__super__.constructor.call(this, 'createTable', types);
+    TableDialog.__super__.constructor.call(this, 'createTable', types);
     this.columnsCount = 0;
     this.nameField = goog.dom.getElement('table_name');
     this.colslist = goog.dom.getElement('columns_list');
@@ -54,9 +54,9 @@ dm.dialogs.CreateTableDialog = (function(_super) {
   */
 
 
-  CreateTableDialog.prototype.show = function(table) {
+  TableDialog.prototype.show = function(table) {
     this.relatedTable = table;
-    return CreateTableDialog.__super__.show.call(this);
+    return TableDialog.__super__.show.call(this);
   };
 
   /**
@@ -68,7 +68,7 @@ dm.dialogs.CreateTableDialog = (function(_super) {
   */
 
 
-  CreateTableDialog.prototype.getColumns = function() {
+  TableDialog.prototype.getColumns = function() {
     var cols, colsValues;
     cols = goog.dom.getElementsByTagNameAndClass(void 0, 'row', this.colslist);
     colsValues = goog.array.map(cols, function(elem) {
@@ -96,7 +96,7 @@ dm.dialogs.CreateTableDialog = (function(_super) {
   */
 
 
-  CreateTableDialog.prototype.getName = function() {
+  TableDialog.prototype.getName = function() {
     return this.nameField.value;
   };
 
@@ -108,7 +108,7 @@ dm.dialogs.CreateTableDialog = (function(_super) {
   */
 
 
-  CreateTableDialog.prototype.setValues = function(name, cols) {
+  TableDialog.prototype.setValues = function(name, cols) {
     var col, cols2set, oldcol, oldcols, _i, _j, _len, _len1, _ref, _results;
     if (name == null) name = '';
     if (cols == null) cols = [];
@@ -145,7 +145,7 @@ dm.dialogs.CreateTableDialog = (function(_super) {
   */
 
 
-  CreateTableDialog.prototype.addColumn = function(name, type, pk) {
+  TableDialog.prototype.addColumn = function(name, type, pk) {
     var col, opts;
     opts = {
       types: this.types
@@ -158,7 +158,7 @@ dm.dialogs.CreateTableDialog = (function(_super) {
     return this.columnsCount++;
   };
 
-  CreateTableDialog.prototype.removeColumn = function(deleteBtn) {
+  TableDialog.prototype.removeColumn = function(deleteBtn) {
     var columnRow;
     columnRow = goog.dom.getAncestorByClass(deleteBtn, 'row');
     if (this.columnsCount === 1) this.addColumn();
@@ -166,20 +166,18 @@ dm.dialogs.CreateTableDialog = (function(_super) {
     return this.columnsCount--;
   };
 
-  CreateTableDialog.prototype.onConfirm = function(cb) {
-    return this.confirmCb = cb;
-  };
-
-  CreateTableDialog.prototype.confirm = function() {
+  TableDialog.prototype.confirm = function() {
     var columns, tabName;
-    if (this.confirmCb != null) {
-      tabName = this.getName();
-      columns = this.getColumns();
-      this.confirmCb(this.relatedTable, tabName, columns);
-    }
+    tabName = this.getName();
+    columns = this.getColumns();
+    this.dispatchEvent(dm.dialogs.TableDialog.EventType.CONFIRM, this.relatedTable, tabName, columns);
     return this.hide();
   };
 
-  return CreateTableDialog;
+  return TableDialog;
 
 })(dm.dialogs.CommonDialog);
+
+dm.dialogs.TableDialog.EventType = {
+  CONFIRM: goog.events.getUniqueId('dialog-confirmed')
+};
