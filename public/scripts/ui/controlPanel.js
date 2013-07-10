@@ -98,27 +98,6 @@ dm.ui.ControlPanel = (function(_super) {
     var canvas;
     canvas = dm.ui.Canvas.getInstance();
     return canvas.html.style.cursor = 'crosshair';
-    /*Canvas.on 'click', '.table', (ev) ->
-    		unless ControlPanel.relStart.x? and ControlPanel.relStart.y?
-    			pos = ControlPanel.relStart = 
-    				'x': ev.clientX - canvasPos.left, 'y': ev.clientY - canvasPos.top
-    			startPath = "M#{pos.x} #{pos.y}"
-    			ControlPanel.relStart.id = @.id	
-    
-    			# Create clue relation or only set start point to existing
-    			unless ControlPanel.clueRelation?
-    				ControlPanel.clueRelation = Canvas.self.path startPath
-    			else
-    				ControlPanel.clueRelation.attr('path', startPath).show()
-    
-    			# When moving over canvas, change end point of relation	
-    			Canvas.on 'mousemove', (ev) ->
-    				ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.clientX - canvasPos.left} #{ev.clientY-canvasPos.top}"
-    		else
-    			dm.actualModel.addRelation Canvas.self, ControlPanel.relStart.id, @.id
-    			ControlPanel.toolFinished()
-    */
-
   };
 
   /**

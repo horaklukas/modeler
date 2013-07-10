@@ -71,35 +71,11 @@ class dm.ui.ControlPanel extends goog.events.EventTarget
 		# When moving over canvas, show blind table as clue
 		goog.events.listen canvas.html, goog.events.EventType.MOUSEMOVE, canvas.moveTable
 
-		# When click on canvas create new table and finish tool action
-		#goog.events.listen canvas.html, goog.events.EventType.CLICK, canvas.placeTable
 		#goog.events.listen document, goog.events.EventType.CLICK, @toolFinished
 
 	createRelationInit: (ev) ->
 		canvas = dm.ui.Canvas.getInstance()
-		canvas.html.style.cursor = 'crosshair'
-
-		###Canvas.on 'click', '.table', (ev) ->
-		unless ControlPanel.relStart.x? and ControlPanel.relStart.y?
-			pos = ControlPanel.relStart = 
-				'x': ev.clientX - canvasPos.left, 'y': ev.clientY - canvasPos.top
-			startPath = "M#{pos.x} #{pos.y}"
-			ControlPanel.relStart.id = @.id	
-
-			# Create clue relation or only set start point to existing
-			unless ControlPanel.clueRelation?
-				ControlPanel.clueRelation = Canvas.self.path startPath
-			else
-				ControlPanel.clueRelation.attr('path', startPath).show()
-
-			# When moving over canvas, change end point of relation	
-			Canvas.on 'mousemove', (ev) ->
-				ControlPanel.clueRelation.attr 'path', "#{startPath}L#{ev.clientX - canvasPos.left} #{ev.clientY-canvasPos.top}"
-		else
-			dm.actualModel.addRelation Canvas.self, ControlPanel.relStart.id, @.id
-			ControlPanel.toolFinished()
-		###
-		
+		canvas.html.style.cursor = 'crosshair'		
 
 	###*
   * @param {goog.math.Coordinate=} position
@@ -112,7 +88,6 @@ class dm.ui.ControlPanel extends goog.events.EventTarget
 
 		# Deactivate all events
 		goog.events.unlisten canvas.html, goog.events.EventType.MOUSEMOVE, canvas.moveTable
-		#goog.events.unlisten canvas.html, goog.events.EventType.CLICK, canvas.placeTable
 		#goog.events.unlisten document, goog.events.EventType.CLICK, @toolFinished
 
 	###*

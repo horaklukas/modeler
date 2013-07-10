@@ -1,6 +1,6 @@
 goog.provide 'dm.dialogs.TableDialog'
+goog.provide 'dm.dialogs.TableDialog.Confirm'
 
-goog.require 'dm.dialogs.CommonDialog'
 goog.require 'goog.ui.Dialog'
 goog.require 'tmpls.dialogs.createTable'
 goog.require 'goog.dom'
@@ -62,7 +62,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 			[pkey] = goog.dom.getElementsByTagNameAndClass(undefined, 'pkey', elem)
 
 			# Each column values
-			name: name.value, type: type.value, pk: pkey.value 
+			name: name.value, type: type.value, pk: pkey.checked 
 
 		goog.array.filter colsValues, (elem) -> elem?
 
@@ -125,8 +125,29 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 
 		tabName = @getName()
 		columns = @getColumns()	
+		
+		confirmEvent =  new dm.dialogs.TableDialog.Confirm(@, @relatedTable, tabName, columns)
 
-		@dispatchEvent dm.dialogs.TableDialog.EventType.CONFIRM, @relatedTable, tabName, columns
+		@dispatchEvent confirmEvent
 
 dm.dialogs.TableDialog.EventType =
 	CONFIRM: goog.events.getUniqueId 'dialog-confirmed'
+
+class dm.dialogs.TableDialog.Confirm extends goog.events.Event
+	constructor: (dialog, id, name, columns) ->
+		super dm.dialogs.TableDialog.EventType.CONFIRM, dialog
+
+		###*
+    * @type {string}
+		###
+		@tableId = id
+		
+		###*
+    * @type {string}
+		###
+		@tableName = name
+
+		###*
+    * @type {Array.<Object>}
+		###
+		@tableColumns = columns

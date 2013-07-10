@@ -17,7 +17,8 @@ dm.init = ->
 	canvas.init 'modelerCanvas'
 	dm.ui.ControlPanel.getInstance().init goog.dom.getElement 'controlPanel'
 
-	goog.events.listen dm.tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, dm.actualModel.setTable
+	goog.events.listen dm.tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
+			dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
 
 	# Some test objects
 	tab0 = dm.actualModel.addTable canvas.html, 100, 75

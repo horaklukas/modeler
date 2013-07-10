@@ -5,7 +5,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 
 goog.provide('dm.dialogs.TableDialog');
 
-goog.require('dm.dialogs.CommonDialog');
+goog.provide('dm.dialogs.TableDialog.Confirm');
 
 goog.require('goog.ui.Dialog');
 
@@ -83,7 +83,7 @@ dm.dialogs.TableDialog = (function(_super) {
       return {
         name: name.value,
         type: type.value,
-        pk: pkey.value
+        pk: pkey.checked
       };
     });
     return goog.array.filter(colsValues, function(elem) {
@@ -169,11 +169,12 @@ dm.dialogs.TableDialog = (function(_super) {
   };
 
   TableDialog.prototype.onSelect = function(e) {
-    var columns, tabName;
+    var columns, confirmEvent, tabName;
     if (e.key !== 'ok') return true;
     tabName = this.getName();
     columns = this.getColumns();
-    return this.dispatchEvent(dm.dialogs.TableDialog.EventType.CONFIRM, this.relatedTable, tabName, columns);
+    confirmEvent = new dm.dialogs.TableDialog.Confirm(this, this.relatedTable, tabName, columns);
+    return this.dispatchEvent(confirmEvent);
   };
 
   return TableDialog;
@@ -183,3 +184,30 @@ dm.dialogs.TableDialog = (function(_super) {
 dm.dialogs.TableDialog.EventType = {
   CONFIRM: goog.events.getUniqueId('dialog-confirmed')
 };
+
+dm.dialogs.TableDialog.Confirm = (function(_super) {
+
+  __extends(Confirm, _super);
+
+  function Confirm(dialog, id, name, columns) {
+    Confirm.__super__.constructor.call(this, dm.dialogs.TableDialog.EventType.CONFIRM, dialog);
+    /**
+      * @type {string}
+    */
+
+    this.tableId = id;
+    /**
+      * @type {string}
+    */
+
+    this.tableName = name;
+    /**
+      * @type {Array.<Object>}
+    */
+
+    this.tableColumns = columns;
+  }
+
+  return Confirm;
+
+})(goog.events.Event);

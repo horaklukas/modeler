@@ -24,7 +24,9 @@ dm.init = function() {
   canvas = dm.ui.Canvas.getInstance();
   canvas.init('modelerCanvas');
   dm.ui.ControlPanel.getInstance().init(goog.dom.getElement('controlPanel'));
-  goog.events.listen(dm.tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, dm.actualModel.setTable);
+  goog.events.listen(dm.tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, function(ev) {
+    return dm.actualModel.setTable(ev.tableId, ev.tableName, ev.tableColumns);
+  });
   tab0 = dm.actualModel.addTable(canvas.html, 100, 75);
   tabCols = [
     {
