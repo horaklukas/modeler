@@ -7,15 +7,17 @@ goog.provide('dm.dialogs.TableDialog');
 
 goog.require('dm.dialogs.CommonDialog');
 
+goog.require('goog.ui.Dialog');
+
 goog.require('tmpls.dialogs.createTable');
 
 goog.require('goog.dom');
 
+goog.require('goog.dom.classes');
+
 goog.require('goog.soy');
 
 goog.require('goog.events');
-
-goog.require('goog.dom.classes');
 
 goog.require('goog.array');
 
@@ -24,29 +26,28 @@ dm.dialogs.TableDialog = (function(_super) {
   __extends(TableDialog, _super);
 
   function TableDialog(types) {
-    var addBtn, btns, cancBtn, click, okBtn,
+    var addBtn, content,
       _this = this;
     this.types = types;
-    this.confirm = __bind(this.confirm, this);
+    this.onSelect = __bind(this.onSelect, this);
     this.removeColumn = __bind(this.removeColumn, this);
     this.addColumn = __bind(this.addColumn, this);
-    TableDialog.__super__.constructor.call(this, 'createTable', types);
-    this.columnsCount = 0;
+    TableDialog.__super__.constructor.call(this);
+    this.setContent(tmpls.dialogs.createTable.dialog({
+      types: types
+    }));
+    this.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
+    content = this.getContentElement();
+    addBtn = goog.dom.getElementsByTagNameAndClass('button', 'add', content)[0];
     this.nameField = goog.dom.getElement('table_name');
     this.colslist = goog.dom.getElement('columns_list');
-    btns = goog.dom.getElementsByTagNameAndClass('button', null, this.colslist);
-    addBtn = btns[0];
-    click = goog.events.EventType.CLICK;
-    goog.events.listen(addBtn, click, this.addColumn);
-    goog.events.listen(this.colslist, click, function(e) {
+    goog.events.listen(addBtn, goog.events.EventType.CLICK, this.addColumn);
+    goog.events.listen(this.colslist, goog.events.EventType.CLICK, function(e) {
       if (goog.dom.classes.has(e.target, 'delete')) {
         return _this.removeColumn(e.target);
       }
     });
-    okBtn = goog.dom.getElementsByTagNameAndClass('button', 'ok', this.dialog);
-    cancBtn = goog.dom.getElementsByTagNameAndClass('button', 'cancel', this.dialog);
-    goog.events.listen(okBtn[0], click, this.confirm);
-    goog.events.listen(cancBtn[0], click, this.hide);
+    goog.events.listen(this, goog.ui.Dialog.EventType.SELECT, this.onSelect);
   }
 
   /**
@@ -56,7 +57,8 @@ dm.dialogs.TableDialog = (function(_super) {
 
   TableDialog.prototype.show = function(table) {
     this.relatedTable = table;
-    return TableDialog.__super__.show.call(this);
+    this.columnsCount = 0;
+    return this.setVisible(true);
   };
 
   /**
@@ -166,17 +168,17 @@ dm.dialogs.TableDialog = (function(_super) {
     return this.columnsCount--;
   };
 
-  TableDialog.prototype.confirm = function() {
+  TableDialog.prototype.onSelect = function(e) {
     var columns, tabName;
+    if (e.key !== 'ok') return true;
     tabName = this.getName();
     columns = this.getColumns();
-    this.dispatchEvent(dm.dialogs.TableDialog.EventType.CONFIRM, this.relatedTable, tabName, columns);
-    return this.hide();
+    return this.dispatchEvent(dm.dialogs.TableDialog.EventType.CONFIRM, this.relatedTable, tabName, columns);
   };
 
   return TableDialog;
 
-})(dm.dialogs.CommonDialog);
+})(goog.ui.Dialog);
 
 dm.dialogs.TableDialog.EventType = {
   CONFIRM: goog.events.getUniqueId('dialog-confirmed')

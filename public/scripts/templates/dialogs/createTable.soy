@@ -9,11 +9,8 @@
 <div id="createTable" class="dialog">
 	{call .name /}
 
-	<strong>Columns</strong>
+	<strong>Table columns</strong>
 	{call .columnsList data="all" /}
-
-	<button class="ok">OK</button>
-	<button class="cancel">CANCEL</button>
 </div>
 {/template}
 
@@ -33,7 +30,6 @@
  */
 {template .columnsList}
 <div id="columns_list">
-	<button>Add column</button>
 	<div class="row head">
 		<span>Name</span><span>Type</span><span>PK</span><span></span>
 	</div>
@@ -50,6 +46,7 @@
 		{/foreach}
 	{/if}
 </div>
+<button class="add">Add new column</button>
 {/template}
 
 /**

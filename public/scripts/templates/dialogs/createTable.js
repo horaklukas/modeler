@@ -14,7 +14,7 @@ goog.require('soydata');
  * @notypecheck
  */
 tmpls.dialogs.createTable.dialog = function(opt_data, opt_ignored) {
-  return '<div id="createTable" class="dialog">' + tmpls.dialogs.createTable.name(null) + '<strong>Columns</strong>' + tmpls.dialogs.createTable.columnsList(opt_data) + '<button class="ok">OK</button><button class="cancel">CANCEL</button></div>';
+  return '<div id="createTable" class="dialog">' + tmpls.dialogs.createTable.name(null) + '<strong>Table columns</strong>' + tmpls.dialogs.createTable.columnsList(opt_data) + '</div>';
 };
 
 
@@ -36,7 +36,7 @@ tmpls.dialogs.createTable.name = function(opt_data, opt_ignored) {
  * @notypecheck
  */
 tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
-  var output = '<div id="columns_list"><button>Add column</button><div class="row head"><span>Name</span><span>Type</span><span>PK</span><span></span></div>' + tmpls.dialogs.createTable.tableColumn(opt_data);
+  var output = '<div id="columns_list"><div class="row head"><span>Name</span><span>Type</span><span>PK</span><span></span></div>' + tmpls.dialogs.createTable.tableColumn(opt_data);
   if (opt_data.columns) {
     var columnList16 = opt_data.columns;
     var columnListLen16 = columnList16.length;
@@ -45,7 +45,7 @@ tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
       output += tmpls.dialogs.createTable.tableColumn({name: columnData16.name, types: opt_data.types, pkey: columnData16.pkey});
     }
   }
-  output += '</div>';
+  output += '</div><button class="add">Add new column</button>';
   return output;
 };
 

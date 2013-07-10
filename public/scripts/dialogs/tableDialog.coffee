@@ -1,42 +1,44 @@
 goog.provide 'dm.dialogs.TableDialog'
 
 goog.require 'dm.dialogs.CommonDialog'
+goog.require 'goog.ui.Dialog'
 goog.require 'tmpls.dialogs.createTable'
 goog.require 'goog.dom'
+goog.require 'goog.dom.classes'
 goog.require 'goog.soy'
 goog.require 'goog.events'
-goog.require 'goog.dom.classes'
 goog.require 'goog.array'
 
-class dm.dialogs.TableDialog extends dm.dialogs.CommonDialog
+class dm.dialogs.TableDialog extends goog.ui.Dialog
 	constructor: (@types) ->
-		super 'createTable', types
-		@columnsCount = 0
+		super() #'createTable', types
+		
+		@setContent tmpls.dialogs.createTable.dialog {types: types}
+		@setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL
+		
+		# force render dialog, so all control widgets exists since now
+		content = @getContentElement()
+		
+		addBtn = goog.dom.getElementsByTagNameAndClass('button', 'add', content)[0]
 		@nameField = goog.dom.getElement 'table_name'
 		@colslist = goog.dom.getElement 'columns_list'
 
-		btns = goog.dom.getElementsByTagNameAndClass 'button', null, @colslist
-		addBtn = btns[0]
-		
-		click = goog.events.EventType.CLICK
+		# events 1) add new column 2) delete existing column 3) dialog ok or cancel
+		goog.events.listen addBtn, goog.events.EventType.CLICK, @addColumn
 
-		goog.events.listen addBtn, click, @addColumn
+		goog.events.listen @colslist, goog.events.EventType.CLICK, (e) =>
+			if goog.dom.classes.has e.target, 'delete' then @removeColumn e.target	
 
-		goog.events.listen @colslist, click, (e) =>
-			if goog.dom.classes.has e.target, 'delete' then @removeColumn e.target
-
-		okBtn = goog.dom.getElementsByTagNameAndClass 'button', 'ok', @dialog
-		cancBtn = goog.dom.getElementsByTagNameAndClass 'button', 'cancel', @dialog
-		
-		goog.events.listen okBtn[0], click, @confirm
-		goog.events.listen cancBtn[0], click, @hide
+		goog.events.listen @, goog.ui.Dialog.EventType.SELECT, @onSelect
 
 	###*
 	* Show the dialog window
 	###
 	show: (table) ->
 		@relatedTable = table
-		super()
+		@columnsCount = 0
+
+		@setVisible true
 
 	###*
 	* Return all `columns` in dialog that have filled name, columns with empty
@@ -118,12 +120,13 @@ class dm.dialogs.TableDialog extends dm.dialogs.CommonDialog
 		goog.dom.removeNode columnRow
 		@columnsCount--
 
-	confirm: =>
+	onSelect: (e) =>
+		if e.key isnt 'ok' then return true
+
 		tabName = @getName()
 		columns = @getColumns()	
 
-		this.dispatchEvent dm.dialogs.TableDialog.EventType.CONFIRM, @relatedTable, tabName, columns
-		@hide()
+		@dispatchEvent dm.dialogs.TableDialog.EventType.CONFIRM, @relatedTable, tabName, columns
 
 dm.dialogs.TableDialog.EventType =
 	CONFIRM: goog.events.getUniqueId 'dialog-confirmed'

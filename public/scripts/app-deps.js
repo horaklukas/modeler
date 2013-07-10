@@ -2,7 +2,7 @@
 // Please do not edit.
 goog.addDependency('../../../app.js', ['dm'], ['dm.dialogs.TableDialog', 'dm.model.Model', 'dm.ui.Canvas', 'dm.ui.ControlPanel', 'goog.dom', 'goog.dom.classes', 'goog.events']);
 goog.addDependency('../../../dialogs/common.js', ['dm.dialogs.CommonDialog'], ['goog.dom', 'goog.dom.classes', 'goog.events.EventTarget']);
-goog.addDependency('../../../dialogs/tableDialog.js', ['dm.dialogs.TableDialog'], ['dm.dialogs.CommonDialog', 'goog.array', 'goog.dom', 'goog.dom.classes', 'goog.events', 'goog.soy', 'tmpls.dialogs.createTable']);
+goog.addDependency('../../../dialogs/tableDialog.js', ['dm.dialogs.TableDialog'], ['dm.dialogs.CommonDialog', 'goog.array', 'goog.dom', 'goog.dom.classes', 'goog.events', 'goog.soy', 'goog.ui.Dialog', 'tmpls.dialogs.createTable']);
 goog.addDependency('../../../lib/closure/goog/a11y/aria/announcer.js', ['goog.a11y.aria.Announcer'], ['goog.Disposable', 'goog.a11y.aria', 'goog.a11y.aria.LivePriority', 'goog.a11y.aria.State', 'goog.dom', 'goog.object']);
 goog.addDependency('../../../lib/closure/goog/a11y/aria/aria.js', ['goog.a11y.aria'], ['goog.a11y.aria.Role', 'goog.a11y.aria.State', 'goog.a11y.aria.datatables', 'goog.array', 'goog.asserts', 'goog.dom', 'goog.dom.TagName', 'goog.object', 'goog.string']);
 goog.addDependency('../../../lib/closure/goog/a11y/aria/attributes.js', ['goog.a11y.aria.AutoCompleteValues', 'goog.a11y.aria.CheckedValues', 'goog.a11y.aria.DropEffectValues', 'goog.a11y.aria.ExpandedValues', 'goog.a11y.aria.GrabbedValues', 'goog.a11y.aria.InvalidValues', 'goog.a11y.aria.LivePriority', 'goog.a11y.aria.OrientationValues', 'goog.a11y.aria.PressedValues', 'goog.a11y.aria.RelevantValues', 'goog.a11y.aria.SelectedValues', 'goog.a11y.aria.SortValues', 'goog.a11y.aria.State'], []);
