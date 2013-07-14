@@ -1,20 +1,35 @@
 goog.provide 'dm.model.Relation'
 
+goog.require 'goog.math.Coordinate'
+goog.require 'goog.graphics.Path'
+goog.require 'goog.graphics.Stroke'
+
 class dm.model.Relation
 	constructor: (canvas, @startTab, @endTab, type) ->
-		@obj = canvas.path()
-		@recountPosition()
+		stroke = new goog.graphics.Stroke 1, '#000'
+		@obj = canvas.drawPath @getPathPosition(), stroke
 
-	recountPosition: =>
+	recountPosition: ->
+		@obj.setPath @getPathPosition()
+
+	###*
+  * @return {goog.graphics.Path} new path that represents the relation
+	###
+	getPathPosition: =>
 		points = @getRelationPoints()
-
-		path = "M#{points.start.x},#{points.start.y}"+
-			"L#{points.break1.x},#{points.break1.y}"+
-			"L#{points.break2.x},#{points.break2.y}"+
-			"L#{points.stop.x},#{points.stop.y}"
+		path = new goog.graphics.Path()
 		
-		@obj.attr 'path', path
+		path.moveTo points.start.x, points.start.y
+		path.lineTo points.break1.x, points.break1.y
+		
+		unless goog.math.Coordinate.equals points.break2, points.break1
+			path.lineTo points.break2.x, points.break2.y
+		
+		path.lineTo points.stop.x, points.stop.y
 
+	###*
+  * @return {Object.<string,goog.math.Coordinate>}
+	###
 	getRelationPoints: =>
 		sTab = @startTab.getConnPoints()
 		eTab = @endTab.getConnPoints()
@@ -36,17 +51,14 @@ class dm.model.Relation
 		stop = eTab[result[1]]
 		breaks = @getBreakPoints start, result[0], stop, result[1]
 
-		start: x: start.x, y: start.y
-		break1: x: breaks[0].x, y: breaks[0].y
-		break2: x: breaks[1].x, y: breaks[1].y
-		stop: x: stop.x, y: stop.y
+		start: start, break1: breaks[0], break2: breaks[1],	stop: stop
 
 	###*
   *
   * @param {string} pos1
-  * @param {Object.<string,number>} coord1
+  * @param {goog.math.Coordinate} coord1
   * @param {string} pos2
-  * @param {Object.<string,number>} coord2
+  * @param {goog.math.Coordinate} coord2
   * @return {number|boolean} returns number of distance, if it's possible from
   * points position else return false
 	###
@@ -58,36 +70,36 @@ class dm.model.Relation
 				((pos1 isnt 'bottom' and pos2 isnt 'top') or coord1.y < coord2.y) and
 				((pos1 isnt 'top' and pos2 isnt 'bottom') or coord1.y > coord2.y)
 			)
-				Math.abs(coord1.x - coord2.x) + Math.abs(coord1.y - coord2.y)
+				#Math.abs(coord1.x - coord2.x) + Math.abs(coord1.y - coord2.y)
+				goog.math.Coordinate.distance coord1, coord2
 		else
 			false
 
 	###*
   *
-  * @param {Object.<string,number>} start Relation start point coordinates
+  * @param {goog.math.Coordinate} start Relation start point coordinates
   * @param {string} sPos Position of start relation point
-  * @param {Object.<string,number>} end Relation end point coordinates
+  * @param {goog.math.Coordinate} end Relation end point coordinates
   * @param {string} ePos Position of end relation point
-  * @return {Object.<string,Object>} Two relation break points
+  * @return {Array.<goog.math.Coordinate>} Two relation break points
 	###
 	getBreakPoints: (start, sPos, end, ePos) ->
 		horiz = ['left','right']
 		vert = ['top', 'bottom']
-		b1 = x: null, y: null
-		b2 = x: null, y: null
 
 		if sPos in horiz and ePos in horiz
-      b1.x = b2.x = ((end.x - start.x) / 2) + start.x
-      b1.y = start.y
-      b2.y = end.y
-   	else if sPos in vert and ePos in vert
-      b1.y = b2.y = ((end.y - start.y) / 2) + start.y
-      b1.x = start.x
-      b2.x = end.x
-  	else
-      b1.x = b2.x = end.x
-      b1.y = b2.y = start.y
+			x = ((end.x - start.x) / 2) + start.x
 
-    [b1, b2]				
+			b1 = new goog.math.Coordinate x, start.y
+			b2 = new goog.math.Coordinate x, end.y
+		else if sPos in vert and ePos in vert
+			y = ((end.y - start.y) / 2) + start.y
+
+			b1 = new goog.math.Coordinate start.x, y
+			b2 = new goog.math.Coordinate end.x, y
+		else
+			b1 = b2 = new goog.math.Coordinate end.x, start.y
+
+		[b1, b2]
 
 if not window? then module.exports = Relation

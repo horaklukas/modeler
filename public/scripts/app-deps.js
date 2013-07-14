@@ -889,10 +889,10 @@ goog.addDependency('../../../lib/closure/goog/vec/vec4f.js', ['goog.vec.vec4f', 
 goog.addDependency('../../../lib/closure/goog/webgl/webgl.js', ['goog.webgl'], []);
 goog.addDependency('../../../lib/closure/goog/window/window.js', ['goog.window'], ['goog.string', 'goog.userAgent']);
 goog.addDependency('../../../lib/soyutils_usegoog.js', ['soy', 'soy.StringBuilder', 'soy.esc', 'soydata', 'soydata.SanitizedHtml', 'soydata.SanitizedHtmlAttribute', 'soydata.SanitizedJs', 'soydata.SanitizedJsStrChars', 'soydata.SanitizedUri', 'soydata.VERY_UNSAFE'], ['goog.asserts', 'goog.dom.DomHelper', 'goog.format', 'goog.i18n.BidiFormatter', 'goog.i18n.bidi', 'goog.soy', 'goog.soy.data.SanitizedContentKind', 'goog.string', 'goog.string.StringBuffer']);
-goog.addDependency('../../../model/model.js', ['dm.model.Model'], ['dm.model.Relation', 'dm.model.Table']);
-goog.addDependency('../../../model/relation.js', ['dm.model.Relation'], []);
-goog.addDependency('../../../model/table.js', ['dm.model.Table'], ['tmpls.model']);
+goog.addDependency('../../../model/model.js', ['dm.model.Model'], ['dm.model.Relation', 'dm.model.Table', 'goog.string']);
+goog.addDependency('../../../model/relation.js', ['dm.model.Relation'], ['goog.graphics.Path', 'goog.graphics.Stroke', 'goog.math.Coordinate']);
+goog.addDependency('../../../model/table.js', ['dm.model.Table'], ['goog.dom', 'goog.dom.classes', 'goog.math.Coordinate', 'goog.math.Vec2', 'goog.soy', 'goog.style', 'tmpls.model']);
 goog.addDependency('../../../templates/dialogs/createTable.js', ['tmpls.dialogs.createTable'], ['soy', 'soydata']);
 goog.addDependency('../../../templates/model/table.js', ['tmpls.model'], ['soy', 'soydata']);
-goog.addDependency('../../../ui/canvas.js', ['dm.ui.Canvas', 'dm.ui.Canvas.Click'], ['goog.dom', 'goog.events', 'goog.events.EventTarget', 'goog.style']);
+goog.addDependency('../../../ui/canvas.js', ['dm.ui.Canvas', 'dm.ui.Canvas.Click'], ['goog.dom', 'goog.events', 'goog.events.EventTarget', 'goog.graphics', 'goog.graphics.Path', 'goog.graphics.SolidFill', 'goog.graphics.Stroke', 'goog.graphics.SvgGraphics', 'goog.style']);
 goog.addDependency('../../../ui/controlPanel.js', ['dm.ui.ControlPanel'], ['dm.ui.Canvas', 'goog.dom', 'goog.dom.classes', 'goog.events', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.style']);

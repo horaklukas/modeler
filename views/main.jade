@@ -4,10 +4,7 @@ html
 		title= title
 		link(rel="stylesheet", type="text/css", href="/styles/main.css")
 		script(src="/socket.io/socket.io.js")
-		script(src="/scripts/lib/raphael.min.js")
-		script(src="/scripts/lib/jquery.min.js")
-		script(src="/scripts/lib/closure/goog/base.js")
-		script(src="/scripts/app-deps.js")
+		//script(src="/scripts/lib/raphael.min.js")
 	body
 		div#app
 			div#controlPanel
@@ -15,6 +12,8 @@ html
 				button.icon.tool(name="createRelation")
 			div#modelerCanvas
 
+		script(src="/scripts/lib/closure/goog/base.js")
+		script(src="/scripts/app-deps.js")
 		script
 			goog.require('dm');
 		script

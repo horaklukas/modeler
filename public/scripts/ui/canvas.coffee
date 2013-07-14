@@ -5,6 +5,11 @@ goog.require 'goog.dom'
 goog.require 'goog.style'
 goog.require 'goog.events'
 goog.require 'goog.events.EventTarget'
+goog.require 'goog.graphics'
+goog.require 'goog.graphics.SvgGraphics'
+goog.require 'goog.graphics.Stroke'
+goog.require 'goog.graphics.SolidFill'
+goog.require 'goog.graphics.Path'
 
 class dm.ui.Canvas extends goog.events.EventTarget
 	###*
@@ -19,12 +24,21 @@ class dm.ui.Canvas extends goog.events.EventTarget
 	###
 	init: (canvasId) ->
 		@html = goog.dom.getElement canvasId
+
 		{@width, @height} = goog.style.getSize @html
+		# @FIXME - remove this row and set height from document viewport height 
+		if @height is 0 then @height = 768
+		
+		@svg = new goog.graphics.SvgGraphics @width, @height
+		@svg.render @html
 
-		@svg = Raphael canvasId, @width, @height
+		stroke = new goog.graphics.Stroke 2, '#000'
+		fill = new goog.graphics.SolidFill '#CCC'
+		@clueTable = @svg.drawRect 0, 0, 100, 80, stroke, fill
 
-		@clueTable = @svg.rect 0, 0, 100, 80, 2 
-		@clueTable.attr(fill:'#CCC', opacity: 0.5).hide()
+		clueTabElement = @clueTable.getElement()
+		goog.style.setOpacity clueTabElement, 0.5
+		goog.style.showElement clueTabElement, false 
 
 		goog.events.listen @html, goog.events.EventType.DBLCLICK, @onDblClick
 		goog.events.listen @html, goog.events.EventType.CLICK, @onClick
@@ -58,14 +72,16 @@ class dm.ui.Canvas extends goog.events.EventTarget
 
 	moveTable: (ev) =>
 		position = goog.style.getRelativePosition ev, @html
-		@clueTable.show().attr 'x': position.x, 'y': position.y
+		
+		goog.style.showElement @clueTable.getElement(), true
+		@clueTable.setPosition position.x, position.y
 
 	###*
   * @param {goog.math.Coordinate} tabPos
 	###	
 	placeTable: (tabPos) => 
 		id = dm.actualModel.addTable @html, tabPos.x, tabPos.y
-		@clueTable.hide()
+		goog.style.showElement @clueTable.getElement(), false
 
 		dm.tableDialog.setValues()
 		dm.tableDialog.show id
@@ -74,17 +90,27 @@ class dm.ui.Canvas extends goog.events.EventTarget
   * @param {goog.math.Coordinate} startCoords
 	###
 	setStartRelationPoint: (startCoords)->
-		@startRelationPath = "M#{startCoords.x} #{startCoords.y}"
-		@clueRelation = @svg.path @startRelationPath
-		@clueRelation.show()
+		@startRelationPath = new goog.graphics.Path()
+		@startRelationPath.moveTo startCoords.x, startCoords.y
+		
+		if @clueRelation
+			goog.style.showElement @clueRelation.getElement(), true
+			@clueRelation.setPath @startRelationPath
+		else
+			stroke = new goog.graphics.Stroke 1, '#000'
+			@clueRelation = @svg.drawPath @startRelationPath, stroke
+			goog.style.showElement @clueRelation.getElement(), true
 
 	moveEndRelationPoint:(ev) =>
 		point = goog.style.getRelativePosition ev, @html
 
-		@clueRelation.attr 'path', "#{@startRelationPath}L#{point.x} #{point.y}"
+		newPath = @startRelationPath.clone()
+		newPath.lineTo point.x, point.y
+		
+		@clueRelation.setPath newPath
 
 	placeRelation: (endCoords) =>
-		@clueRelation.hide()
+		goog.style.showElement @clueRelation.getElement(), false
 		@startRelationPath = undefined
 
 dm.ui.Canvas.EventType = 

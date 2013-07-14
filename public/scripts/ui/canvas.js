@@ -15,6 +15,16 @@ goog.require('goog.events');
 
 goog.require('goog.events.EventTarget');
 
+goog.require('goog.graphics');
+
+goog.require('goog.graphics.SvgGraphics');
+
+goog.require('goog.graphics.Stroke');
+
+goog.require('goog.graphics.SolidFill');
+
+goog.require('goog.graphics.Path');
+
 dm.ui.Canvas = (function(_super) {
 
   __extends(Canvas, _super);
@@ -40,15 +50,18 @@ dm.ui.Canvas = (function(_super) {
 
 
   Canvas.prototype.init = function(canvasId) {
-    var _ref;
+    var clueTabElement, fill, stroke, _ref;
     this.html = goog.dom.getElement(canvasId);
     _ref = goog.style.getSize(this.html), this.width = _ref.width, this.height = _ref.height;
-    this.svg = Raphael(canvasId, this.width, this.height);
-    this.clueTable = this.svg.rect(0, 0, 100, 80, 2);
-    this.clueTable.attr({
-      fill: '#CCC',
-      opacity: 0.5
-    }).hide();
+    if (this.height === 0) this.height = 768;
+    this.svg = new goog.graphics.SvgGraphics(this.width, this.height);
+    this.svg.render(this.html);
+    stroke = new goog.graphics.Stroke(2, '#000');
+    fill = new goog.graphics.SolidFill('#CCC');
+    this.clueTable = this.svg.drawRect(0, 0, 100, 80, stroke, fill);
+    clueTabElement = this.clueTable.getElement();
+    goog.style.setOpacity(clueTabElement, 0.5);
+    goog.style.showElement(clueTabElement, false);
     goog.events.listen(this.html, goog.events.EventType.DBLCLICK, this.onDblClick);
     return goog.events.listen(this.html, goog.events.EventType.CLICK, this.onClick);
   };
@@ -92,10 +105,8 @@ dm.ui.Canvas = (function(_super) {
   Canvas.prototype.moveTable = function(ev) {
     var position;
     position = goog.style.getRelativePosition(ev, this.html);
-    return this.clueTable.show().attr({
-      'x': position.x,
-      'y': position.y
-    });
+    goog.style.showElement(this.clueTable.getElement(), true);
+    return this.clueTable.setPosition(position.x, position.y);
   };
 
   /**
@@ -106,7 +117,7 @@ dm.ui.Canvas = (function(_super) {
   Canvas.prototype.placeTable = function(tabPos) {
     var id;
     id = dm.actualModel.addTable(this.html, tabPos.x, tabPos.y);
-    this.clueTable.hide();
+    goog.style.showElement(this.clueTable.getElement(), false);
     dm.tableDialog.setValues();
     return dm.tableDialog.show(id);
   };
@@ -117,19 +128,29 @@ dm.ui.Canvas = (function(_super) {
 
 
   Canvas.prototype.setStartRelationPoint = function(startCoords) {
-    this.startRelationPath = "M" + startCoords.x + " " + startCoords.y;
-    this.clueRelation = this.svg.path(this.startRelationPath);
-    return this.clueRelation.show();
+    var stroke;
+    this.startRelationPath = new goog.graphics.Path();
+    this.startRelationPath.moveTo(startCoords.x, startCoords.y);
+    if (this.clueRelation) {
+      goog.style.showElement(this.clueRelation.getElement(), true);
+      return this.clueRelation.setPath(this.startRelationPath);
+    } else {
+      stroke = new goog.graphics.Stroke(1, '#000');
+      this.clueRelation = this.svg.drawPath(this.startRelationPath, stroke);
+      return goog.style.showElement(this.clueRelation.getElement(), true);
+    }
   };
 
   Canvas.prototype.moveEndRelationPoint = function(ev) {
-    var point;
+    var newPath, point;
     point = goog.style.getRelativePosition(ev, this.html);
-    return this.clueRelation.attr('path', "" + this.startRelationPath + "L" + point.x + " " + point.y);
+    newPath = this.startRelationPath.clone();
+    newPath.lineTo(point.x, point.y);
+    return this.clueRelation.setPath(newPath);
   };
 
   Canvas.prototype.placeRelation = function(endCoords) {
-    this.clueRelation.hide();
+    goog.style.showElement(this.clueRelation.getElement(), false);
     return this.startRelationPath = void 0;
   };
 

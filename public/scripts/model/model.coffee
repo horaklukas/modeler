@@ -2,6 +2,7 @@ goog.provide 'dm.model.Model'
 
 goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
+goog.require 'goog.string'
 
 class dm.model.Model
 	constructor: (name) ->
@@ -41,7 +42,7 @@ class dm.model.Model
 	###*
 	* Returns table object by table id
 	*
-	* @return {Table}
+	* @return {dm.model.Table|null}
 	###
 	getTable: (id) ->
 		@tables[@getTabNumberId id]
@@ -51,8 +52,8 @@ class dm.model.Model
   * to both table list of related relations
 	###
 	addRelation: (canvas, startTabId, endTabId) =>
-		startTab = @tables[@getTabNumberId startTabId]
-		endTab = @tables[@getTabNumberId endTabId]
+		startTab = @getTable startTabId
+		endTab = @getTable endTabId
 
 		if startTab? and endTab?
 			newRelation = new dm.model.Relation canvas, startTab, endTab
@@ -62,9 +63,12 @@ class dm.model.Model
 			endTab.addRelation @relations[relLen - 1]
 		else false
 
+	###*
+  * @return {string|boolean}
+	###
 	getTabNumberId: (fullid) ->
 		numberId = fullid.match /^tab_(\d+)$/
 
-		if numberId? then Number(numberId[1]) else false
+		if numberId? then goog.string.toNumber(numberId[1]) else false
 
 if not window? then module.exports = Model

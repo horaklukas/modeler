@@ -1,100 +1,103 @@
 goog.provide 'dm.model.Table'
 
 goog.require 'tmpls.model'
+goog.require 'goog.dom'
+goog.require 'goog.dom.classes'
+goog.require 'goog.soy'
+goog.require 'goog.style'
+goog.require 'goog.math.Coordinate'
+goog.require 'goog.math.Vec2'
 
 class dm.model.Table
 	constructor: (canvas, id, @x, @y, @w = 100, @h = 80) ->
-		# coordinates of canvas's right bottom corner
-		canvasMax =
-			maxX: canvas.width?() or $(canvas).width()
-			maxY: canvas.height?() or $(canvas).height()
-
 		# if passed coordinates would caused that any part of table would be
 		# outside canvas, recount coordinates
-		if x + @w > canvasMax.maxX then @x = canvasMax.maxX - @w
-		if y + @h > canvasMax.maxY then @y = canvasMax.maxY - @h
+		canvSize = goog.style.getSize canvas
+		
+		if x + @w > canvSize.width then @x = canvSize.width - @w
+		if y + @h > canvSize.height then @y = canvSize.height - @h
 
 		# table's position coordinates
-		@position =
-			current: x: @x, y: @y
-			startmove: 
-				relative: x: @x, y: @y
-				absolute: x: null, y: null
-
+		@position = new goog.math.Coordinate @x, @y
 		# table's list of related relations
 		@relations = []	
 
 		#properties = width: @w, height: @h, left: x, top: y
-		properties = left: @x, top: @y
-		@table = jQuery tmpls.model.table 'id': id
-		@table.css properties 
+		@table = goog.soy.renderAsElement tmpls.model.table, {'id': id}
+		
+		goog.style.setPosition @table, @x, @y
 			
-		@table.appendTo canvas
+		goog.dom.appendChild canvas, @table
 
-		@table.on 'mousedown', canvasMax, @graspTable
+		goog.events.listen @table, goog.events.EventType.MOUSEDOWN, @graspTable
 
 	###*
   * Callback that is called when user grasp table with intent to move it
 	###
 	graspTable: (ev) =>
-		canvasMax = ev.data
+		@startTable()
 
-		@startTable ev
-		$(document).on 'mousemove', canvasMax, @moveTable
-		$(document).one 'mouseup', =>
-			$(document).off 'mousemove', @moveTable
-			@stopTable() 	
+		pos = goog.style.getPosition @table
+		@position = new goog.math.Coordinate pos.x, pos.y
+		@offsetInTab = goog.style.getRelativePosition ev, @table
 
-	startTable: (ev) =>
-		{left, top} = @table.position()
+		goog.events.listen document, goog.events.EventType.MOUSEMOVE, @moveTable
+		goog.events.listenOnce document, goog.events.EventType.MOUSEUP, @stopTable
 
-		@position.current = x: left, y: top
-		@position.startmove.relative = x: left, y: top
-		@position.startmove.absolute = x: ev.pageX, y: ev.pageY
+	startTable: =>
 
 	moveTable: (ev) =>
-		@table.addClass 'move'
+		goog.dom.classes.add @table, 'move'
 		
-		# Position difference from position where moving began
-		xDiff = ev.pageX - @position.startmove.absolute.x
-		yDiff = ev.pageY - @position.startmove.absolute.y
-		
-		@position.current.x = @position.startmove.relative.x + xDiff
-		@position.current.y = @position.startmove.relative.y + yDiff
-		
+		canvas = dm.ui.Canvas.getInstance().html
+		canvasSize = goog.style.getSize canvas
+
+		offsetInCanvas = goog.style.getRelativePosition ev, canvas
+
+		@position = new goog.math.Coordinate(
+			 offsetInCanvas.x - @offsetInTab.x,
+			 offsetInCanvas.y - @offsetInTab.y
+		)
+
 		# Check moving table inside the borders
-		if @position.current.x < 0 then @position.current.x = 0
-		else if @position.current.x > ev.data.maxX - @w
-			@position.current.x = ev.data.maxX - @w
+		if @position.x < 0 then @position.x = 0
+		else if @position.x > canvasSize.width - @w
+			@position.x = canvasSize.width - @w
 		
-		if @position.current.y < 0 then @position.current.y = 0
-		else if @position.current.y > ev.data.maxY - @h
-			@position.current.y = ev.data.maxY - @h
+		if @position.y < 0 then @position.y = 0
+		else if @position.y > canvasSize.height - @h
+			@position.y = canvasSize.height - @h
 
 		# Check if relation connection point should be changed or left
 		rel.recountPosition() for rel in @relations
 
-		@table.css 'left': @position.current.x, 'top': @position.current.y
+		goog.style.setPosition @table, @position.x, @position.y
 
 	stopTable: =>
-		@table.removeClass 'move'
+		goog.dom.classes.remove @table, 'move'
+		goog.events.unlisten document, goog.events.EventType.MOUSEMOVE, @moveTable
 
+	###*
+  * @return {Object.<string,goog.math.Coordinate>}
+	###
 	getConnPoints: ->
-		top: x: @position.current.x + @w / 2, y: @position.current.y
-		right: x: @position.current.x + @w + 1, y: @position.current.y + @h / 2
-		bottom: x: @position.current.x + @w / 2, y: @position.current.y + @h + 1
-		left: x: @position.current.x, y: @position.current.y + @h / 2
+		top: new goog.math.Coordinate(@position.x + @w / 2, @position.y)
+		right: new goog.math.Coordinate(@position.x + @w + 1, @position.y + @h / 2)
+		bottom: new goog.math.Coordinate(@position.x + @w / 2, @position.y + @h + 1)
+		left: new goog.math.Coordinate(@position.x, @position.y + @h / 2)
 
 	addRelation: (rel) ->
 		@relations.push rel
 
 	setName: (@name) ->
-		$('.head', @table).text @name
+		tableHead = goog.dom.getElementsByTagNameAndClass(null, 'head', @table)[0]
+		goog.dom.setTextContent tableHead, name		
 
 	getName: -> @name
 
 	setColumns: (@columns) ->
-		$('.body', @table).html tmpls.model.tabColumns cols: columns
+		tableBody = goog.dom.getElementsByTagNameAndClass(null, 'body', @table)[0]
+		goog.soy.renderElement tableBody, tmpls.model.tabColumns, {cols: columns}
 
 	getColumns: -> @columns		
 

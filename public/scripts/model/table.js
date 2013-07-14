@@ -5,10 +5,22 @@ goog.provide('dm.model.Table');
 
 goog.require('tmpls.model');
 
+goog.require('goog.dom');
+
+goog.require('goog.dom.classes');
+
+goog.require('goog.soy');
+
+goog.require('goog.style');
+
+goog.require('goog.math.Coordinate');
+
+goog.require('goog.math.Vec2');
+
 dm.model.Table = (function() {
 
   function Table(canvas, id, x, y, w, h) {
-    var canvasMax, properties;
+    var canvSize;
     this.x = x;
     this.y = y;
     this.w = w != null ? w : 100;
@@ -17,39 +29,17 @@ dm.model.Table = (function() {
     this.moveTable = __bind(this.moveTable, this);
     this.startTable = __bind(this.startTable, this);
     this.graspTable = __bind(this.graspTable, this);
-    canvasMax = {
-      maxX: (typeof canvas.width === "function" ? canvas.width() : void 0) || $(canvas).width(),
-      maxY: (typeof canvas.height === "function" ? canvas.height() : void 0) || $(canvas).height()
-    };
-    if (x + this.w > canvasMax.maxX) this.x = canvasMax.maxX - this.w;
-    if (y + this.h > canvasMax.maxY) this.y = canvasMax.maxY - this.h;
-    this.position = {
-      current: {
-        x: this.x,
-        y: this.y
-      },
-      startmove: {
-        relative: {
-          x: this.x,
-          y: this.y
-        },
-        absolute: {
-          x: null,
-          y: null
-        }
-      }
-    };
+    canvSize = goog.style.getSize(canvas);
+    if (x + this.w > canvSize.width) this.x = canvSize.width - this.w;
+    if (y + this.h > canvSize.height) this.y = canvSize.height - this.h;
+    this.position = new goog.math.Coordinate(this.x, this.y);
     this.relations = [];
-    properties = {
-      left: this.x,
-      top: this.y
-    };
-    this.table = jQuery(tmpls.model.table({
+    this.table = goog.soy.renderAsElement(tmpls.model.table, {
       'id': id
-    }));
-    this.table.css(properties);
-    this.table.appendTo(canvas);
-    this.table.on('mousedown', canvasMax, this.graspTable);
+    });
+    goog.style.setPosition(this.table, this.x, this.y);
+    goog.dom.appendChild(canvas, this.table);
+    goog.events.listen(this.table, goog.events.EventType.MOUSEDOWN, this.graspTable);
   }
 
   /**
@@ -58,84 +48,58 @@ dm.model.Table = (function() {
 
 
   Table.prototype.graspTable = function(ev) {
-    var canvasMax,
-      _this = this;
-    canvasMax = ev.data;
-    this.startTable(ev);
-    $(document).on('mousemove', canvasMax, this.moveTable);
-    return $(document).one('mouseup', function() {
-      $(document).off('mousemove', _this.moveTable);
-      return _this.stopTable();
-    });
+    var pos;
+    this.startTable();
+    pos = goog.style.getPosition(this.table);
+    this.position = new goog.math.Coordinate(pos.x, pos.y);
+    this.offsetInTab = goog.style.getRelativePosition(ev, this.table);
+    goog.events.listen(document, goog.events.EventType.MOUSEMOVE, this.moveTable);
+    return goog.events.listenOnce(document, goog.events.EventType.MOUSEUP, this.stopTable);
   };
 
-  Table.prototype.startTable = function(ev) {
-    var left, top, _ref;
-    _ref = this.table.position(), left = _ref.left, top = _ref.top;
-    this.position.current = {
-      x: left,
-      y: top
-    };
-    this.position.startmove.relative = {
-      x: left,
-      y: top
-    };
-    return this.position.startmove.absolute = {
-      x: ev.pageX,
-      y: ev.pageY
-    };
-  };
+  Table.prototype.startTable = function() {};
 
   Table.prototype.moveTable = function(ev) {
-    var rel, xDiff, yDiff, _i, _len, _ref;
-    this.table.addClass('move');
-    xDiff = ev.pageX - this.position.startmove.absolute.x;
-    yDiff = ev.pageY - this.position.startmove.absolute.y;
-    this.position.current.x = this.position.startmove.relative.x + xDiff;
-    this.position.current.y = this.position.startmove.relative.y + yDiff;
-    if (this.position.current.x < 0) {
-      this.position.current.x = 0;
-    } else if (this.position.current.x > ev.data.maxX - this.w) {
-      this.position.current.x = ev.data.maxX - this.w;
+    var canvas, canvasSize, offsetInCanvas, rel, _i, _len, _ref;
+    goog.dom.classes.add(this.table, 'move');
+    canvas = dm.ui.Canvas.getInstance().html;
+    canvasSize = goog.style.getSize(canvas);
+    offsetInCanvas = goog.style.getRelativePosition(ev, canvas);
+    this.position = new goog.math.Coordinate(offsetInCanvas.x - this.offsetInTab.x, offsetInCanvas.y - this.offsetInTab.y);
+    if (this.position.x < 0) {
+      this.position.x = 0;
+    } else if (this.position.x > canvasSize.width - this.w) {
+      this.position.x = canvasSize.width - this.w;
     }
-    if (this.position.current.y < 0) {
-      this.position.current.y = 0;
-    } else if (this.position.current.y > ev.data.maxY - this.h) {
-      this.position.current.y = ev.data.maxY - this.h;
+    if (this.position.y < 0) {
+      this.position.y = 0;
+    } else if (this.position.y > canvasSize.height - this.h) {
+      this.position.y = canvasSize.height - this.h;
     }
     _ref = this.relations;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       rel = _ref[_i];
       rel.recountPosition();
     }
-    return this.table.css({
-      'left': this.position.current.x,
-      'top': this.position.current.y
-    });
+    return goog.style.setPosition(this.table, this.position.x, this.position.y);
   };
 
   Table.prototype.stopTable = function() {
-    return this.table.removeClass('move');
+    goog.dom.classes.remove(this.table, 'move');
+    return goog.events.unlisten(document, goog.events.EventType.MOUSEMOVE, this.moveTable);
   };
+
+  /**
+   * @return {Object.<string,goog.math.Coordinate>}
+  */
+
 
   Table.prototype.getConnPoints = function() {
     return {
-      top: {
-        x: this.position.current.x + this.w / 2,
-        y: this.position.current.y
-      },
-      right: {
-        x: this.position.current.x + this.w + 1,
-        y: this.position.current.y + this.h / 2
-      },
-      bottom: {
-        x: this.position.current.x + this.w / 2,
-        y: this.position.current.y + this.h + 1
-      },
-      left: {
-        x: this.position.current.x,
-        y: this.position.current.y + this.h / 2
-      }
+      top: new goog.math.Coordinate(this.position.x + this.w / 2, this.position.y),
+      right: new goog.math.Coordinate(this.position.x + this.w + 1, this.position.y + this.h / 2),
+      bottom: new goog.math.Coordinate(this.position.x + this.w / 2, this.position.y + this.h + 1),
+      left: new goog.math.Coordinate(this.position.x, this.position.y + this.h / 2)
     };
   };
 
@@ -144,8 +108,10 @@ dm.model.Table = (function() {
   };
 
   Table.prototype.setName = function(name) {
+    var tableHead;
     this.name = name;
-    return $('.head', this.table).text(this.name);
+    tableHead = goog.dom.getElementsByTagNameAndClass(null, 'head', this.table)[0];
+    return goog.dom.setTextContent(tableHead, name);
   };
 
   Table.prototype.getName = function() {
@@ -153,10 +119,12 @@ dm.model.Table = (function() {
   };
 
   Table.prototype.setColumns = function(columns) {
+    var tableBody;
     this.columns = columns;
-    return $('.body', this.table).html(tmpls.model.tabColumns({
+    tableBody = goog.dom.getElementsByTagNameAndClass(null, 'body', this.table)[0];
+    return goog.soy.renderElement(tableBody, tmpls.model.tabColumns, {
       cols: columns
-    }));
+    });
   };
 
   Table.prototype.getColumns = function() {

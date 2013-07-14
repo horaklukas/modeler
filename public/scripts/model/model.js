@@ -7,6 +7,8 @@ goog.require('dm.model.Table');
 
 goog.require('dm.model.Relation');
 
+goog.require('goog.string');
+
 dm.model.Model = (function() {
 
   function Model(name) {
@@ -54,7 +56,7 @@ dm.model.Model = (function() {
   /**
   	* Returns table object by table id
   	*
-  	* @return {Table}
+  	* @return {dm.model.Table|null}
   */
 
 
@@ -70,8 +72,8 @@ dm.model.Model = (function() {
 
   Model.prototype.addRelation = function(canvas, startTabId, endTabId) {
     var endTab, newRelation, relLen, startTab;
-    startTab = this.tables[this.getTabNumberId(startTabId)];
-    endTab = this.tables[this.getTabNumberId(endTabId)];
+    startTab = this.getTable(startTabId);
+    endTab = this.getTable(endTabId);
     if ((startTab != null) && (endTab != null)) {
       newRelation = new dm.model.Relation(canvas, startTab, endTab);
       relLen = this.relations.push(newRelation);
@@ -82,11 +84,16 @@ dm.model.Model = (function() {
     }
   };
 
+  /**
+   * @return {string|boolean}
+  */
+
+
   Model.prototype.getTabNumberId = function(fullid) {
     var numberId;
     numberId = fullid.match(/^tab_(\d+)$/);
     if (numberId != null) {
-      return Number(numberId[1]);
+      return goog.string.toNumber(numberId[1]);
     } else {
       return false;
     }
