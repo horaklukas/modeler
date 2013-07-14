@@ -11,6 +11,9 @@ goog.require('goog.graphics.Path');
 goog.require('goog.graphics.Stroke');
 
 dm.model.Relation = (function() {
+  /**
+   * @constructor
+  */
 
   function Relation(canvas, startTab, endTab, type) {
     var stroke;
@@ -94,7 +97,7 @@ dm.model.Relation = (function() {
 
   Relation.prototype.getPathDistance = function(pos1, coord1, pos2, coord2) {
     if (pos1 === pos2 || (((pos1 !== 'right' && pos2 !== 'left') || coord1.x < coord2.x) && ((pos1 !== 'left' && pos2 !== 'right') || coord1.x > coord2.x) && ((pos1 !== 'bottom' && pos2 !== 'top') || coord1.y < coord2.y) && ((pos1 !== 'top' && pos2 !== 'bottom') || coord1.y > coord2.y))) {
-      return goog.math.Coordinate.distance(coord1, coord2);
+      return Math.abs(coord1.x - coord2.x) + Math.abs(coord1.y - coord2.y);
     } else {
       return false;
     }
@@ -123,8 +126,14 @@ dm.model.Relation = (function() {
       b1 = new goog.math.Coordinate(start.x, y);
       b2 = new goog.math.Coordinate(end.x, y);
     } else {
-      b1 = b2 = new goog.math.Coordinate(end.x, start.y);
+      if (sPos === 'right' || sPos === 'left') {
+        b1 = b2 = new goog.math.Coordinate(end.x, start.y);
+      }
+      if (ePos === 'right' || ePos === 'left') {
+        b1 = b2 = new goog.math.Coordinate(start.x, end.y);
+      }
     }
+    console.log(sPos, ePos, b1, b2);
     return [b1, b2];
   };
 

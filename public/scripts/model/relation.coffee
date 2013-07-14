@@ -5,6 +5,9 @@ goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.Stroke'
 
 class dm.model.Relation
+	###*
+  * @constructor
+	###
 	constructor: (canvas, @startTab, @endTab, type) ->
 		stroke = new goog.graphics.Stroke 1, '#000'
 		@obj = canvas.drawPath @getPathPosition(), stroke
@@ -70,8 +73,8 @@ class dm.model.Relation
 				((pos1 isnt 'bottom' and pos2 isnt 'top') or coord1.y < coord2.y) and
 				((pos1 isnt 'top' and pos2 isnt 'bottom') or coord1.y > coord2.y)
 			)
-				#Math.abs(coord1.x - coord2.x) + Math.abs(coord1.y - coord2.y)
-				goog.math.Coordinate.distance coord1, coord2
+				Math.abs(coord1.x - coord2.x) + Math.abs(coord1.y - coord2.y)
+				#goog.math.Coordinate.distance coord1, coord2
 		else
 			false
 
@@ -87,6 +90,8 @@ class dm.model.Relation
 		horiz = ['left','right']
 		vert = ['top', 'bottom']
 
+		# if connection points are in same direction, there are two break points
+		# otherwise there is only one break point
 		if sPos in horiz and ePos in horiz
 			x = ((end.x - start.x) / 2) + start.x
 
@@ -98,7 +103,12 @@ class dm.model.Relation
 			b1 = new goog.math.Coordinate start.x, y
 			b2 = new goog.math.Coordinate end.x, y
 		else
-			b1 = b2 = new goog.math.Coordinate end.x, start.y
+			if sPos is 'right' or sPos is 'left'
+				b1 = b2 = new goog.math.Coordinate end.x, start.y
+			if ePos is 'right' or ePos is 'left'
+				b1 = b2 = new goog.math.Coordinate start.x, end.y
+
+		console.log sPos, ePos, b1, b2
 
 		[b1, b2]
 
