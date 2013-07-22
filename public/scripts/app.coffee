@@ -1,36 +1,40 @@
-App = {}
-App.db = {}
-App.$elem = $('#app')
-App.dialogs = {}
-App.dialogs.createTable = new createTableDialog DB.types
-App.actualModel = new Model('Model1')
- 
-Canvas.init $('#modelerCanvas')
-ControlPanel.init $('#controlPanel')
+goog.provide 'dm'
 
-Canvas.on 'dblclick', '.table', ->
-	tab = App.actualModel.getTable this.id
+goog.require 'dm.dialogs.TableDialog'
+goog.require 'dm.model.Model'
+goog.require 'dm.ui.Canvas'
+goog.require 'dm.ui.ControlPanel'
+goog.require 'goog.dom'
+goog.require 'goog.dom.classes'
+goog.require 'goog.events'
 
-	App.dialogs.createTable.show this.id
-	App.dialogs.createTable.setValues tab.getName(), tab.getColumns() 
+dm.init = ->
+	dm.$elem = goog.dom.getElement 'app'
+	dm.tableDialog = new dm.dialogs.TableDialog DB.types
+	dm.actualModel = new dm.model.Model 'Model1'
+	 
+	canvas = dm.ui.Canvas.getInstance()
+	canvas.init 'modelerCanvas'
+	dm.ui.ControlPanel.getInstance().init goog.dom.getElement 'controlPanel'
 
-App.dialogs.createTable.onConfirm App.actualModel.setTable
+	goog.events.listen dm.tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
+			dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
 
-# Some test objects
-tab0 = App.actualModel.addTable Canvas.obj, 100, 75
-tabCols = [
-	{ name: 'column_1', type: 'smallint', pk: true }
-	{ name: 'column_2', type: 'character varcharying', pk: false }
-	{ name: 'column_3', type: 'numeric', pk: false }
-]
+	# Some test objects
+	tab0 = dm.actualModel.addTable canvas.html, 100, 75
+	tabCols = [
+		{ name: 'column_1', type: 'smallint', pk: true }
+		{ name: 'column_2', type: 'character varcharying', pk: false }
+		{ name: 'column_3', type: 'numeric', pk: false }
+	]
 
-App.actualModel.setTable tab0, 'table1', tabCols
+	dm.actualModel.setTable tab0, 'table1', tabCols
 
-tab1 = App.actualModel.addTable Canvas.obj, 500, 280
-App.actualModel.setTable tab1, 'table2'
+	tab1 = dm.actualModel.addTable canvas.html, 500, 280
+	dm.actualModel.setTable tab1, 'table2'
 
-tab2 = App.actualModel.addTable Canvas.obj, 100, 280
-App.actualModel.setTable tab2, 'table3'
+	tab2 = dm.actualModel.addTable canvas.html, 100, 280
+	dm.actualModel.setTable tab2, 'table3'
 
-App.actualModel.addRelation Canvas.self, tab0, tab1
-App.actualModel.addRelation Canvas.self, tab0, tab2
+	dm.actualModel.addRelation canvas.svg, tab0, tab1
+	dm.actualModel.addRelation canvas.svg, tab0, tab2

@@ -1,4 +1,10 @@
-class Model
+goog.provide 'dm.model.Model'
+
+goog.require 'dm.model.Table'
+goog.require 'dm.model.Relation'
+goog.require 'goog.string'
+
+class dm.model.Model
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
 		@tables = []
@@ -14,7 +20,7 @@ class Model
 	###
 	addTable: (canvas, x, y, name) =>
 		tabId = "tab_#{@tables.length}"
-		table = new Table canvas, tabId, x, y
+		table = new dm.model.Table canvas, tabId, x, y
 		
 		@tables.push table
 		
@@ -36,7 +42,7 @@ class Model
 	###*
 	* Returns table object by table id
 	*
-	* @return {Table}
+	* @return {dm.model.Table|null}
 	###
 	getTable: (id) ->
 		@tables[@getTabNumberId id]
@@ -46,18 +52,23 @@ class Model
   * to both table list of related relations
 	###
 	addRelation: (canvas, startTabId, endTabId) =>
-		startTab = @tables[@getTabNumberId startTabId]
-		endTab = @tables[@getTabNumberId endTabId]
+		startTab = @getTable startTabId
+		endTab = @getTable endTabId
 
 		if startTab? and endTab?
-			relLen = @relations.push new Relation canvas, startTab, endTab
+			newRelation = new dm.model.Relation canvas, startTab, endTab
+			relLen = @relations.push newRelation
+			
 			startTab.addRelation @relations[relLen - 1]
 			endTab.addRelation @relations[relLen - 1]
 		else false
 
+	###*
+  * @return {string|boolean}
+	###
 	getTabNumberId: (fullid) ->
 		numberId = fullid.match /^tab_(\d+)$/
 
-		if numberId? then Number(numberId[1]) else false
+		if numberId? then goog.string.toNumber(numberId[1]) else false
 
 if not window? then module.exports = Model

@@ -7,27 +7,20 @@
  */
 {template .dialog}
 <div id="createTable" class="dialog">
-	{call .name}
-		{param id: 'physical' /}
-		{param label: 'Physical' /}
-	{/call}
+	{call .name /}
 
-	<strong>Columns</strong>
+	<strong>Table columns</strong>
 	{call .columnsList data="all" /}
-
-	<button class="ok">OK</button>
-	<button class="cancel">CANCEL</button>
 </div>
 {/template}
 
 /**
- * @param id
- * @param label
+ * Create field for input table name
  */
 {template .name}
 	<div class="row">
-			<span><label>{$label} name</label></span>
-			<span><input name="{$id}_name" /></span>
+			<span><label>Table name</label></span>
+			<span><input id="table_name" /></span>
 	</div>
 {/template}
 
@@ -37,7 +30,6 @@
  */
 {template .columnsList}
 <div id="columns_list">
-	<button>Add column</button>
 	<div class="row head">
 		<span>Name</span><span>Type</span><span>PK</span><span></span>
 	</div>
@@ -54,6 +46,7 @@
 		{/foreach}
 	{/if}
 </div>
+<button class="add">Add new column</button>
 {/template}
 
 /**
@@ -64,9 +57,9 @@
  */
 {template .tableColumn}
 <div class="row">
-	<span><input type="text" name="name" value="{if $name}{$name}{/if}"/></span>
+	<span><input type="text" class="name" value="{if $name}{$name}{/if}"/></span>
 	<span>
-		<select name="type">
+		<select class="type">
 			{foreach $type in $types}
 				<option value="{$type}" {if $colType == $type}selected{/if}>
 					{$type}
