@@ -31,7 +31,12 @@
 {template .columnsList}
 <div id="columns_list">
 	<div class="row head">
-		<span>Name</span><span>Type</span><span>PK</span><span></span>
+		<span>Name</span>
+		<span>Type</span>
+		<span>PK</span>
+		<span>Not NULL</span>
+		<span>Unique</span>		
+		<span></span>
 	</div>
 	{call .tableColumn}
 		{param types: $types /}
@@ -42,6 +47,8 @@
 				{param name: $column.name /}
 				{param types: $types /}
 				{param pkey: $column.pkey /}
+				{param nnull: $column.nnull /}
+				{param uniq: $column.uniq /}
 			{/call}
 		{/foreach}
 	{/if}
@@ -54,6 +61,8 @@
  * @param types
  * @param? colType
  * @param? pkey
+ * @param? nnull
+ * @param? uniq
  */
 {template .tableColumn}
 <div class="row">
@@ -69,6 +78,12 @@
 	</span>
 	<span>
 		<input type="checkbox" class="pkey" {if $pkey == true}checked{/if} />
+	</span>
+	<span>
+		<input type="checkbox" class="nnull" {if $nnull == true}checked{/if} />
+	</span>
+	<span>
+		<input type="checkbox" class="unique" {if $uniq == true}checked{/if} />
 	</span>
 	<span><button class="delete">Del</button></span>
 </div>

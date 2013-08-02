@@ -1,4 +1,5 @@
 goog.provide 'dm'
+goog.provide 'dm.init'
 
 goog.require 'dm.dialogs.TableDialog'
 goog.require 'dm.model.Model'
@@ -38,3 +39,5 @@ dm.init = ->
 
 	dm.actualModel.addRelation canvas.svg, tab0, tab1
 	dm.actualModel.addRelation canvas.svg, tab0, tab2
+
+goog.exportSymbol 'dm.init', dm.init

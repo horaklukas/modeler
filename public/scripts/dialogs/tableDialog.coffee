@@ -15,7 +15,8 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		
 		@setContent tmpls.dialogs.createTable.dialog {types: types}
 		@setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL
-		
+		@setDraggable false
+
 		# force render dialog, so all control widgets exists since now
 		content = @getContentElement()
 		
@@ -60,9 +61,15 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 			
 			[type] = goog.dom.getElementsByTagNameAndClass(undefined, 'type', elem)
 			[pkey] = goog.dom.getElementsByTagNameAndClass(undefined, 'pkey', elem)
+			[nnull] = goog.dom.getElementsByTagNameAndClass(undefined, 'nnull', elem)
+			[uniq] = goog.dom.getElementsByTagNameAndClass(undefined, 'unique', elem)
 
 			# Each column values
-			name: name.value, type: type.value, pk: pkey.checked 
+			name: name.value
+			type: type.value
+			pk: pkey.checked
+			nnull: nnull.checked
+			uniq: uniq.checked 
 
 		goog.array.filter colsValues, (elem) -> elem?
 
@@ -84,13 +91,16 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		goog.dom.setProperties @nameField, 'value': name
 
 		# one more empty column for add at the end
-		cols2set = cols.concat [{ name: '', type: null, pk: false }]
+		cols2set = cols.concat [
+			{ name: '', type: null, pk: false, nnull: false, uniq: false }
+		]
 
 		# select all rows and remove then except first, which is titles row 
 		oldcols = goog.dom.getElementsByTagNameAndClass	undefined, 'row', @colslist
 		goog.dom.removeNode oldcol for oldcol in goog.array.slice oldcols, 1
 
-		@addColumn col.name, col.type, col.pk for col in cols2set
+		for col in cols2set
+			@addColumn col.name, col.type, col.pk, col.nnull, col.uniq
 
 	###*
 	* Add new `column` row to dialog, empty or set in depend if values are passed
@@ -98,13 +108,17 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 	* @param {string=} name
 	* @param {string=} type
 	* @param {boolean=} pk
+	* @param {boolean=} nnull
+	* @param {boolean=} uniq
 	###
-	addColumn: (name, type, pk) =>
+	addColumn: (name, type, pk, nnull, uniq) =>
 		opts = types: @types
 
 		if name? and typeof name is 'string' then opts.name = name
 		if type? and typeof type is 'string' then opts.colType = type
 		if pk? then opts.pkey = pk
+		if nnull? then opts.nnull = nnull
+		if uniq? then opts.uniq  = uniq
 
 		col = goog.soy.renderAsElement tmpls.dialogs.createTable.tableColumn, opts
 		goog.dom.appendChild @colslist, col
