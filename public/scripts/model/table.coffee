@@ -20,7 +20,7 @@ class dm.model.Table
 		# table's position coordinates
 		@position = new goog.math.Coordinate @x, @y
 		# table's list of related relations
-		@relations = []	
+		@relations = []
 
 		#properties = width: @w, height: @h, left: x, top: y
 		@table = goog.soy.renderAsElement tmpls.model.table, {'id': id}
@@ -95,6 +95,12 @@ class dm.model.Table
 
 	getName: -> @name
 
+	###*
+	* Save table columns with all its attributes and render columns to table on
+	* canvas
+	*
+	* @param {Object.<string,*>} columns Table columns with its attributes
+	###
 	setColumns: (@columns) ->
 		tableBody = goog.dom.getElementsByTagNameAndClass(null, 'body', @table)[0]
 		goog.soy.renderElement tableBody, tmpls.model.tabColumns, {cols: columns}

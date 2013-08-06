@@ -13,20 +13,55 @@ goog.require('goog.graphics.Stroke');
 dm.model.Relation = (function() {
   /**
    * @constructor
+   *
+   * @param {dm.ui.Canvas} canvas Place where to draw relation
+   * @param {string} id Relation identificator
+   * @param {dm.model.Table} startTab First ("parent") table of relation
+   * @param {dm.model.Table} endTab Second ("child") table of relation
+   * @param {boolean=} ident Determine if relation is identifying
   */
-  function Relation(canvas, startTab, endTab, type) {
+  function Relation(canvas, id, startTab, endTab, ident) {
     var stroke;
 
+    this.id = id;
     this.startTab = startTab;
     this.endTab = endTab;
+    if (ident == null) {
+      ident = false;
+    }
     this.getRelationPoints = __bind(this.getRelationPoints, this);
     this.getPathPosition = __bind(this.getPathPosition, this);
-    stroke = new goog.graphics.Stroke(1, '#000');
+    stroke = new goog.graphics.Stroke(2, '#000');
     this.obj = canvas.drawPath(this.getPathPosition(), stroke);
+    this.obj.getElement().setAttribute('id', id);
+    this.setIdentifying(ident);
   }
 
   Relation.prototype.recountPosition = function() {
     return this.obj.setPath(this.getPathPosition());
+  };
+
+  /**
+  	* @param {boolean} ident Determine if relation is identyfing
+  */
+
+
+  Relation.prototype.setIdentifying = function(ident) {
+    this.identifying = ident;
+    if (ident) {
+      return this.obj.getElement().removeAttribute('stroke-dasharray');
+    } else {
+      return this.obj.getElement().setAttribute('stroke-dasharray', '10 5');
+    }
+  };
+
+  /**
+  	* @return {boolean}
+  */
+
+
+  Relation.prototype.isIdentifying = function() {
+    return this.identifying;
   };
 
   /**

@@ -51,23 +51,49 @@ class dm.model.Model
   * Add relation to canvas, the add relation to list of model's relations and
   * to both table list of related relations
 	###
-	addRelation: (canvas, startTabId, endTabId) =>
+	addRelation: (canvas, startTabId, endTabId, ident) =>
+		relId = "rel_#{@relations.length}"
+
 		startTab = @getTable startTabId
 		endTab = @getTable endTabId
 
 		if startTab? and endTab?
-			newRelation = new dm.model.Relation canvas, startTab, endTab
+			newRelation = new dm.model.Relation canvas, relId, startTab, endTab, ident
 			relLen = @relations.push newRelation
 			
 			startTab.addRelation @relations[relLen - 1]
 			endTab.addRelation @relations[relLen - 1]
-		else false
+			
+			return relId
+		else 
+			return false
+
+	setRelation: (id, ident) ->
+		rel = @relations[@getRelNumberId id]
+
+		rel.setIdentifying ident
+
+	###*
+	* Returns relation object by relation id
+	*
+	* @return {dm.model.Relation|null}
+	###
+	getRelation: (id) ->
+		@relations[@getRelNumberId id]
 
 	###*
   * @return {string|boolean}
 	###
 	getTabNumberId: (fullid) ->
 		numberId = fullid.match /^tab_(\d+)$/
+
+		if numberId? then goog.string.toNumber(numberId[1]) else false
+
+	###*
+  * @return {string|boolean}
+	###
+	getRelNumberId: (fullid) ->
+		numberId = fullid.match /^rel_(\d+)$/
 
 		if numberId? then goog.string.toNumber(numberId[1]) else false
 

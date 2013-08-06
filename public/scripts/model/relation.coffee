@@ -7,13 +7,37 @@ goog.require 'goog.graphics.Stroke'
 class dm.model.Relation
 	###*
   * @constructor
+  *
+  * @param {dm.ui.Canvas} canvas Place where to draw relation
+  * @param {string} id Relation identificator
+  * @param {dm.model.Table} startTab First ("parent") table of relation
+  * @param {dm.model.Table} endTab Second ("child") table of relation
+  * @param {boolean=} ident Determine if relation is identifying
 	###
-	constructor: (canvas, @startTab, @endTab, type) ->
-		stroke = new goog.graphics.Stroke 1, '#000'
+	constructor: (canvas, @id, @startTab, @endTab, ident = false) ->
+		stroke = new goog.graphics.Stroke 2, '#000'
 		@obj = canvas.drawPath @getPathPosition(), stroke
+		@obj.getElement().setAttribute 'id', id
+
+		@setIdentifying ident
 
 	recountPosition: ->
 		@obj.setPath @getPathPosition()
+
+	###*
+	* @param {boolean} ident Determine if relation is identyfing
+	###
+	setIdentifying: (ident) ->
+		@identifying = ident
+
+		if ident then @obj.getElement().removeAttribute 'stroke-dasharray'
+		else @obj.getElement().setAttribute 'stroke-dasharray', '10 5'
+		
+	###*
+	* @return {boolean}
+	###
+	isIdentifying: ->
+		@identifying
 
 	###*
   * @return {goog.graphics.Path} new path that represents the relation

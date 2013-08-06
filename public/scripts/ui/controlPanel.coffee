@@ -109,10 +109,8 @@ class dm.ui.ControlPanel extends goog.events.EventTarget
 
 			return false
 		else
-			canvas.placeRelation position
+			canvas.placeRelation position, @startTabId, object.id
 			goog.events.unlisten canvas.html, mousemove, canvas.moveEndRelationPoint
-
-			dm.actualModel.addRelation canvas.svg, @startTabId, object.id
 
 			canvas.html.style.cursor = 'default'
 			return true

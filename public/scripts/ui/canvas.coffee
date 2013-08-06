@@ -41,6 +41,7 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		goog.style.showElement clueTabElement, false 
 
 		goog.events.listen @html, goog.events.EventType.DBLCLICK, @onDblClick
+		goog.events.listen @svg, goog.events.EventType.DBLCLICK, @onDblClick
 		goog.events.listen @html, goog.events.EventType.CLICK, @onClick
 
 	###*
@@ -50,6 +51,7 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		table = goog.dom.getAncestorByClass ev.target, 'table'
 
 		if table then @clickedTable table
+		else if ev.target.nodeName is 'path' then @clickedRelation ev.target
 
 	###*
   * @param {goog.events.Event} ev
@@ -61,7 +63,7 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		@dispatchEvent new dm.ui.Canvas.Click clickPos, clickObj
 
 	###*
-  * @param {dm.model.Table} table
+  * @param {HTMLElement} table
  	###
 	clickedTable: (table) ->
 		tid = table.id
@@ -87,6 +89,16 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		dm.tableDialog.show id
 
 	###*
+	# @param {SVGPath} relation 
+	###
+	clickedRelation: (relation) ->
+		rid = relation.id
+		rel = dm.actualModel.getRelation rid
+
+		dm.relationDialog.show rid
+		dm.relationDialog.setValues rel.isIdentifying()
+
+	###*
   * @param {goog.math.Coordinate} startCoords
 	###
 	setStartRelationPoint: (startCoords)->
@@ -109,9 +121,14 @@ class dm.ui.Canvas extends goog.events.EventTarget
 		
 		@clueRelation.setPath newPath
 
-	placeRelation: (endCoords) =>
+	placeRelation: (endCoords, startTab, endTab) =>
 		goog.style.showElement @clueRelation.getElement(), false
 		@startRelationPath = undefined
+
+		id = dm.actualModel.addRelation @svg, startTab, endTab
+
+		dm.relationDialog.setValues()
+		dm.relationDialog.show id
 
 dm.ui.Canvas.EventType = 
 	CLICK: goog.events.getUniqueId 'canvas-click'	

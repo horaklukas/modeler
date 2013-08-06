@@ -26,11 +26,11 @@ tmpls.model.table = function(opt_data, opt_ignored) {
  */
 tmpls.model.tabColumns = function(opt_data, opt_ignored) {
   var output = '\t';
-  var colList62 = opt_data.cols;
-  var colListLen62 = colList62.length;
-  for (var colIndex62 = 0; colIndex62 < colListLen62; colIndex62++) {
-    var colData62 = colList62[colIndex62];
-    output += tmpls.model.tabColumn({name: colData62.name, pk: colData62.pk});
+  var colList78 = opt_data.cols;
+  var colListLen78 = colList78.length;
+  for (var colIndex78 = 0; colIndex78 < colListLen78; colIndex78++) {
+    var colData78 = colList78[colIndex78];
+    output += tmpls.model.tabColumn({name: colData78.name, pk: colData78.pk});
   }
   return output;
 };

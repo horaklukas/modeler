@@ -1,0 +1,26 @@
+{namespace tmpls.dialogs.createRelation}
+
+/**
+ * Main function for creating dialog
+ * @param ident
+ */
+{template .dialog}
+<div id="createRelation" class="dialog">
+	{call .identform}
+		{param isident: $ident /}
+	{/call}
+</div>
+{/template}
+
+/**
+ * Form with form select of relation identifying
+ * @param isident
+ */
+{template .identform}
+<form id="reltype">
+	<input type="radio" name="ident" value="0" {if not $isident}checked{/if}>
+		Non-Identifying relation
+	<input type="radio" name="ident" value="1" {if $isident}checked{/if}>
+		Identifying relation
+</form>
+{/template}
