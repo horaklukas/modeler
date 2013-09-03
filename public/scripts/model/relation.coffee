@@ -14,15 +14,21 @@ class dm.model.Relation
   * @param {dm.model.Table} endTab Second ("child") table of relation
   * @param {boolean=} ident Determine if relation is identifying
 	###
-	constructor: (canvas, @id, @startTab, @endTab, ident = false) ->
+	constructor: (canvas, @id, startTab, endTab, ident = false) ->
+		@setRelatedTables startTab, endTab
+
 		stroke = new goog.graphics.Stroke 2, '#000'
 		@obj = canvas.drawPath @getPathPosition(), stroke
 		@obj.getElement().setAttribute 'id', id
-
+		
 		@setIdentifying ident
 
 	recountPosition: ->
 		@obj.setPath @getPathPosition()
+
+	setRelatedTables: (parent, child) =>
+		@startTab = parent
+		@endTab = child
 
 	###*
 	* @param {boolean} ident Determine if relation is identyfing

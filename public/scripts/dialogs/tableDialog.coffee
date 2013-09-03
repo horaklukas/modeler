@@ -10,6 +10,9 @@ goog.require 'goog.events'
 goog.require 'goog.array'
 
 class dm.dialogs.TableDialog extends goog.ui.Dialog
+	EventType =
+		CONFIRM: goog.events.getUniqueId 'dialog-confirmed'
+
 	constructor: (@types) ->
 		super() #'createTable', types
 		
@@ -143,9 +146,6 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		confirmEvent =  new dm.dialogs.TableDialog.Confirm(@, @relatedTable, tabName, columns)
 
 		@dispatchEvent confirmEvent
-
-dm.dialogs.TableDialog.EventType =
-	CONFIRM: goog.events.getUniqueId 'dialog-confirmed'
 
 class dm.dialogs.TableDialog.Confirm extends goog.events.Event
 	constructor: (dialog, id, name, columns) ->

@@ -38,11 +38,11 @@ tmpls.dialogs.createTable.name = function(opt_data, opt_ignored) {
 tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
   var output = '<div id="columns_list"><div class="row head"><span>Name</span><span>Type</span><span>PK</span><span>Not NULL</span><span>Unique</span><span></span></div>' + tmpls.dialogs.createTable.tableColumn(opt_data);
   if (opt_data.columns) {
-    var columnList32 = opt_data.columns;
-    var columnListLen32 = columnList32.length;
-    for (var columnIndex32 = 0; columnIndex32 < columnListLen32; columnIndex32++) {
-      var columnData32 = columnList32[columnIndex32];
-      output += tmpls.dialogs.createTable.tableColumn({name: columnData32.name, types: opt_data.types, pkey: columnData32.pkey, nnull: columnData32.nnull, uniq: columnData32.uniq});
+    var columnList45 = opt_data.columns;
+    var columnListLen45 = columnList45.length;
+    for (var columnIndex45 = 0; columnIndex45 < columnListLen45; columnIndex45++) {
+      var columnData45 = columnList45[columnIndex45];
+      output += tmpls.dialogs.createTable.tableColumn({name: columnData45.name, types: opt_data.types, pkey: columnData45.pkey, nnull: columnData45.nnull, uniq: columnData45.uniq});
     }
   }
   output += '</div><button class="add">Add new column</button>';
@@ -58,11 +58,11 @@ tmpls.dialogs.createTable.columnsList = function(opt_data, opt_ignored) {
  */
 tmpls.dialogs.createTable.tableColumn = function(opt_data, opt_ignored) {
   var output = '<div class="row"><span><input type="text" class="name" value="' + ((opt_data.name) ? soy.$$escapeHtml(opt_data.name) : '') + '"/></span><span><select class="type">';
-  var typeList47 = opt_data.types;
-  var typeListLen47 = typeList47.length;
-  for (var typeIndex47 = 0; typeIndex47 < typeListLen47; typeIndex47++) {
-    var typeData47 = typeList47[typeIndex47];
-    output += '<option value="' + soy.$$escapeHtml(typeData47) + '" ' + ((opt_data.colType == typeData47) ? 'selected' : '') + '>' + soy.$$escapeHtml(typeData47) + '</option>';
+  var typeList60 = opt_data.types;
+  var typeListLen60 = typeList60.length;
+  for (var typeIndex60 = 0; typeIndex60 < typeListLen60; typeIndex60++) {
+    var typeData60 = typeList60[typeIndex60];
+    output += '<option value="' + soy.$$escapeHtml(typeData60) + '" ' + ((opt_data.colType == typeData60) ? 'selected' : '') + '>' + soy.$$escapeHtml(typeData60) + '</option>';
   }
   output += '</select></span><span><input type="checkbox" class="pkey" ' + ((opt_data.pkey == true) ? 'checked' : '') + ' /></span><span><input type="checkbox" class="nnull" ' + ((opt_data.nnull == true) ? 'checked' : '') + ' /></span><span><input type="checkbox" class="unique" ' + ((opt_data.uniq == true) ? 'checked' : '') + ' /></span><span><button class="delete">Del</button></span></div>';
   return output;

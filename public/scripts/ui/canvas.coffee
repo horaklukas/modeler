@@ -67,7 +67,7 @@ class dm.ui.Canvas extends goog.events.EventTarget
  	###
 	clickedTable: (table) ->
 		tid = table.id
-		tab = dm.actualModel.getTable tid
+		tab = dm.actualModel.getTableById tid
 
 		dm.tableDialog.show tid
 		dm.tableDialog.setValues tab.getName(), tab.getColumns()
@@ -93,10 +93,10 @@ class dm.ui.Canvas extends goog.events.EventTarget
 	###
 	clickedRelation: (relation) ->
 		rid = relation.id
-		rel = dm.actualModel.getRelation rid
+		rel = dm.actualModel.getRelationById rid
 
 		dm.relationDialog.show rid
-		dm.relationDialog.setValues rel.isIdentifying()
+		dm.relationDialog.setValues rel.startTab, rel.endTab, rel.isIdentifying()
 
 	###*
   * @param {goog.math.Coordinate} startCoords
@@ -127,7 +127,10 @@ class dm.ui.Canvas extends goog.events.EventTarget
 
 		id = dm.actualModel.addRelation @svg, startTab, endTab
 
-		dm.relationDialog.setValues()
+		startTabName = dm.actualModel.getTableById startTab
+		endTabName = dm.actualModel.getTableById endTab
+
+		dm.relationDialog.setValues startTabName, endTabName
 		dm.relationDialog.show id
 
 dm.ui.Canvas.EventType = 

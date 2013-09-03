@@ -33,7 +33,7 @@ dm.init = function() {
     return dm.actualModel.setTable(ev.tableId, ev.tableName, ev.tableColumns);
   });
   goog.events.listen(dm.relationDialog, dm.dialogs.RelationDialog.EventType.CONFIRM, function(ev) {
-    return dm.actualModel.setRelation(ev.relationId, ev.identifying);
+    return dm.actualModel.setRelation(ev.relationId, ev.identifying, ev.parentTable, ev.childTable);
   });
   tab0 = dm.actualModel.addTable(canvas.html, 100, 75);
   dm.actualModel.setTable(tab0, 'Person', [

@@ -3,12 +3,16 @@ goog.provide 'dm.model.Model'
 goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
 goog.require 'goog.string'
+goog.require 'goog.ui.IdGenerator'
 
 class dm.model.Model
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
-		@tables = []
-		@relations = []
+
+		@idgen_ = new goog.ui.IdGenerator()
+
+		@tables_ = {}
+		@relations_ = {}
 
 	###*
 	* Add table to canvas and to model's list of tables
@@ -19,82 +23,75 @@ class dm.model.Model
   * @return {string} id of new table
 	###
 	addTable: (canvas, x, y, name) =>
-		tabId = "tab_#{@tables.length}"
-		table = new dm.model.Table canvas, tabId, x, y
+		id = @idgen_.getNextUniqueId()
+		table = new dm.model.Table canvas, id, x, y
 		
-		@tables.push table
+		@tables_[id] = table
 		
-		return tabId
+		return id
 
 	###*
   * Pass new values from table dialog to table
   *
   * @param {string} id Identificator of table to edit
   * @param {string} name Name of table to set
-  * @param {Object.<string,*>=} columns
+  * @param {Array.<dm.model.TableColumn>=} columns
 	###
 	setTable: (id, name, columns) =>
-		tab = @tables[@getTabNumberId id]
+		table = @getTableById id
 
-		tab.setName name
-		if columns? then tab.setColumns columns
+		table.setName name
 
-	###*
-	* Returns table object by table id
-	*
-	* @return {dm.model.Table|null}
-	###
-	getTable: (id) ->
-		@tables[@getTabNumberId id]
+		if columns?
+			table.addColumns columns, true
+			table.render()
 
 	###*
   * Add relation to canvas, the add relation to list of model's relations and
   * to both table list of related relations
 	###
 	addRelation: (canvas, startTabId, endTabId, ident) =>
-		relId = "rel_#{@relations.length}"
+		id = @idgen_.getNextUniqueId()
 
-		startTab = @getTable startTabId
-		endTab = @getTable endTabId
+		startTab = @getTableById startTabId
+		endTab = @getTableById endTabId
 
 		if startTab? and endTab?
-			newRelation = new dm.model.Relation canvas, relId, startTab, endTab, ident
-			relLen = @relations.push newRelation
+			newRelation = new dm.model.Relation canvas, id, startTab, endTab, ident
+			@relations_[id] = newRelation
 			
-			startTab.addRelation @relations[relLen - 1]
-			endTab.addRelation @relations[relLen - 1]
+			startTab.addRelation newRelation
+			endTab.addRelation newRelation
 			
-			return relId
+			return id
 		else 
 			return false
 
-	setRelation: (id, ident) ->
-		rel = @relations[@getRelNumberId id]
+	setRelation: (id, ident, parentTab, childTab) ->
+		rel = @getRelationById id
 
 		rel.setIdentifying ident
+		rel.setRelatedTables parentTab, childTab
+
+		for column in parentTab.getColumns() when column.isPrimary() is true
+			childTab.addColumn column.clone(), true
+
+		childTab.render()
 
 	###*
-	* Returns relation object by relation id
-	*
-	* @return {dm.model.Relation|null}
+	* Returns table object by table id
+  * @param {string} id
+  * @return {dm.model.Table=}
 	###
-	getRelation: (id) ->
-		@relations[@getRelNumberId id]
+	getTableById: (id) ->
+		@tables_[id] ? null
 
 	###*
-  * @return {string|boolean}
+  * Returns relation object by relation id
+  * @param {string} id
+  * @return {dm.model.Relation=}
 	###
-	getTabNumberId: (fullid) ->
-		numberId = fullid.match /^tab_(\d+)$/
-
-		if numberId? then goog.string.toNumber(numberId[1]) else false
-
-	###*
-  * @return {string|boolean}
-	###
-	getRelNumberId: (fullid) ->
-		numberId = fullid.match /^rel_(\d+)$/
-
-		if numberId? then goog.string.toNumber(numberId[1]) else false
+	getRelationById: (id) ->
+		@relations_[id] ? null
 
 if not window? then module.exports = Model

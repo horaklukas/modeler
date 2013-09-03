@@ -24,13 +24,13 @@ dm.model.Relation = (function() {
     var stroke;
 
     this.id = id;
-    this.startTab = startTab;
-    this.endTab = endTab;
     if (ident == null) {
       ident = false;
     }
     this.getRelationPoints = __bind(this.getRelationPoints, this);
     this.getPathPosition = __bind(this.getPathPosition, this);
+    this.setRelatedTables = __bind(this.setRelatedTables, this);
+    this.setRelatedTables(startTab, endTab);
     stroke = new goog.graphics.Stroke(2, '#000');
     this.obj = canvas.drawPath(this.getPathPosition(), stroke);
     this.obj.getElement().setAttribute('id', id);
@@ -39,6 +39,11 @@ dm.model.Relation = (function() {
 
   Relation.prototype.recountPosition = function() {
     return this.obj.setPath(this.getPathPosition());
+  };
+
+  Relation.prototype.setRelatedTables = function(parent, child) {
+    this.startTab = parent;
+    return this.endTab = child;
   };
 
   /**

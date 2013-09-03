@@ -898,9 +898,10 @@ goog.addDependency('../../../lib/third_party/closure/goog/loremipsum/text/loremi
 goog.addDependency('../../../lib/third_party/closure/goog/mochikit/async/deferred.js', ['goog.async.Deferred', 'goog.async.Deferred.AlreadyCalledError', 'goog.async.Deferred.CanceledError'], ['goog.array', 'goog.asserts', 'goog.debug.Error', 'goog.functions']);
 goog.addDependency('../../../lib/third_party/closure/goog/mochikit/async/deferredlist.js', ['goog.async.DeferredList'], ['goog.async.Deferred']);
 goog.addDependency('../../../lib/third_party/closure/goog/osapi/osapi.js', ['goog.osapi'], []);
-goog.addDependency('../../../model/model.js', ['dm.model.Model'], ['dm.model.Relation', 'dm.model.Table', 'goog.string']);
+goog.addDependency('../../../model/model.js', ['dm.model.Model'], ['dm.model.Relation', 'dm.model.Table', 'goog.string', 'goog.ui.IdGenerator']);
 goog.addDependency('../../../model/relation.js', ['dm.model.Relation'], ['goog.graphics.Path', 'goog.graphics.Stroke', 'goog.math.Coordinate']);
-goog.addDependency('../../../model/table.js', ['dm.model.Table'], ['goog.dom', 'goog.dom.classes', 'goog.math.Coordinate', 'goog.math.Vec2', 'goog.soy', 'goog.style', 'tmpls.model']);
+goog.addDependency('../../../model/table.js', ['dm.model.Table'], ['goog.dom', 'goog.dom.classes', 'goog.math.Coordinate', 'goog.math.Size', 'goog.soy', 'goog.style', 'tmpls.model']);
+goog.addDependency('../../../model/tableColumn.js', ['dm.model.TableColumn'], []);
 goog.addDependency('../../../templates/dialogs/createRelation.js', ['tmpls.dialogs.createRelation'], ['soy', 'soydata']);
 goog.addDependency('../../../templates/dialogs/createTable.js', ['tmpls.dialogs.createTable'], ['soy', 'soydata']);
 goog.addDependency('../../../templates/model/table.js', ['tmpls.model'], ['soy', 'soydata']);

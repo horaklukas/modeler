@@ -25,7 +25,8 @@ dm.init = ->
 			dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
 
 	goog.events.listen dm.relationDialog, dm.dialogs.RelationDialog.EventType.CONFIRM, (ev) ->
-			dm.actualModel.setRelation ev.relationId, ev.identifying
+			dm.actualModel.setRelation ev.relationId, ev.identifying, ev.parentTable, ev.childTable
+
 
 	# Some test objects
 	tab0 = dm.actualModel.addTable canvas.html, 100, 75
