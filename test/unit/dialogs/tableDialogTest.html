@@ -1,0 +1,29 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../../../node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="../../../node_modules/mocha/mocha.js"></script>
+  <script src="../../../node_modules/chai/chai.js"></script>
+  <script src="../../../node_modules/sinon-chai/lib/sinon-chai.js"></script>
+  <script src="../../../node_modules/sinon/pkg/sinon.js"></script>
+  <script src="../../../public/scripts/lib/closure/goog/base.js"></script>
+  <script src="../../../public/scripts/dm/app-deps.js"></script>
+  <script>
+    mocha.setup('bdd');
+    expect = chai.expect;
+    chai.should();
+    
+  </script>
+  <script src="./tableDialogTest.js"></script>
+  <script>
+    mocha.checkLeaks();
+    
+    if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
+    else { mocha.run(); }
+  </script>
+</body>
+</html>

@@ -17,7 +17,10 @@
     "sinon-chai": "*",
     "grunt": "~0.4.1",
     "grunt-closure-tools": "~0.8.3",
-    "grunt-closure-soy": "~0.2.0"
+    "grunt-closure-soy": "~0.2.0",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-mocha-phantomjs": "~0.3.0"
   },
   "engines": {
     "node": "0.8.4"

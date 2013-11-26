@@ -3,19 +3,25 @@ html
 	head
 		title= title
 		link(rel="stylesheet", type="text/css", href="/styles/main.css")
+		link(rel="stylesheet", type="text/css", href="/scripts/lib/closure/goog/css/common.css")
+		link(rel="stylesheet", type="text/css", href="/scripts/lib/closure/goog/css/dialog.css")
+		link(rel="stylesheet", type="text/css", href="/scripts/lib/closure/goog/css/toolbar.css")
+		link(rel="stylesheet", type="text/css", href="/scripts/lib/closure/goog/css/button.css")
+		script(src="http://localhost:35729/livereload.js")
 		script(src="/socket.io/socket.io.js")
-		//script(src="/scripts/lib/raphael.min.js")
+		script(src="/scripts/lib/closure/goog/base.js")
+		script(src="/scripts/dm/app-deps.js")
 	body
 		div#app
-			div#controlPanel
+			//	
+				div#controlPanel
 				button.icon.tool(name="createTable")
 				button.icon.tool(name="createRelation")
 			div#modelerCanvas
 
-		script(src="/scripts/lib/closure/goog/base.js")
-		script(src="/scripts/app-deps.js")
-		script
-			goog.require('dm');
-		script
+		script.
 			window.DB = {types: "#{types}".split(',')};	
-			dm.init()
+			goog.require('dm');
+		
+		script(src="/scripts/dm/test-data.js")
+				
