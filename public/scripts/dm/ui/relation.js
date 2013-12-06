@@ -1,13 +1,10 @@
-var relationStroke, strokeBg,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 goog.provide('dm.ui.Relation');
 
 goog.require('dm.ui.Table.EventType');
-
-goog.require('goog.graphics.SvgGroupElement');
 
 goog.require('goog.graphics.SvgPathElement');
 
@@ -16,12 +13,6 @@ goog.require('goog.graphics.Path');
 goog.require('goog.graphics.SolidFill');
 
 goog.require('goog.graphics.Stroke');
-
-goog.require('goog.ui.IdGenerator');
-
-strokeBg = new goog.graphics.Stroke(10, 'transparent');
-
-relationStroke = new goog.graphics.Stroke(2, '#000');
 
 dm.ui.Relation = (function(_super) {
   __extends(Relation, _super);
@@ -32,7 +23,15 @@ dm.ui.Relation = (function(_super) {
   */
 
 
-  Relation.width = 2;
+  Relation.relationStroke = new goog.graphics.Stroke(2, '#000');
+
+  /**
+   * @const
+   * @static
+  */
+
+
+  Relation.strokeBg = new goog.graphics.Stroke(10, 'transparent');
 
   /**
   	* @param {dm.model.Relation}
@@ -43,16 +42,14 @@ dm.ui.Relation = (function(_super) {
 
 
   function Relation(relationModel, parentTab, childTab) {
+    this.setRelationType = __bind(this.setRelationType, this);
     this.getRelationPoints = __bind(this.getRelationPoints, this);
     this.getRelationPath = __bind(this.getRelationPath, this);
-    this.recountPosition = __bind(this.recountPosition, this);
-    /**
-      * @type {string}
-    */
-
+    this.recountPosition = __bind(this.recountPosition, this);    Relation.__super__.constructor.call(this);
     /**
       * @type {dm.model.Relation}
     */
+
     this.setModel(relationModel);
     /**
       * @type {dm.ui.Table}
@@ -76,49 +73,19 @@ dm.ui.Relation = (function(_super) {
   */
 
 
-  /*
-  	addTo: (canvas) ->
-  		path = @getRelationPath(new goog.graphics.Path)
-  		
-  		@relationBg_ = canvas.drawPath path, strokeBg
-  		@relationPath_ = canvas.drawPath path, relationStroke
-  		
-  		#@relationPath_.getElement().setAttribute 'id', @id_
-  
-  		if @model_ then @setRelationType()
-  
-  		goog.events.listen @parentTab, dm.ui.Table.EventType.MOVE, @recountPosition
-  		goog.events.listen @childTab, dm.ui.Table.EventType.MOVE, @recountPosition
-  */
-
-
-  /**
-   * @param {dm.ui.Canvas} canvas
-  */
-
-
   Relation.prototype.draw = function(canvas) {
     var path;
 
     path = this.getRelationPath(new goog.graphics.Path);
     this.relationGroup_ = canvas.createGroup();
-    this.relationBg_ = canvas.drawPath(path, strokeBg, null, this.relationGroup_);
-    this.relationPath_ = canvas.drawPath(path, relationStroke, null, this.relationGroup_);
+    this.relationBg_ = canvas.drawPath(path, dm.ui.Relation.strokeBg, null, this.relationGroup_);
+    this.relationPath_ = canvas.drawPath(path, dm.ui.Relation.relationStroke, null, this.relationGroup_);
     this.relationGroup_.getElement().id = this.getId();
-    if (this.model_) {
+    if (this.getModel() != null) {
       this.setRelationType();
     }
     goog.events.listen(this.parentTab, dm.ui.Table.EventType.MOVE, this.recountPosition);
-    return goog.events.listen(this.childTab, dm.ui.Table.EventType.MOVE, this.recountPosition);
-  };
-
-  /**
-   * @param {dm.model.Relation} model
-  */
-
-
-  Relation.prototype.setModel = function(model) {
-    this.model_ = model;
+    goog.events.listen(this.childTab, dm.ui.Table.EventType.MOVE, this.recountPosition);
     return goog.events.listen(this.model_, 'type-change', this.setRelationType);
   };
 
@@ -291,7 +258,7 @@ dm.ui.Relation = (function(_super) {
   Relation.prototype.setRelationType = function() {
     var identify, relationElement;
 
-    identify = this.model_.isIdentifying();
+    identify = this.getModel().isIdentifying();
     relationElement = this.relationPath_.getElement();
     if (identify) {
       return relationElement.removeAttribute('stroke-dasharray');

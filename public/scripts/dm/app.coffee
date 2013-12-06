@@ -34,13 +34,23 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
 	if object instanceof dm.ui.Relation then relationDialog.show true, object
 	else if object instanceof dm.ui.Table then tableDialog.show true, object
 
-#goog.events.listen canvas,
-	#relationDialog.show 
+goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
+	switch ev.objType
+		when 'table'
+			tab = new dm.ui.Table new dm.model.Table(), ev.data.x, ev.data.y
+			canvas.addTable tab
+			tableDialog.show true, tab
+		when 'relation'
+			rel = new dm.ui.Relation(
+				new dm.model.Relation(false), ev.data.parent, ev.data.child
+			)
 
-goog.events.listen tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
-		dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
+			canvas.addRelation rel 
 
-goog.events.listen relationDialog, dm.dialogs.RelationDialog.EventType.CONFIRM, (ev) ->
-		dm.actualModel.setRelation ev.relationId, ev.identifying, ev.parentTable, ev.childTable
+#goog.events.listen tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
+#		dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
 
-goog.exportSymbol 'dm.init', dm.init
+#goog.events.listen relationDialog, dm.dialogs.RelationDialog.EventType.CONFIRM, (ev) ->
+#		dm.actualModel.setRelation ev.relationId, ev.identifying, ev.parentTable, ev.childTable
+
+#goog.exportSymbol 'dm.init', dm.init

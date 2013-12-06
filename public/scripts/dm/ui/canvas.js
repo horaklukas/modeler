@@ -224,7 +224,9 @@ dm.ui.Canvas = (function(_super) {
     } else {
       goog.style.setPosition(this.move.object, x, y);
     }
-    return this.move.object.dispatchEvent(dm.ui.Table.EventType.MOVE);
+    if (this.move.object instanceof dm.ui.Table) {
+      return this.move.object.dispatchEvent(dm.ui.Table.EventType.MOVE);
+    }
   };
 
   /**
@@ -361,8 +363,8 @@ dm.ui.Canvas.Click = (function(_super) {
 
 
   function Click(obj, position) {
-    Click.__super__.constructor.call(this, dm.ui.Canvas.EventType.CLICK, obj);
     this.position = position;
+    Click.__super__.constructor.call(this, dm.ui.Canvas.EventType.CLICK, obj);
   }
 
   return Click;

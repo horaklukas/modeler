@@ -1,10 +1,15 @@
 module.exports = (grunt) ->
+  srcCoffees = [
+    './*.coffee'
+    'src/**/*.coffee'
+    'public/scripts/**/*.coffee'
+  ]
 
   grunt.initConfig
     coffee:
       run:
         expand: true,
-        src: ['public/scripts/**/*.coffee'],
+        src: srcCoffees,
         ext: '.js'
         options:
           compile: true
@@ -69,7 +74,7 @@ module.exports = (grunt) ->
 
     watch:
       coffee:
-        files: ['public/scripts/**/*.coffee']
+        files: srcCoffees
         tasks: ['coffee']
         options:
           livereload: true

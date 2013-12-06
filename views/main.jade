@@ -8,19 +8,15 @@ html
 		link(rel="stylesheet", type="text/css", href="/scripts/lib/closure/goog/css/toolbar.css")
 		link(rel="stylesheet", type="text/css", href="/scripts/lib/closure/goog/css/button.css")
 		script(src="http://localhost:35729/livereload.js")
-		script(src="/socket.io/socket.io.js")
+		//script(src="/socket.io/socket.io.js")
 		script(src="/scripts/lib/closure/goog/base.js")
 		script(src="/scripts/dm/app-deps.js")
 	body
 		div#app
-			//	
-				div#controlPanel
-				button.icon.tool(name="createTable")
-				button.icon.tool(name="createRelation")
 			div#modelerCanvas
 
+		script!= javascript
 		script.
-			window.DB = {types: "#{types}".split(',')};	
 			goog.require('dm');
 		
 		script(src="/scripts/dm/test-data.js")

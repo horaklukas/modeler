@@ -2,3 +2,5 @@ node_modules
 *.uncompr.js
 *sublime*
 closure/
+
+Gruntfile.js

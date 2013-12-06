@@ -1,25 +1,24 @@
 goog.provide 'dm.ui.Relation'
 
 goog.require 'dm.ui.Table.EventType'
-goog.require 'goog.graphics.SvgGroupElement'
 goog.require 'goog.graphics.SvgPathElement'
 goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.SolidFill'
 goog.require 'goog.graphics.Stroke'
-goog.require 'goog.ui.IdGenerator'
 
-#idGen = goog.ui.IdGenerator.getInstance()
-
-strokeBg = new goog.graphics.Stroke 10, 'transparent'
-relationStroke = new goog.graphics.Stroke 2, '#000'
-
-class dm.ui.Relation extends goog.ui.Component #goog.graphics.SvgGroupElement
+class dm.ui.Relation extends goog.ui.Component
 	###*
   * @const
   * @static
 	###
-	@width = 2
-
+	@relationStroke: new goog.graphics.Stroke 2, '#000'
+	
+	###*
+  * @const
+  * @static
+	###
+	@strokeBg: new goog.graphics.Stroke 10, 'transparent'
+	
 	###*
 	* @param {dm.model.Relation}
   * @param {dm.ui.Table}
@@ -27,12 +26,7 @@ class dm.ui.Relation extends goog.ui.Component #goog.graphics.SvgGroupElement
   * @constructor
 	###
 	constructor: (relationModel, parentTab, childTab) ->
-		#super canvas
-
-		###*
-    * @type {string}
-		###
-		#@id_ = idGen.getNextUniqueId()
+		super()
 
 		###*
     * @type {dm.model.Relation}
@@ -57,44 +51,25 @@ class dm.ui.Relation extends goog.ui.Component #goog.graphics.SvgGroupElement
 	###*
   * @param {dm.ui.Canvas} canvas
 	###
-	###
-	addTo: (canvas) ->
-		path = @getRelationPath(new goog.graphics.Path)
-		
-		@relationBg_ = canvas.drawPath path, strokeBg
-		@relationPath_ = canvas.drawPath path, relationStroke
-		
-		#@relationPath_.getElement().setAttribute 'id', @id_
-
-		if @model_ then @setRelationType()
-
-		goog.events.listen @parentTab, dm.ui.Table.EventType.MOVE, @recountPosition
-		goog.events.listen @childTab, dm.ui.Table.EventType.MOVE, @recountPosition
-	###	
-	###*
-  * @param {dm.ui.Canvas} canvas
-	###
 	draw: (canvas) ->
 		path = @getRelationPath(new goog.graphics.Path)
 		
 		@relationGroup_ = canvas.createGroup()
-		@relationBg_ = canvas.drawPath path, strokeBg, null, @relationGroup_
-		@relationPath_ = canvas.drawPath path, relationStroke, null, @relationGroup_
+		@relationBg_ = canvas.drawPath(
+			path, dm.ui.Relation.strokeBg, null, @relationGroup_
+		)
+		@relationPath_ = canvas.drawPath(
+			path, dm.ui.Relation.relationStroke, null, @relationGroup_
+		)
 		
 		@relationGroup_.getElement().id = @getId()
 		
 		#@relationPath_.getElement().setAttribute 'id', @id_
 
-		if @model_ then @setRelationType()
+		if @getModel()? then @setRelationType()
 
 		goog.events.listen @parentTab, dm.ui.Table.EventType.MOVE, @recountPosition
 		goog.events.listen @childTab, dm.ui.Table.EventType.MOVE, @recountPosition
-
-	###*
-  * @param {dm.model.Relation} model
-	###
-	setModel: (model) ->
-		@model_ = model
 		
 		goog.events.listen @model_, 'type-change', @setRelationType
 
@@ -249,8 +224,8 @@ class dm.ui.Relation extends goog.ui.Component #goog.graphics.SvgGroupElement
 	###*
 	* Changes relation stroke typ by identifying
 	###
-	setRelationType: ->
-		identify = @model_.isIdentifying()
+	setRelationType: =>
+		identify = @getModel().isIdentifying()
 		relationElement = @relationPath_.getElement()
 		
 		if identify then relationElement.removeAttribute 'stroke-dasharray'

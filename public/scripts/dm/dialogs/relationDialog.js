@@ -82,14 +82,23 @@ dm.dialogs.RelationDialog = (function(_super) {
     if (relation != null) {
       this.relatedRelation = relation;
       this.isIdentifying = relation.getModel().isIdentifying();
+      this.tablesSwaped = false;
       this.setValues(relation.parentTab.getModel().getName(), relation.childTab.getModel().getName(), this.isIdentifying);
     }
     return this.setVisible(show);
   };
 
   RelationDialog.prototype.onSelect = function(e) {
+    var tmp;
+
     if (e.key !== 'ok') {
       return true;
+    }
+    this.relatedRelation.getModel().setType(this.isIdentifying);
+    if (this.tablesSwaped) {
+      tmp = this.relatedRelation.parentTab;
+      this.relatedRelation.parentTab = this.relatedRelation.childTab;
+      return this.relatedRelation.childTab = tmp;
     }
   };
 

@@ -170,7 +170,10 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 		if @move.object.setPosition then @move.object.setPosition x, y else goog.style.setPosition @move.object, x, y
 		
-		@move.object.dispatchEvent dm.ui.Table.EventType.MOVE
+		# for created tables (not table clue) dispatch `move` event for possibility
+		# to update its relations position 
+		if @move.object instanceof dm.ui.Table
+			@move.object.dispatchEvent dm.ui.Table.EventType.MOVE
 		#console.log x, y
 
 	###*
@@ -278,7 +281,5 @@ class dm.ui.Canvas.Click extends goog.events.Event
   * @constructor
   * @extends {goog.events.Event}
 	###
-	constructor: (obj, position) ->
+	constructor: (obj, @position) ->
 		super dm.ui.Canvas.EventType.CLICK, obj
-
-		@position = position

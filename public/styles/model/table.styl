@@ -5,10 +5,12 @@
 	border: 1px solid black
 	user-select: none
 	cursor: default
+	&.active
+		border-width: 2px
 	&.move
 		opacity: 0.5
 		cursor: move !important
 	.head
 		box-model: inherit, 20px, 0, 0
 		no-border()
-		background-color: #CCC
+		background-color: #ccc

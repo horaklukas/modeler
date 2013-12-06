@@ -1,4 +1,5 @@
 goog.provide 'dm.ui.Toolbar'
+goog.provide 'dm.ui.Toolbar.EventType'
 goog.provide 'dm.ui.tools.CreateTable'
 goog.provide 'dm.ui.tools.createRelation'
 
@@ -22,6 +23,9 @@ goog.require 'goog.ui.ToolbarToggleButton'
 goog.require 'goog.ui.SelectionModel'
 
 class dm.ui.Toolbar extends goog.ui.Toolbar
+	@EventType:
+		CREATE: goog.events.getUniqueId 'object-created'
+
 	###*
   * @constructor
   * @extends {goog.ui.Toolbar}
@@ -54,8 +58,8 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			selectedButton = @selectionModel_.getSelectedItem()
 			unless selectedButton then return false
 			
-			selectedButton.setActionEvent ev
-			@selectionModel_.setSelectedItem() # reset selected tool
+			if selectedButton.setActionEvent ev
+				@selectionModel_.setSelectedItem() # reset selected tool
 
 	###*
   * @param {goog.ui.Button} button
@@ -77,11 +81,18 @@ class dm.ui.tools.CreateToggleButton extends goog.ui.ToolbarToggleButton
 
 		@setAutoStates goog.ui.Component.State.CHECKED, false
 
+		###*
+    * @type {?goog.events.Event}
+		###
+		@actionEvent = null
+
 	###*
   * @param {dm.ui.Canvas.Click} ev Click on canvas event
+  * @return {boolean} true if setting action succeded
 	###
 	setActionEvent: (ev) ->
 		@actionEvent = ev
+		return true
 	
 class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 	###*
@@ -90,11 +101,6 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 	###	
 	constructor: ->
 		super 'table'
-
-		###*
-    * @type {?goog.events.Event}
-		###
-		@actionEvent = null
 
 	###*
   * Called by toolbar when tool is selected
@@ -122,12 +128,10 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 
 		# tool action finished correctly, create new table
 		if @actionEvent?
-			tab = new dm.ui.Table(
-				new dm.model.Table(), @actionEvent.position.x, @actionEvent.position.y
+			@dispatchEvent new dm.ui.Toolbar.ObjectCreate(
+				'table', @actionEvent.position
 			)
-			canvas.addChild tab, true
 			
-		if tab? then dm.dialogs.TableDialog.getInstance().show true, tab
 		@actionEvent = null
 
 
@@ -139,15 +143,51 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 	constructor: ->
 		super 'relation'
 
+		###*
+    * @type {dm.ui.Table}
+		###
+		@parentTable = null
+
+		###*
+    * @type {dm.ui.Table}
+		###
+		@childTable = null
+
 	startAction: ->
 		canvas = dm.ui.Canvas.getInstance()
-		canvas.html.style.cursor = 'crosshair'
+		#goog.style.setStyle canvas.getElement(), 'cursor', 'pointer'
+		#canvas..style.cursor = 'pointer'
+
+	###*
+  * @param {dm.ui.Canvas.Click} ev Click on canvas event
+	###
+	setActionEvent: (ev) ->
+		obj = ev.target
+		if obj instanceof dm.ui.Table
+			goog.dom.classes.add obj.getElement(), 'active'
+
+			if not @parentTable? then @parentTable = obj
+			else if not @childTable then @childTable = obj; return true
+
+		return false
 
 	###*
   * @param {goog.math.Coordinate=} position
   * @param {?HTMLElement} object
 	###
 	finishAction: (position, object) ->
+		unless (@parentTable and @childTable) then return false
+		
+		goog.dom.classes.remove @parentTable.getElement(), 'active'
+		goog.dom.classes.remove @childTable.getElement(), 'active'
+
+		@dispatchEvent new dm.ui.Toolbar.ObjectCreate(
+			'relation', {parent: @parentTable, child: @childTable}
+		)
+
+		@parentTable = null
+		@childTable = null
+		###
 		unless position then return true 
 		unless object then return false
 
@@ -167,3 +207,14 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 
 			canvas.html.style.cursor = 'default'
 			return true
+		###
+
+class dm.ui.Toolbar.ObjectCreate extends goog.events.Event
+	###*
+  * @param {(goog.math.Coordinate|*)} data Position in canvas where to create
+  *  or any other data associated with creation process
+  * @constructor
+  * @extends {goog.events.Event}
+	###
+	constructor: (@objType, @data) ->
+		super dm.ui.Toolbar.EventType.CREATE

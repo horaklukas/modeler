@@ -70,6 +70,7 @@ class dm.dialogs.RelationDialog extends goog.ui.Dialog
 		if relation?
 			@relatedRelation = relation
 			@isIdentifying = relation.getModel().isIdentifying()
+			@tablesSwaped = false
 
 			@setValues(
 				relation.parentTab.getModel().getName(),
@@ -82,6 +83,12 @@ class dm.dialogs.RelationDialog extends goog.ui.Dialog
 	onSelect: (e) =>
 		if e.key isnt 'ok' then return true
 		
+		@relatedRelation.getModel().setType @isIdentifying
+		
+		if @tablesSwaped
+			tmp = @relatedRelation.parentTab
+			@relatedRelation.parentTab = @relatedRelation.childTab
+			@relatedRelation.childTab = tmp
 		#confirmEvent =  new dm.dialogs.RelationDialog.Confirm(@, @relatedRelation, @isIdentifying, @relatedTables.parent, @relatedTables.child)
 
 		#@dispatchEvent confirmEvent

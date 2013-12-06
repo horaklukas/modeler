@@ -55,12 +55,16 @@ goog.events.listen(canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, function(ev) {
   }
 });
 
-goog.events.listen(tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, function(ev) {
-  return dm.actualModel.setTable(ev.tableId, ev.tableName, ev.tableColumns);
-});
+goog.events.listen(mainToolbar, dm.ui.Toolbar.EventType.CREATE, function(ev) {
+  var rel, tab;
 
-goog.events.listen(relationDialog, dm.dialogs.RelationDialog.EventType.CONFIRM, function(ev) {
-  return dm.actualModel.setRelation(ev.relationId, ev.identifying, ev.parentTable, ev.childTable);
+  switch (ev.objType) {
+    case 'table':
+      tab = new dm.ui.Table(new dm.model.Table(), ev.data.x, ev.data.y);
+      canvas.addTable(tab);
+      return tableDialog.show(true, tab);
+    case 'relation':
+      rel = new dm.ui.Relation(new dm.model.Relation(false), ev.data.parent, ev.data.child);
+      return canvas.addRelation(rel);
+  }
 });
-
-goog.exportSymbol('dm.init', dm.init);

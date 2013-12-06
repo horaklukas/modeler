@@ -4,6 +4,8 @@ var __hasProp = {}.hasOwnProperty,
 
 goog.provide('dm.ui.Toolbar');
 
+goog.provide('dm.ui.Toolbar.EventType');
+
 goog.provide('dm.ui.tools.CreateTable');
 
 goog.provide('dm.ui.tools.createRelation');
@@ -36,6 +38,10 @@ goog.require('goog.ui.SelectionModel');
 
 dm.ui.Toolbar = (function(_super) {
   __extends(Toolbar, _super);
+
+  Toolbar.EventType = {
+    CREATE: goog.events.getUniqueId('object-created')
+  };
 
   /**
    * @constructor
@@ -81,8 +87,9 @@ dm.ui.Toolbar = (function(_super) {
       if (!selectedButton) {
         return false;
       }
-      selectedButton.setActionEvent(ev);
-      return _this.selectionModel_.setSelectedItem();
+      if (selectedButton.setActionEvent(ev)) {
+        return _this.selectionModel_.setSelectedItem();
+      }
     });
   };
 
@@ -119,15 +126,22 @@ dm.ui.tools.CreateToggleButton = (function(_super) {
   function CreateToggleButton(name) {
     CreateToggleButton.__super__.constructor.call(this, goog.dom.createDom('div', "icon tool create-" + name));
     this.setAutoStates(goog.ui.Component.State.CHECKED, false);
+    /**
+      * @type {?goog.events.Event}
+    */
+
+    this.actionEvent = null;
   }
 
   /**
    * @param {dm.ui.Canvas.Click} ev Click on canvas event
+   * @return {boolean} true if setting action succeded
   */
 
 
   CreateToggleButton.prototype.setActionEvent = function(ev) {
-    return this.actionEvent = ev;
+    this.actionEvent = ev;
+    return true;
   };
 
   return CreateToggleButton;
@@ -145,11 +159,6 @@ dm.ui.tools.CreateTable = (function(_super) {
 
   function CreateTable() {
     this.finishAction = __bind(this.finishAction, this);    CreateTable.__super__.constructor.call(this, 'table');
-    /**
-      * @type {?goog.events.Event}
-    */
-
-    this.actionEvent = null;
   }
 
   /**
@@ -175,17 +184,13 @@ dm.ui.tools.CreateTable = (function(_super) {
 
 
   CreateTable.prototype.finishAction = function(ev) {
-    var canvas, tab;
+    var canvas;
 
     canvas = dm.ui.Canvas.getInstance();
     goog.style.showElement(canvas.clueTable, false);
     goog.events.unlisten(document, goog.events.EventType.MOUSEMOVE, canvas.moveTable);
     if (this.actionEvent != null) {
-      tab = new dm.ui.Table(new dm.model.Table(), this.actionEvent.position.x, this.actionEvent.position.y);
-      canvas.addChild(tab, true);
-    }
-    if (tab != null) {
-      dm.dialogs.TableDialog.getInstance().show(true, tab);
+      this.dispatchEvent(new dm.ui.Toolbar.ObjectCreate('table', this.actionEvent.position));
     }
     return this.actionEvent = null;
   };
@@ -205,13 +210,43 @@ dm.ui.tools.CreateRelation = (function(_super) {
 
   function CreateRelation() {
     CreateRelation.__super__.constructor.call(this, 'relation');
+    /**
+      * @type {dm.ui.Table}
+    */
+
+    this.parentTable = null;
+    /**
+      * @type {dm.ui.Table}
+    */
+
+    this.childTable = null;
   }
 
   CreateRelation.prototype.startAction = function() {
     var canvas;
 
-    canvas = dm.ui.Canvas.getInstance();
-    return canvas.html.style.cursor = 'crosshair';
+    return canvas = dm.ui.Canvas.getInstance();
+  };
+
+  /**
+   * @param {dm.ui.Canvas.Click} ev Click on canvas event
+  */
+
+
+  CreateRelation.prototype.setActionEvent = function(ev) {
+    var obj;
+
+    obj = ev.target;
+    if (obj instanceof dm.ui.Table) {
+      goog.dom.classes.add(obj.getElement(), 'active');
+      if (this.parentTable == null) {
+        this.parentTable = obj;
+      } else if (!this.childTable) {
+        this.childTable = obj;
+        return true;
+      }
+    }
+    return false;
   };
 
   /**
@@ -221,29 +256,62 @@ dm.ui.tools.CreateRelation = (function(_super) {
 
 
   CreateRelation.prototype.finishAction = function(position, object) {
-    var canvas, mousemove;
+    if (!(this.parentTable && this.childTable)) {
+      return false;
+    }
+    goog.dom.classes.remove(this.parentTable.getElement(), 'active');
+    goog.dom.classes.remove(this.childTable.getElement(), 'active');
+    this.dispatchEvent(new dm.ui.Toolbar.ObjectCreate('relation', {
+      parent: this.parentTable,
+      child: this.childTable
+    }));
+    this.parentTable = null;
+    return this.childTable = null;
+    /*
+    		unless position then return true 
+    		unless object then return false
+    
+    		canvas = dm.ui.Canvas.getInstance()
+    		mousemove = goog.events.EventType.MOUSEMOVE
+    
+    		# Create clue relation or only set start point to existing
+    		unless canvas.startRelationPath
+    			@startTabId = object.id
+    			canvas.setStartRelationPoint position
+    			goog.events.listen canvas.html, mousemove, canvas.moveEndRelationPoint
+    
+    			return false
+    		else
+    			canvas.placeRelation position, @startTabId, object.id
+    			goog.events.unlisten canvas.html, mousemove, canvas.moveEndRelationPoint
+    
+    			canvas.html.style.cursor = 'default'
+    			return true
+    */
 
-    if (!position) {
-      return true;
-    }
-    if (!object) {
-      return false;
-    }
-    canvas = dm.ui.Canvas.getInstance();
-    mousemove = goog.events.EventType.MOUSEMOVE;
-    if (!canvas.startRelationPath) {
-      this.startTabId = object.id;
-      canvas.setStartRelationPoint(position);
-      goog.events.listen(canvas.html, mousemove, canvas.moveEndRelationPoint);
-      return false;
-    } else {
-      canvas.placeRelation(position, this.startTabId, object.id);
-      goog.events.unlisten(canvas.html, mousemove, canvas.moveEndRelationPoint);
-      canvas.html.style.cursor = 'default';
-      return true;
-    }
   };
 
   return CreateRelation;
 
 })(dm.ui.tools.CreateToggleButton);
+
+dm.ui.Toolbar.ObjectCreate = (function(_super) {
+  __extends(ObjectCreate, _super);
+
+  /**
+   * @param {(goog.math.Coordinate|*)} data Position in canvas where to create
+   *  or any other data associated with creation process
+   * @constructor
+   * @extends {goog.events.Event}
+  */
+
+
+  function ObjectCreate(objType, data) {
+    this.objType = objType;
+    this.data = data;
+    ObjectCreate.__super__.constructor.call(this, dm.ui.Toolbar.EventType.CREATE);
+  }
+
+  return ObjectCreate;
+
+})(goog.events.Event);
