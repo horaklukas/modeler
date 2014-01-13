@@ -31,8 +31,8 @@ mainToolbar.renderBefore canvasElement
 goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) -> 
 	object = ev.target
 
-	if object instanceof dm.ui.Relation then relationDialog.show true, object
-	else if object instanceof dm.ui.Table then tableDialog.show true, object
+	if object instanceof dm.ui.Relation then relationDialog.show yes, object
+	else if object instanceof dm.ui.Table then tableDialog.show yes, object
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
 	switch ev.objType
@@ -42,10 +42,10 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
 			tableDialog.show true, tab
 		when 'relation'
 			rel = new dm.ui.Relation(
-				new dm.model.Relation(false), ev.data.parent, ev.data.child
+				new dm.model.Relation(no), ev.data.parent, ev.data.child
 			)
-
-			canvas.addRelation rel 
+			canvas.addRelation rel
+			rel.setRelatedTablesKeys() 
 
 #goog.events.listen tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
 #		dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns

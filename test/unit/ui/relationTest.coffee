@@ -158,3 +158,40 @@ describe 'class Relation', ->
 			fakepath.lineTo.should.been.calledWithExactly 17, 98
 			fakepath.lineTo.should.been.calledWithExactly 21, 98
 			fakepath.lineTo.should.been.calledWithExactly 89, 44
+
+	describe 'method setRelatedTableKeys', ->
+		gcols = sinon.stub()
+		scol = sinon.spy()
+		iident = sinon.stub()
+
+		before ->
+			rel.parentTab = getModel: -> getColumns: gcols
+			rel.childTab = getModel: -> setColumn: scol
+			sinon.stub(rel, 'getModel').returns isIdentifying: iident
+
+		beforeEach ->
+			gcols.reset()
+			scol.reset()
+			iident.reset()
+
+		after ->
+			rel.getModel.restore()
+
+		it 'should add primary column from parent table to child table', ->
+			iident.returns true
+			gcols.returns [
+				{isPk:no,name:'notPk1'},{isPk:yes, name:'Pk1'},{isPk:no, name:'notPk2'}
+			]
+			rel.setRelatedTablesKeys()
+
+			scol.should.been.calledOnce.and.calledWithExactly {isPk: yes,name: 'Pk1'}
+
+		it 'should add primary column from parent to child as a non primary', ->
+			iident.returns false
+			gcols.returns [
+				{isPk:no,name:'notPk1'},{isPk:no, name:'notPk2'},{isPk:yes, name:'Pk1'}
+			]
+			rel.setRelatedTablesKeys()
+
+			scol.should.been.calledOnce.and.calledWithExactly {isPk: no,name: 'Pk1'}
+

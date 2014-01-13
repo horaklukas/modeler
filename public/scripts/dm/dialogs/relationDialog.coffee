@@ -85,10 +85,12 @@ class dm.dialogs.RelationDialog extends goog.ui.Dialog
 		
 		@relatedRelation.getModel().setType @isIdentifying
 		
-		if @tablesSwaped
-			tmp = @relatedRelation.parentTab
-			@relatedRelation.parentTab = @relatedRelation.childTab
-			@relatedRelation.childTab = tmp
+		if @tablesSwaped then @relatedRelation.setRelatedTables(
+			@relatedRelation.childTab, @relatedRelation.parentTab
+		)
+			#tmp = @relatedRelation.parentTab
+			#@relatedRelation.parentTab = @relatedRelation.childTab
+			#@relatedRelation.childTab = tmp
 		#confirmEvent =  new dm.dialogs.RelationDialog.Confirm(@, @relatedRelation, @isIdentifying, @relatedTables.parent, @relatedTables.child)
 
 		#@dispatchEvent confirmEvent

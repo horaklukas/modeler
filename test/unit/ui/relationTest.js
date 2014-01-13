@@ -136,7 +136,7 @@ describe('class Relation', function() {
       return coord.should.have.deep.property('left.y', 27);
     });
   });
-  return describe.skip('getRelationPath', function() {
+  describe.skip('getRelationPath', function() {
     var fakepath, grp;
 
     grp = null;
@@ -291,6 +291,80 @@ describe('class Relation', function() {
       fakepath.lineTo.should.been.calledWithExactly(17, 98);
       fakepath.lineTo.should.been.calledWithExactly(21, 98);
       return fakepath.lineTo.should.been.calledWithExactly(89, 44);
+    });
+  });
+  return describe('method setRelatedTableKeys', function() {
+    var gcols, iident, scol;
+
+    gcols = sinon.stub();
+    scol = sinon.spy();
+    iident = sinon.stub();
+    before(function() {
+      rel.parentTab = {
+        getModel: function() {
+          return {
+            getColumns: gcols
+          };
+        }
+      };
+      rel.childTab = {
+        getModel: function() {
+          return {
+            setColumn: scol
+          };
+        }
+      };
+      return sinon.stub(rel, 'getModel').returns({
+        isIdentifying: iident
+      });
+    });
+    beforeEach(function() {
+      gcols.reset();
+      scol.reset();
+      return iident.reset();
+    });
+    after(function() {
+      return rel.getModel.restore();
+    });
+    it('should add primary column from parent table to child table', function() {
+      iident.returns(true);
+      gcols.returns([
+        {
+          isPk: false,
+          name: 'notPk1'
+        }, {
+          isPk: true,
+          name: 'Pk1'
+        }, {
+          isPk: false,
+          name: 'notPk2'
+        }
+      ]);
+      rel.setRelatedTablesKeys();
+      return scol.should.been.calledOnce.and.calledWithExactly({
+        isPk: true,
+        name: 'Pk1'
+      });
+    });
+    return it('should add primary column from parent to child as a non primary', function() {
+      iident.returns(false);
+      gcols.returns([
+        {
+          isPk: false,
+          name: 'notPk1'
+        }, {
+          isPk: false,
+          name: 'notPk2'
+        }, {
+          isPk: true,
+          name: 'Pk1'
+        }
+      ]);
+      rel.setRelatedTablesKeys();
+      return scol.should.been.calledOnce.and.calledWithExactly({
+        isPk: false,
+        name: 'Pk1'
+      });
     });
   });
 });

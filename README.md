@@ -35,7 +35,7 @@ _The uploaded application needn't corespond to latest state_
 
 ### Relation
 * multiple relations on same table side
-* types of relation - identifying, non-identifyig
+* <s>types of relation - identifying, non-identifyig</s>
 * fix not disabled opossite points when counting path connection points
 * cancel creating of relation if second point not defined
 * <s>create new object - relationship between tables</s>

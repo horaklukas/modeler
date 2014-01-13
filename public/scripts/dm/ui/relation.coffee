@@ -20,6 +20,16 @@ class dm.ui.Relation extends goog.ui.Component
 	@strokeBg: new goog.graphics.Stroke 10, 'transparent'
 	
 	###*
+  * @type {dm.ui.Table}
+	###
+	parentTab: null 
+
+	###*
+  * @type {dm.ui.Table}
+	###
+	@childTab: null
+
+	###*
 	* @param {dm.model.Relation}
   * @param {dm.ui.Table}
   * @param {dm.ui.Table}
@@ -28,19 +38,9 @@ class dm.ui.Relation extends goog.ui.Component
 	constructor: (relationModel, parentTab, childTab) ->
 		super()
 
-		###*
-    * @type {dm.model.Relation}
-		###
 		@setModel relationModel
-
-		###*
-    * @type {dm.ui.Table}
-		###
+		
 		@parentTab = parentTab
-
-		###*
-    * @type {dm.ui.Table}
-		###
 		@childTab = childTab
 
 		###*
@@ -71,7 +71,9 @@ class dm.ui.Relation extends goog.ui.Component
 		goog.events.listen @parentTab, dm.ui.Table.EventType.MOVE, @recountPosition
 		goog.events.listen @childTab, dm.ui.Table.EventType.MOVE, @recountPosition
 		
-		goog.events.listen @model_, 'type-change', @setRelationType
+		goog.events.listen @model_, 'type-change', =>
+			@setRelationType()
+			@setRelatedTablesKeys()
 
 	recountPosition: =>
 		@relationPath_.setPath @getRelationPath(new goog.graphics.Path)
@@ -230,3 +232,24 @@ class dm.ui.Relation extends goog.ui.Component
 		
 		if identify then relationElement.removeAttribute 'stroke-dasharray'
 		else relationElement.setAttribute 'stroke-dasharray', '10 5'
+
+	###*
+  * @param {dm.ui.Table} parent
+  * @param {dm.ui.Table} child
+	###
+	setRelatedTables: (parent, child) ->
+		@parentTab = parent
+		@childTab = child
+
+		@setRelatedTablesKeys()
+
+	###*
+  * Add primary column from parent table to child table
+	###
+	setRelatedTablesKeys: ->
+		isIdentifying = @getModel().isIdentifying()
+
+		for column in @parentTab.getModel().getColumns() when column.isPk is yes
+			newChildTableColumn = column
+			unless isIdentifying then newChildTableColumn.isPk = no 
+			@childTab.getModel().setColumn newChildTableColumn
