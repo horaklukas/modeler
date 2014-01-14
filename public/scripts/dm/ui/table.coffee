@@ -11,6 +11,7 @@ goog.require 'goog.math.Size'
 goog.require 'goog.ui.Component'
 goog.require 'goog.events'
 goog.require 'goog.events.Event'
+goog.require 'goog.fx.Dragger'
 
 class dm.ui.Table extends goog.ui.Component
 	@EventType =
@@ -49,6 +50,11 @@ class dm.ui.Table extends goog.ui.Component
 		###
 		@body_ = null
 
+		###*
+    * @type {goog.fx.Dragger}
+		###
+		@dragger = null
+
 		@setModel tableModel
 
 	###*
@@ -71,7 +77,18 @@ class dm.ui.Table extends goog.ui.Component
 	enterDocument: ->
 		super()
 		goog.style.setPosition @element_, @position_.x, @position_.y
-		goog.events.listen @element_, goog.events.EventType.MOUSEDOWN, @graspTable
+		
+		@dragger = new goog.fx.Dragger @element_, @element_, @getDragLimits()
+
+		dragStartEnd = (e) ->
+			#@target.style.zIndex = if e.type is 'start' then 99 else 1
+			@target.style.cursor = if e.type is 'start' then 'move' else 'default'
+			goog.style.setOpacity @target, if e.type is 'start' then 0.7 else 1
+
+		goog.events.listen @dragger, 'start', dragStartEnd 
+		goog.events.listen @dragger, 'end', dragStartEnd
+
+		#goog.events.listen @element_, goog.events.EventType.MOUSEDOWN, @graspTable
 
 	###*
   * @override
@@ -81,12 +98,17 @@ class dm.ui.Table extends goog.ui.Component
 
 		goog.events.listen model, 'name-change', (ev) => 
 			@setName ev.target.getName()
+		
 		goog.events.listen model, 'column-change', (ev) =>
 			@updateColumn ev.column.index, ev.column.data
+		
 		goog.events.listen model, 'column-add', (ev) =>
 			@addColumn ev.column.data
+			@dragger.setLimits @getDragLimits()
+		
 		goog.events.listen model, 'column-delete', (ev) =>
 			@removeColumn ev.column.index
+			@dragger.setLimits @getDragLimits()
 
 	###*
   * @param {number} x
@@ -112,39 +134,13 @@ class dm.ui.Table extends goog.ui.Component
 			goog.style.setPosition @element_, @position_.x, @position_.y
 
 	###*
-  * Callback that is called when user grasp table with intent to move it
-  * @param {goog.events.Event} ev
+  * @return {goog.math.Rect}
 	###
-	graspTable: (ev) =>
-		unless @position_.x? or not @position_.y?
-			pos = goog.style.getPosition @element_
-			@position_.x = pos.x
-			@position_.y = pos.y
-
-		offsetInTab = goog.style.getRelativePosition ev, @element_
-		@dispatchEvent new dm.ui.Table.TableCatch offsetInTab
-
-		#goog.events.listen document, goog.events.EventType.MOUSEMOVE, @moveTable
-		#goog.events.listenOnce document, goog.events.EventType.MOUSEUP, @stopTable
-
-	###*
-  * @param {goog.events.Event} ev
-  ###
-	moveTable: (ev) =>
-		#goog.dom.classes.add @element_, 'move'
-
-		#offsetInCanvas = goog.style.getRelativePosition ev, @getCanvas()
+	getDragLimits: ->
+		csz = dm.ui.Canvas.getInstance().getSize()
+		tsz = @getSize() 
 		
-		#x = offsetInCanvas.x - @offsetInTab.x
-		#y = offsetInCanvas.y - @offsetInTab.y
-
-		#@setPosition x, y
-
-		#rel.recountPosition() for rel in @relations_
-
-	stopTable: =>
-		#goog.dom.classes.remove @element_, 'move'
-		#goog.events.unlisten document, goog.events.EventType.MOUSEMOVE, @moveTable
+		new goog.math.Rect 0, 0, csz.width - tsz.width - 4, csz.height - tsz.height - 4
 
 	###*
   * @return {Object.<string,goog.math.Coordinate>}
@@ -207,15 +203,15 @@ class dm.ui.Table extends goog.ui.Component
 		column = goog.dom.getElementsByClass('column', @body_)[index]
 		goog.dom.removeNode column
 
-		
-class dm.ui.Table.TableCatch extends goog.events.Event
-	###*
-  * @param {goog.math.Coordinate} tabOffset
-	###
-	constructor: (tabOffset) ->
-		super dm.ui.Table.EventType.CATCH
 
-		###*
-    * @type {goog.math.Coordinate}
-		###
-		@catchOffset = tabOffset
+#class dm.ui.Table.TableCatch extends goog.events.Event
+###*
+* @param {goog.math.Coordinate} tabOffset
+###
+#	constructor: (tabOffset) ->
+#		super dm.ui.Table.EventType.CATCH
+
+###*
+* @type {goog.math.Coordinate}
+###
+#		@catchOffset = tabOffset

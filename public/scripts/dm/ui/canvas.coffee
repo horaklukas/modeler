@@ -29,7 +29,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@move = object: null, offset: null
 		
 		###*
-    * @type {goog.math.Coordinate}
+    * @type {goog.math.Size}
 		###
 		@size_ = null
 
@@ -59,7 +59,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		goog.events.listen @rootElement_, goog.events.EventType.CLICK, @onClick
 
 		#goog.events.listen @element_, goog.events.EventType.MOUSEDOWN, @onMouseDown
-		goog.events.listen @, dm.ui.Table.EventType.CATCH, @onCaughtTable
+		#goog.events.listen @, dm.ui.Table.EventType.CATCH, @onCaughtTable
 
 		@clueTable = goog.dom.createDom 'div', 'table'
 		goog.style.setStyle @clueTable, {
@@ -123,59 +123,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		position = goog.style.getRelativePosition ev, ev.currentTarget
 		
 		@dispatchEvent new dm.ui.Canvas.Click object, position
-
-	###*
-  * @param {goog.events.Event} ev
-  * @param {goog.events.EventType=} endAction Action that stops moving
-  ###
-	onCaughtTable: (ev, endAction = goog.events.EventType.MOUSEUP) ->
-		@move = object: ev.target, offset: ev.catchOffset
-		goog.dom.classes.add @move.object, 'move'
-
-		mouseMoveEvent = goog.events.EventType.MOUSEMOVE		
-
-		goog.events.listen document, mouseMoveEvent, @moveTable
-		
-		goog.events.listenOnce document, endAction, =>
-			goog.dom.classes.remove @move.object, 'move'
-			@move = object: null, offset: null
-			
-			goog.events.unlisten document, mouseMoveEvent, @moveTable
-
-	###*
-  * @param {HTMLElement} table
- 	###
-	clickedTable: (table) ->
-		#tid = table.id
-		#tab = dm.actualModel.getTableById tid
-
-		#dm.tableDialog.show tid
-		#dm.tableDialog.setValues tab.getName(), tab.getColumnsArray()
-
-	moveTable: (ev) =>
-		offsetInCanvas = goog.style.getRelativePosition ev, @rootElement_
-		
-		#goog.style.showElement @clueTable.getElement(), true
-		#@clueTable.setPosition position.x, position.y
-		x = offsetInCanvas.x - @move.offset.x
-		y = offsetInCanvas.y - @move.offset.y
-		
-		tabSize = if @move.object.getSize then @move.object.getSize() else goog.style.getSize @move.object 
-
-		if x + tabSize.width > @size_.width then x = @size_.width - tabSize.width
-		else if x < 0 then x = 0
-
-		if y + tabSize.height > @size_.height then y = @size_.height - tabSize.height
-		else if y < 0 then y = 0
-
-		if @move.object.setPosition then @move.object.setPosition x, y else goog.style.setPosition @move.object, x, y
-		
-		# for created tables (not table clue) dispatch `move` event for possibility
-		# to update its relations position 
-		if @move.object instanceof dm.ui.Table
-			@move.object.dispatchEvent dm.ui.Table.EventType.MOVE
-		#console.log x, y
-
+	
 	###*
 	* Save table element internaly and call function for render to DOM
   * @param {(dm.ui.Table)} table
@@ -205,52 +153,6 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		relation.draw canvas
 
 	###*
-	# @param {SVGPath} relation 
-	###
-	clickedRelation: (relation) ->
-		#rid = relation.id
-		#rel = dm.actualModel.getRelationById rid
-
-		#dm.relationDialog.show rid
-		#dm.relationDialog.setValues rel.startTab, rel.endTab, rel.isIdentifying()
-
-	###*
-  * @param {goog.math.Coordinate} startCoords
-	###
-	###
-	setStartRelationPoint: (startCoords)->
-		@startRelationPath = new goog.graphics.Path()
-		@startRelationPath.moveTo startCoords.x, startCoords.y
-		
-		if @clueRelation
-			goog.style.showElement @clueRelation.getElement(), true
-			@clueRelation.setPath @startRelationPath
-		else
-			stroke = new goog.graphics.Stroke 1, '#000'
-			@clueRelation = @svg.drawPath @startRelationPath, stroke
-			goog.style.showElement @clueRelation.getElement(), true
-
-	moveEndRelationPoint:(ev) =>
-		point = goog.style.getRelativePosition ev, @html
-
-		newPath = @startRelationPath.clone()
-		newPath.lineTo point.x, point.y
-		
-		@clueRelation.setPath newPath
-
-	placeRelation: (endCoords, startTab, endTab) =>
-		goog.style.showElement @clueRelation.getElement(), false
-		@startRelationPath = undefined
-
-		id = dm.actualModel.addRelation @svg, startTab, endTab
-
-		startTabName = dm.actualModel.getTableById startTab
-		endTabName = dm.actualModel.getTableById endTab
-
-		dm.relationDialog.setValues startTabName, endTabName
-		dm.relationDialog.show id
-	###
-	###*
   * @param {Element} element
   * @return {string} 
 	###
@@ -262,6 +164,12 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 			element = goog.dom.getParentElement element
 		
 		element.id 
+
+	###*
+  * @return {goog.math.Size}
+	###
+	getSize: ->
+		@size_
 
 goog.addSingletonGetter dm.ui.Canvas
 

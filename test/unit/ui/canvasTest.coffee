@@ -82,62 +82,6 @@ describe 'class Canvas', ->
 			die.should.been.calledOnce
 			die.lastCall.args[0].should.have.property 'target', 'fakeobject'
 
-	describe 'onCaughtTable', ->
-		it 'should save object start moving data', ->
-			ev.target = 'tableObject'
-			ev.catchOffset = x: 34, y: 65
-
-			can.onCaughtTable ev
-
-			can.should.have.deep.property 'move.object', 'tableObject'
-			can.should.have.deep.property('move.offset').that.deep.equal x: 34, y: 65
-
-	describe 'moveTable', ->
-		grp = null
-
-		before -> 
-			grp = sinon.stub goog.style, 'getRelativePosition'
-			can.move.object = 
-				setPosition: sinon.stub()
-				getSize: sinon.stub().returns width: 30, height: 50
-				dispatchEvent: sinon.spy()
-
-		beforeEach ->
-			grp.reset()
-			can.move.object.setPosition.reset()
-			can.move.offset = x: 0, y: 0
-			can.size_ = width: 500, height: 340
-		
-		after ->
-			grp.restore()
-
-		it 'should set position to min if position is less than canvas min', ->
-			grp.returns x: -245, y: -160
-			can.move.offset = x: 5, y: 40
-
-			can.moveTable ev
-
-			can.move.object.setPosition.should.been.calledOnce
-			can.move.object.setPosition.should.been.calledWithExactly 0, 0
-
-		it 'should set position to max if position is greater than canvas max', ->
-			grp.returns x: 562, y: 402
-			can.move.offset = x: 35, y: 40
-
-			can.moveTable ev
-
-			can.move.object.setPosition.should.been.calledOnce
-			can.move.object.setPosition.should.been.calledWithExactly 470, 290
-
-		it 'should count position of table and set it', ->
-			grp.returns x: 345, y: 268
-			can.move.offset = x: 34, y: 65
-
-			can.moveTable ev
-
-			can.move.object.setPosition.should.been.calledOnce
-			can.move.object.setPosition.should.been.calledWithExactly 311, 203
-
 	describe 'getObjectIdByElement', ->
 		it 'should return null if passed canvas element', ->
 			expect(can.getObjectIdByElement can.rootElement_).to.be.null

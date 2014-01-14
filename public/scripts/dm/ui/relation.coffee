@@ -68,8 +68,8 @@ class dm.ui.Relation extends goog.ui.Component
 
 		if @getModel()? then @setRelationType()
 
-		goog.events.listen @parentTab, dm.ui.Table.EventType.MOVE, @recountPosition
-		goog.events.listen @childTab, dm.ui.Table.EventType.MOVE, @recountPosition
+		goog.events.listen @parentTab.dragger, 'drag', @recountPosition
+		goog.events.listen @childTab.dragger, 'drag', @recountPosition
 		
 		goog.events.listen @model_, 'type-change', =>
 			@setRelationType()
