@@ -33,10 +33,10 @@ module.exports = (grunt) ->
 
     closureDepsWriter:
       options:
-        closureLibraryPath: './public/scripts/lib'
+        closureLibraryPath: './public/scripts/lib/closure-library'
         root_with_prefix: [
-          '"/srv/git/modeler/public/scripts/dm ../../../dm"'
-          '"/srv/git/modeler/public/scripts/lib/templates ../../templates"'
+          '"/srv/git/modeler/public/scripts/dm ../../../../dm"'
+          '"/srv/git/modeler/public/scripts/lib/soyutils ../../../soyutils"'
         ]
 
       all:
@@ -44,7 +44,7 @@ module.exports = (grunt) ->
 
     closureBuilder:
       options:
-        closureLibraryPath: 'public/scripts/lib'
+        closureLibraryPath: 'public/scripts/lib/closure-library'
         inputs: './public/scripts/dm/app.js'
 
         # [OPTIONAL] The location of the compiler.jar
@@ -64,7 +64,11 @@ module.exports = (grunt) ->
         #   maxBuffer: 999999 * 1024
       
       all:
-        src: './public/scripts/dm'
+        src: [
+          './public/scripts/dm'
+          './public/scripts/lib/soyutils'
+          './public/scripts/lib/closure-library'
+        ]
         dest: './public/scripts/modeler.min.js'
 
     mocha_phantomjs:
