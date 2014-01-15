@@ -1,4 +1,5 @@
 goog.provide 'dm.model.Table'
+goog.provide 'dm.model.Table.index'
 
 goog.require 'goog.events.EventTarget'
 goog.require 'goog.events.Event'
@@ -10,6 +11,9 @@ goog.require 'goog.array'
 dm.model.TableColumn
 
 class dm.model.Table extends goog.events.EventTarget
+	@index:
+		FK: 'foreign-key'
+
 	###*
 	* @param {string=} name
 	* @param {Array.<dm.model.TableColumn>=} columns
@@ -29,6 +33,11 @@ class dm.model.Table extends goog.events.EventTarget
     * @type {Array.<dm.model.TableColumn>}
 		###
 		@columns_ = columns
+
+		###*
+	  * @type {Object.<number, type}
+		###
+		@indexes = {}
 
 	###*
   * @param {string} name
@@ -54,16 +63,21 @@ class dm.model.Table extends goog.events.EventTarget
 	###
 
 	###*
+	* Add new or update existing column 
+	* 
   * @param {dm.model.TableColumn} column
 	* @param {number=} idx
+	* @return {number} id of new or updated column
 	###
 	setColumn: (column, idx) ->
 		if idx? then @columns_[idx] = column
 		else @columns_.push column
 
+		if @indexes[column.name] then column.indexes = @indexes[column.name]
+
 		@dispatchEvent new dm.model.Table.ColumnsChange column, idx
 		
-		#if isFk then @fkeys.push newColumn.name
+		idx ? @columns_.length - 1
 
 	###*
   * @return {Array.<dm.model.TableColumn>} table columns
@@ -86,6 +100,27 @@ class dm.model.Table extends goog.events.EventTarget
 	getColumnById: (idx) ->
 		unless idx? then null
 		@columns_[idx] ? null
+
+	###*
+	* @param {string} name
+  * @return {(dm.model.TableColumn|null)}
+	###
+	getColumnByName: (name) ->
+		return col for col in @columns_ when col.name is name
+		return null
+
+	###*
+  * @param {number} name
+  * @param {string} type
+	###
+	setIndex: (id, type) ->
+		@indexes[id] = type
+		column = @getColumnById id
+				
+		if column?
+			column.indexes = type
+			@dispatchEvent new dm.model.Table.ColumnsChange column, id
+		
 
 class dm.model.Table.ColumnsChange extends goog.events.Event
 	###*

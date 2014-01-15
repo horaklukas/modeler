@@ -1,10 +1,12 @@
 goog.provide 'dm.ui.Relation'
 
 goog.require 'dm.ui.Table.EventType'
+goog.require 'dm.model.Table.index'
 goog.require 'goog.graphics.SvgPathElement'
 goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.SolidFill'
 goog.require 'goog.graphics.Stroke'
+goog.require 'goog.object'
 
 class dm.ui.Relation extends goog.ui.Component
 	###*
@@ -31,17 +33,12 @@ class dm.ui.Relation extends goog.ui.Component
 
 	###*
 	* @param {dm.model.Relation}
-  * @param {dm.ui.Table}
-  * @param {dm.ui.Table}
   * @constructor
 	###
-	constructor: (relationModel, parentTab, childTab) ->
+	constructor: (relationModel) ->
 		super()
 
 		@setModel relationModel
-		
-		@parentTab = parentTab
-		@childTab = childTab
 
 		###*
     * @type {goog.graphics.SvgPathElement}
@@ -248,8 +245,13 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	setRelatedTablesKeys: ->
 		isIdentifying = @getModel().isIdentifying()
+		parentTableModel = @parentTab.getModel()
 
-		for column in @parentTab.getModel().getColumns() when column.isPk is yes
-			newChildTableColumn = column
-			unless isIdentifying then newChildTableColumn.isPk = no 
-			@childTab.getModel().setColumn newChildTableColumn
+		for column in parentTableModel.getColumns() when column.isPk is yes
+			childTableColumn = goog.object.clone column
+			childTableModel = @childTab.getModel()
+			
+			unless isIdentifying then childTableColumn.isPk = no
+			
+			id = childTableModel.setColumn childTableColumn
+			childTableModel.setIndex id, dm.model.Table.index.FK

@@ -19,10 +19,11 @@ describe 'class Table', ->
 	describe 'method setColumn', ->
 		beforeEach ->
 			tab.columns_ = [
-				{name: 'one', type: 'char'}
-				{name: 'second', type: 'varchar'}
-				{name: 'three', type: 'number'}
-			]
+					{name: 'one', type: 'char'}
+					{name: 'second', type: 'varchar'}
+					{name: 'three', type: 'number'}
+				]
+			tab.indexes = {}
 
 			spy.reset()
 
@@ -48,6 +49,24 @@ describe 'class Table', ->
 				.deep.equal {name: 'sixty', type: 'sly'}
 			spy.lastCall.args[0].should.have.deep.property 'column.index', 34
 
+		it 'should set indexes for column if exists at model', ->
+			tab.indexes['four'] = 'fk'
+			goog.events.listenOnce tab, 'column-change', spy
+			
+			tab.setColumn {name: 'four', type: 'char'}, 3
+			
+			spy.should.been.calledOnce
+			spy.lastCall.args[0].should.have.deep.property('column.data.indexes').that.eql 'fk'
+
+		it 'should not set indexes for column if not exists at model', ->
+			tab.indexes['two'] = 'fk'
+			goog.events.listenOnce tab, 'column-change', spy
+			
+			tab.setColumn {name: 'three', type: 'varchar'}, 2
+			
+			spy.should.been.calledOnce
+			spy.lastCall.args[0].should.not.have.deep.property 'column.data.indexes'
+
 		it 'should dispatch `column-add` event if not passed column index', ->
 			goog.events.listenOnce tab, 'column-add', spy
 
@@ -57,6 +76,9 @@ describe 'class Table', ->
 			spy.lastCall.args[0].should.have.deep.property('column.data').that
 				.deep.equal {name: 'seventy', type: 'arnie'}
 			spy.lastCall.args[0].should.not.have.deep.property 'column.index'
+
+		it 'should return id of new column', ->
+			expect(tab.setColumn {name: 'four', type: 'char'}).to.equal 3
 
 	describe 'method removeColumn', ->
 		beforeEach ->
@@ -100,6 +122,21 @@ describe 'class Table', ->
 
 		it 'return column with passed index if exists', ->
 			expect(tab.getColumnById 1).to.deep.equal name: 'second', type: 'varchar'
+
+	describe 'method getColumnByName', ->
+		before ->
+			tab.columns_ = [
+				{name: 'one', type: 'char'}
+				{name: 'second', type: 'varchar'}
+				{name: 'third', type: 'number'}
+				{name: 'fourth', type: 'varchar'}
+			]		
+
+		it 'should return null if column with passed name not exist', ->
+			expect(tab.getColumnByName('fifth')).to.be.null
+
+		it 'return column with passed name if exists', ->
+			expect(tab.getColumnByName 'third').to.deep.equal {name: 'third', type: 'number'}
 
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->

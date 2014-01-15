@@ -62,17 +62,17 @@ canvas.addTable tab6
 canvas.addTable tab7
 
 rel1model = new dm.model.Relation true 
-rel1 = new dm.ui.Relation rel1model, tab0, tab2
-rel1.setRelatedTablesKeys()
+rel1 = new dm.ui.Relation rel1model
+rel1.setRelatedTables tab0, tab2
 rel2model = new dm.model.Relation true
-rel2 = new dm.ui.Relation rel2model, tab1, tab2
-rel2.setRelatedTablesKeys()
+rel2 = new dm.ui.Relation rel2model
+rel2.setRelatedTables tab1, tab2
 rel3model = new dm.model.Relation false
-rel3 = new dm.ui.Relation rel3model, tab1, tab3
-rel3.setRelatedTablesKeys()
+rel3 = new dm.ui.Relation rel3model
+rel3.setRelatedTables tab1, tab3
 rel4model = new dm.model.Relation false
-rel4 = new dm.ui.Relation rel4model, tab4, tab5
-rel4.setRelatedTablesKeys()
+rel4 = new dm.ui.Relation rel4model
+rel4.setRelatedTables tab4, tab5
 
 canvas.addRelation rel1 
 canvas.addRelation rel2 
