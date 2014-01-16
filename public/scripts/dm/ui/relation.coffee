@@ -74,13 +74,29 @@ class dm.ui.Relation extends goog.ui.Component
 		goog.events.listen @parentTab.dragger, 'drag', @recountPosition
 		goog.events.listen @childTab.dragger, 'drag', @recountPosition
 		
-		goog.events.listen @model_, 'type-change', =>
-			@setRelationType()
-			@setRelatedTablesKeys()
+		goog.events.listen @model_, 'type-change', @onTypeChange
 
+	###*
+  * Recount new position of relation endpoints and set it
+	###
 	recountPosition: =>
 		@relationPath_.setPath @getRelationPath(new goog.graphics.Path)
 		@relationBg_.setPath @getRelationPath(new goog.graphics.Path)
+
+	###*
+  * Handler for `changed relation type` event
+	###
+	onTypeChange: (ev) =>
+		@setRelationType()
+
+		relationModel = @getModel()
+		childTabModel = @childTab.getModel()
+		fkColumns = childTabModel.getColumnsIdsByIndex dm.model.Table.index.FK
+
+		for column in fkColumns
+			childTabModel.setIndex(
+				column, dm.model.Table.index.PK, not relationModel.isIdentifying()
+			)
 
 	###*
 	* @param {goog.graphics.Path} path Path object to set points on
@@ -250,14 +266,17 @@ class dm.ui.Relation extends goog.ui.Component
   * Add primary column from parent table to child table
 	###
 	setRelatedTablesKeys: ->
-		isIdentifying = @getModel().isIdentifying()
 		parentTableModel = @parentTab.getModel()
 
 		for column in parentTableModel.getColumns() when column.isPk is yes
 			childTableColumn = goog.object.clone column
 			childTableModel = @childTab.getModel()
 			
-			unless isIdentifying then childTableColumn.isPk = no
-			
 			id = childTableModel.setColumn childTableColumn
+			
+			childTableColumn.isPk = no
+			
+			if @getModel().isIdentifying()
+				childTableModel.setIndex id, dm.model.Table.index.PK
+
 			childTableModel.setIndex id, dm.model.Table.index.FK

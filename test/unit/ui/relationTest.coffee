@@ -185,7 +185,7 @@ describe 'class Relation', ->
 			]
 			rel.setRelatedTablesKeys()
 
-			scol.should.been.calledOnce.and.calledWithExactly isPk: yes, name: 'Pk1'
+			scol.should.been.calledOnce.and.calledWithExactly isPk: no, name: 'Pk1'
 
 		it 'should add primary column from parent to child as a non primary', ->
 			iident.returns false

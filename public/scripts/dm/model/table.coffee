@@ -117,17 +117,27 @@ class dm.model.Table extends goog.events.EventTarget
 	###*
   * @param {number} id
   * @param {dm.model.Table.index} type
+  * @param {boolean} del If true then column will be deleted, else upserted
 	###
-	setIndex: (id, type) ->
-		@indexes[id] ?= []
-		goog.array.insert @indexes[id] , type
+	setIndex: (id, type, del) ->
+		if del is true 
+			if @indexes[id]? then goog.array.remove @indexes[id], type
+		else
+			@indexes[id] ?= []
+			goog.array.insert @indexes[id] , type
 
 		column = @getColumnById id
 				
 		if column?
 			column.indexes = @indexes[id]
 			@dispatchEvent new dm.model.Table.ColumnsChange column, id
-		
+
+	###*
+  * @param {dm.model.Table.index} index Type of index
+  * @param {Array.<number>} indexes of columns that have passed index
+	###
+	getColumnsIdsByIndex: (index) ->
+		id for id, colIdxs of @indexes when goog.array.contains(colIdxs, index)
 
 class dm.model.Table.ColumnsChange extends goog.events.Event
 	###*

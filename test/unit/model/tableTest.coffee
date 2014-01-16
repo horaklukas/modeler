@@ -176,6 +176,13 @@ describe 'class Table', ->
 
 			tab.indexes[0].should.eql ['pk','fk']
 
+		it 'should remove index if passed third parameter true', ->
+			tab.indexes[3] = ['pk', 'fk', 'unq']
+
+			tab.setIndex 3, 'fk', true
+
+			tab.indexes[3].should.eql ['pk', 'unq']
+
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->
 		it 'should be `column-add` type if passed only column, not index', ->
