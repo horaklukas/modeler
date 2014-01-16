@@ -59,12 +59,18 @@ class dm.ui.Relation extends goog.ui.Component
 			path, dm.ui.Relation.relationStroke, null, @relationGroup_
 		)
 		
-		@relationGroup_.getElement().id = @getId()
+		groupElement = @relationGroup_.getElement()
+		groupElement.id = @getId()
 		
-		#@relationPath_.getElement().setAttribute 'id', @id_
-
 		if @getModel()? then @setRelationType()
 
+		# highlight background of relation when mouse move over
+		goog.events.listen groupElement, goog.events.EventType.MOUSEOVER, ->
+			@firstChild.setAttribute 'stroke', '#ccc'
+		goog.events.listen groupElement, goog.events.EventType.MOUSEOUT, ->
+			@firstChild.setAttribute 'stroke', 'transparent'
+
+		# move relation endpoints when moved related tables
 		goog.events.listen @parentTab.dragger, 'drag', @recountPosition
 		goog.events.listen @childTab.dragger, 'drag', @recountPosition
 		

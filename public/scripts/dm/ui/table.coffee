@@ -202,16 +202,3 @@ class dm.ui.Table extends goog.ui.Component
 	removeColumn: (index) ->
 		column = goog.dom.getElementsByClass('column', @body_)[index]
 		goog.dom.removeNode column
-
-
-#class dm.ui.Table.TableCatch extends goog.events.Event
-###*
-* @param {goog.math.Coordinate} tabOffset
-###
-#	constructor: (tabOffset) ->
-#		super dm.ui.Table.EventType.CATCH
-
-###*
-* @type {goog.math.Coordinate}
-###
-#		@catchOffset = tabOffset

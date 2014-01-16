@@ -11,8 +11,13 @@ goog.require 'goog.array'
 dm.model.TableColumn
 
 class dm.model.Table extends goog.events.EventTarget
+	###*
+  * @enum {string}
+	###
 	@index:
-		FK: 'foreign-key'
+		FK: 'FK'
+		PK: 'PK'
+		UNIQUE: 'UNQ'
 
 	###*
 	* @param {string=} name
@@ -110,15 +115,17 @@ class dm.model.Table extends goog.events.EventTarget
 		return null
 
 	###*
-  * @param {number} name
-  * @param {string} type
+  * @param {number} id
+  * @param {dm.model.Table.index} type
 	###
 	setIndex: (id, type) ->
-		@indexes[id] = type
+		@indexes[id] ?= []
+		goog.array.insert @indexes[id] , type
+
 		column = @getColumnById id
 				
 		if column?
-			column.indexes = type
+			column.indexes = @indexes[id]
 			@dispatchEvent new dm.model.Table.ColumnsChange column, id
 		
 

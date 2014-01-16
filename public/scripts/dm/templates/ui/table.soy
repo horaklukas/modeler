@@ -36,6 +36,10 @@
 <div class="column">
 	<span>{$col.name}</span>
 	{if $col.isPk}<span class="idx">PK</span>{/if}
-	{if $col.indexes}<span>{$col.indexes}</span>{/if}
+	{if $col.indexes}
+		{foreach $index in $col.indexes}
+			<span class="idx">{$index}</span>
+		{/foreach}
+	{/if}
 </div>
 {/template}

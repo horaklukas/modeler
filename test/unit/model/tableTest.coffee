@@ -138,6 +138,44 @@ describe 'class Table', ->
 		it 'return column with passed name if exists', ->
 			expect(tab.getColumnByName 'third').to.deep.equal {name: 'third', type: 'number'}
 
+	describe 'method setIndex', ->
+		gcbi = null
+		diev = null
+
+		before ->
+			gcbi = sinon.stub tab, 'getColumnById'
+			diev = sinon.stub tab, 'dispatchEvent'
+
+		beforeEach ->
+			tab.indexes = {}
+			gcbi.reset()
+			diev.reset()
+
+		after ->
+			gcbi.restore()
+			diev.restore()
+
+		it 'should create list of indexes if it not exist yet', ->
+			tab.setIndex 3, 'fk'
+
+			tab.indexes.should.have.property(3).that.is.an.array
+			tab.indexes[3].should.eql ['fk']
+
+		it 'should insert index into list of indexes if index isnt there', ->
+			tab.indexes[1] = ['fk']
+
+			tab.setIndex 1, 'pk'
+
+			tab.indexes[1].should.eql ['fk','pk']
+
+		it 'should not insert index to list of indexes if index is there', ->	
+			tab.indexes[0] = ['pk', 'fk']
+
+			tab.setIndex 0, 'pk'
+			tab.setIndex 0, 'fk'
+
+			tab.indexes[0].should.eql ['pk','fk']
+
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->
 		it 'should be `column-add` type if passed only column, not index', ->
