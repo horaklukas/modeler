@@ -161,50 +161,63 @@ describe 'class Relation', ->
 
 	describe 'method setRelatedTableKeys', ->
 		gcols = sinon.stub()
-		scol = sinon.spy()
+		gcolid = sinon.stub()
+		scol = sinon.stub()
 		sindex = sinon.spy()
 		iident = sinon.stub()
 
 		before ->
-			rel.parentTab = getModel: -> getColumns: gcols
+			rel.parentTab = getModel: -> {
+				getColumns: gcols, getColumnsIdsByIndex: gcolid
+			}
 			rel.childTab = getModel: -> { setColumn: scol, setIndex: sindex	}
 			sinon.stub(rel, 'getModel').returns isIdentifying: iident
 
 		beforeEach ->
 			gcols.reset()
+			gcolid.reset()
 			scol.reset()
 			iident.reset()
+			sindex.reset()
 
 		after ->
 			rel.getModel.restore()
 
 		it 'should add primary column from parent table to child table', ->
 			iident.returns true
-			gcols.returns [
-				{isPk:no,name:'notPk1'},{isPk:yes, name:'Pk1'},{isPk:no, name:'notPk2'}
-			]
+			gcols.returns [	{name:'notPk1'},{name:'Pk1'},{name:'notPk2'} ]
+			gcolid.returns [1]
+			scol.withArgs({name:'Pk1'}).returns 1
+
 			rel.setRelatedTablesKeys()
 
-			scol.should.been.calledOnce.and.calledWithExactly isPk: no, name: 'Pk1'
+			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk1'
+			sindex.should.been.calledTwice
+			sindex.should.been.calledWithExactly 1, dm.model.Table.index.PK
+			sindex.should.been.calledWithExactly 1, dm.model.Table.index.FK
 
 		it 'should add primary column from parent to child as a non primary', ->
 			iident.returns false
-			gcols.returns [
-				{isPk:no,name:'notPk1'},{isPk:no, name:'notPk2'},{isPk:yes, name:'Pk1'}
-			]
+			gcols.returns [	{name:'notPk1'},{name:'notPk2'},{name:'Pk11'} ]
+			gcolid.returns [2]
+			scol.withArgs({name:'Pk11'}).returns 2
+
 			rel.setRelatedTablesKeys()
 
-			scol.should.been.calledOnce.and.calledWithExactly isPk: no, name: 'Pk1'
+			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk11'
+			sindex.should.been.calledOnce
+			sindex.should.been.calledWithExactly 2, dm.model.Table.index.FK
 
 		it 'should left original column be primary even if child column change', ->
-			parentColumns = [	{isPk:yes, name:'Pk2'},{isPk:no, name:'notPk1'}	]
+			parentColumns = [	{name:'notPk1'},{name:'Pk2'},{name:'notPk2'}	]
+			gcolid.returns [1]
 
 			iident.returns false
 			gcols.returns parentColumns
 
 			rel.setRelatedTablesKeys()
 
-			scol.should.been.calledOnce.and.calledWithExactly isPk: no, name: 'Pk2'
-			parentColumns[0].should.deep.equal isPk: yes, name: 'Pk2'
+			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk2'
+			parentColumns[1].should.deep.equal name: 'Pk2'
 
 

@@ -266,17 +266,32 @@ class dm.ui.Relation extends goog.ui.Component
   * Add primary column from parent table to child table
 	###
 	setRelatedTablesKeys: ->
-		parentTableModel = @parentTab.getModel()
+		parentModel = @parentTab.getModel()
+		childModel = @childTab.getModel()
+		parentCols = parentModel.getColumns()
+		parentPkColIds = parentModel.getColumnsIdsByIndex dm.model.Table.index.PK
+		isIdentifying = @getModel().isIdentifying()
 
-		for column in parentTableModel.getColumns() when column.isPk is yes
-			childTableColumn = goog.object.clone column
-			childTableModel = @childTab.getModel()
+		for pkColId in parentPkColIds
+			childTableColumn = goog.object.clone parentCols[pkColId]
+
+			id = childModel.setColumn childTableColumn
 			
-			id = childTableModel.setColumn childTableColumn
+			childModel.setIndex id, dm.model.Table.index.FK
+			
+			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
+			
+		###	
+		for column in  when column.isPk is yes
+			childTableColumn = goog.object.clone column
+			childModel = @childTab.getModel()
+			
+			id = childModel.setColumn childTableColumn
 			
 			childTableColumn.isPk = no
 			
 			if @getModel().isIdentifying()
-				childTableModel.setIndex id, dm.model.Table.index.PK
+				childModel.setIndex id, dm.model.Table.index.PK
 
-			childTableModel.setIndex id, dm.model.Table.index.FK
+			childModel.setIndex id, dm.model.Table.index.FK
+		###
