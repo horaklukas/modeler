@@ -25,7 +25,10 @@ describe 'class TableDialog', ->
 		sva = null
 
 		before ->
-			fakeModel = getColumns: sinon.stub(), getName: sinon.stub()
+			fakeModel = 
+				getColumns: sinon.stub()
+				getName: sinon.stub()
+				getColumnsIdsByIndex: sinon.stub()
 			faketab = getModel: sinon.stub().returns fakeModel
 			gch = sinon.stub goog.dom, 'getChildren'
 			listen = sinon.stub goog.events, 'listen'
@@ -69,7 +72,7 @@ describe 'class TableDialog', ->
 			listen.should.been.calledWith 'column1'
 			listen.should.been.calledWith 'column2'
 
-	describe 'method getColumnModel', ->
+	describe 'method getColumnData', ->
 		beforeEach ->
 			tabd.colslist.innerHTML = '<div class="row" name="2">'+
 			'<span><input type="text" class="name" value="bob"/></span>'+
@@ -85,9 +88,13 @@ describe 'class TableDialog', ->
 			'<span><input type="checkbox" class="unique" /></span></div>' 
 
 		it 'should find column by index and returns its values', ->
-			tabd.getColumnModel(3).should.deep.equal {
-				name:'bobek', type:'T2', isPk:true, isNotNull:false, isUnique:false
+			tabd.getColumnData(3).should.deep.equal {
+				model: name:'bobek', type:'T2',	isNotNull:false
+				isUnique:false,	isPk: true
 			}
+
+		it 'should throw error if passed id not exist', ->
+			expect(-> tabd.getColumnData(7)).to.throw 'Column not exist'
 
 	describe 'method addColumn', ->
 		beforeEach ->
@@ -149,26 +156,29 @@ describe 'class TableDialog', ->
 	describe 'method onSelect', ->
 		fakeModel = null
 		gn = null
-		gcm = null
+		gcd = null
 		okev = key: 'ok'
 
 		before ->
 			fakeModel = 
-				setName: sinon.spy(), setColumn: sinon.spy(), removeColumn: sinon.spy()
+				setName: sinon.spy(), setColumn: sinon.stub()
+				removeColumn: sinon.spy(), setIndex: sinon.spy()
+
 			tabd.table_ = getModel: sinon.stub().returns fakeModel
 			gn = sinon.stub tabd, 'getName'
-			gcm = sinon.stub tabd, 'getColumnModel'
+			gcd = sinon.stub tabd, 'getColumnData'
 
 		beforeEach ->
 			tabd.columns_ = added: [], updated: [], removed: [], count: 0
 			fakeModel.setName.reset()
 			fakeModel.setColumn.reset()
 			fakeModel.removeColumn.reset()
+			fakeModel.setIndex.reset()
 			gn.reset()
 
 		after ->
 			gn.restore()
-			gcm.restore()
+			gcd.restore()
 
 		it 'should return true if pressed button isnt `ok`', ->
 			tabd.onSelect(key: 'cancel').should.be.true
@@ -182,9 +192,9 @@ describe 'class TableDialog', ->
 			fakeModel.setName.should.been.calledWith 'tabname'
 
 		it 'should set all columns in list for update to model', ->
-			gcm.withArgs(1).returns 'model1'
-			gcm.withArgs(5).returns 'model5'
-			gcm.withArgs(3).returns 'model3'
+			gcd.withArgs(1).returns model: 'model1', isUnique: true, isPk: false
+			gcd.withArgs(5).returns model: 'model5', isUnique: false, isPk: true
+			gcd.withArgs(3).returns model: 'model3', isUnique: true, isPk: false
 			tabd.columns_.updated = [1, 5, 3]
 
 			tabd.onSelect okev
@@ -193,6 +203,21 @@ describe 'class TableDialog', ->
 			fakeModel.setColumn.should.been.calledWithExactly 'model1', 1
 			fakeModel.setColumn.should.been.calledWithExactly 'model5', 5
 			fakeModel.setColumn.should.been.calledWithExactly 'model3', 3
+
+		it 'should add or delete primary and unique indexes for all columns by its flags', ->
+			tabd.columns_.updated = [1, 5, 3]
+			unqStr = dm.model.Table.index.UNIQUE
+			pkStr = dm.model.Table.index.PK
+
+			tabd.onSelect okev
+
+			fakeModel.setIndex.callCount.should.equal 6
+			fakeModel.setIndex.should.been.calledWithExactly 1, unqStr, false
+			fakeModel.setIndex.should.been.calledWithExactly 5, unqStr, true
+			fakeModel.setIndex.should.been.calledWithExactly 3, unqStr, false
+			fakeModel.setIndex.should.been.calledWithExactly 1, pkStr, true
+			fakeModel.setIndex.should.been.calledWithExactly 5, pkStr, false
+			fakeModel.setIndex.should.been.calledWithExactly 3, pkStr, true
 
 		it 'should remove all columns in list from model', ->
 			tabd.columns_.removed = [2, 8]
@@ -205,13 +230,34 @@ describe 'class TableDialog', ->
 
 		it 'should set all columns in list for add to model if column has name', ->
 			tabd.columns_.added = [5, 6, 7, 8]
-			gcm.withArgs(5).returns name: 'five'
-			gcm.withArgs(6).returns name: ''
-			gcm.withArgs(7).returns name: 'seven'
-			gcm.withArgs(8).returns name: undefined
+			gcd.withArgs(5).returns model: { name: 'five' }, isUnique: false
+			gcd.withArgs(6).returns model: { name: '' }, isUnique: false
+			gcd.withArgs(7).returns model: { name: 'seven' }, isUnique: true
+			gcd.withArgs(8).returns model: { name: undefined }, isUnique: false
 
 			tabd.onSelect okev
 
 			fakeModel.setColumn.should.been.calledTwice
 			fakeModel.setColumn.should.been.calledWithExactly name: 'five'
 			fakeModel.setColumn.should.been.calledWithExactly name: 'seven'
+
+		it 'should add unique or primary index for new columns that had them', ->
+			tabd.columns_.added = [6, 7, 8, 9]
+			unqStr = dm.model.Table.index.UNIQUE
+			pkStr = dm.model.Table.index.PK
+
+			gcd.withArgs(6).returns model: {name: 'one'}, isUnique: false, isPk: true
+			gcd.withArgs(7).returns model: {name: 'two'}, isUnique: true, isPk: false
+			gcd.withArgs(8).returns model: {name: 'thr'}, isUnique: true, isPk: false
+			gcd.withArgs(9).returns model: {name: null}, isUnique: true, isPk: true
+
+			fakeModel.setColumn.withArgs({ name: 'one' }).returns 6
+			fakeModel.setColumn.withArgs({ name: 'two' }).returns 7
+			fakeModel.setColumn.withArgs({ name: 'thr' }).returns 8
+
+			tabd.onSelect okev
+
+			fakeModel.setIndex.should.been.calledThrice
+			fakeModel.setIndex.should.been.calledWithExactly 6, pkStr
+			fakeModel.setIndex.should.been.calledWithExactly 7, unqStr
+			fakeModel.setIndex.should.been.calledWithExactly 8, unqStr		

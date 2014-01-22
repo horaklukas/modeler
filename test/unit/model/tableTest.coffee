@@ -95,8 +95,21 @@ describe 'class Table', ->
 
 			tab.removeColumn 1
 
-			tab.columns_.should.have.property 'length', 2
+			tab.columns_.should.have.length 2
 			expect(tab.columns_).to.have.property(1).that.deep.equal {name: 'three', type: 'number'}
+
+		it 'should remove indexes that belongs to column for delete', ->
+			tab.indexes = {
+				'0': ['pk', 'fk']
+				'1': ['unq']
+				'2': ['pk']
+			}
+
+			tab.removeColumn 1
+
+			tab.columns_.should.have.length 2
+			tab.indexes.should.have.keys ['0', '2']
+			tab.indexes.should.not.have.keys ['1']
 
 		it 'should dispatch `column-delete` with index of column to delete', ->
 			goog.events.listenOnce tab, 'column-delete', spy
@@ -182,6 +195,26 @@ describe 'class Table', ->
 			tab.setIndex 3, 'fk', true
 
 			tab.indexes[3].should.eql ['pk', 'unq']
+
+	describe 'method getColumnsIdsByIndex', ->
+		beforeEach ->
+			tab.indexes = {}
+
+		it 'should return array of ids that has passed index', ->
+			tab.indexes = {
+				1: ['unq', 'fk'], 2: ['pk'], 3: ['unq'], 4: ['fk']
+			}
+
+			expect(tab.getColumnsIdsByIndex('unq')).to.deep.equal [1, 3]
+
+		it 'should return empty array if no column has passed index', ->
+			tab.indexes = {
+				1: ['unq'], 2: ['fk'], 3: ['unq', 'fk'] 
+			}
+			pks = tab.getColumnsIdsByIndex('pk')
+
+			expect(pks).to.be.an.array
+			expect(pks).to.be.empty
 
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->

@@ -4,9 +4,10 @@ goog.provide 'dm.model.Table.index'
 goog.require 'goog.events.EventTarget'
 goog.require 'goog.events.Event'
 goog.require 'goog.array'
+goog.require 'goog.object'
 
 ###*
-* @typedef {{name:string, type:string, isPk: boolean, isNotNull:boolean, isUnique:boolean}}
+* @typedef {{name:string, type:string, isPk: boolean, isNotNull:boolean}}
 ###
 dm.model.TableColumn
 
@@ -95,6 +96,7 @@ class dm.model.Table extends goog.events.EventTarget
 	###
 	removeColumn: (idx) ->
 		goog.array.removeAt @columns_, idx
+		goog.object.remove @indexes, idx
 
 		@dispatchEvent new dm.model.Table.ColumnsChange null, idx
 
@@ -134,10 +136,10 @@ class dm.model.Table extends goog.events.EventTarget
 
 	###*
   * @param {dm.model.Table.index} index Type of index
-  * @param {Array.<number>} indexes of columns that have passed index
+  * @return {Array.<number>} indexes of columns that have passed index
 	###
 	getColumnsIdsByIndex: (index) ->
-		id for id, colIdxs of @indexes when goog.array.contains(colIdxs, index)
+		Number(id) for id, idx of @indexes when goog.array.contains(idx, index)
 
 class dm.model.Table.ColumnsChange extends goog.events.Event
 	###*

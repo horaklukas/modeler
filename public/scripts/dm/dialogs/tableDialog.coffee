@@ -11,6 +11,7 @@ goog.require 'goog.events'
 goog.require 'goog.array'
 goog.require 'goog.object'
 goog.require 'goog.string'
+goog.require 'dm.model.Table'
 
 class dm.dialogs.TableDialog extends goog.ui.Dialog
 	@EventType =
@@ -53,18 +54,18 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		if table?
 			@table_ = table
 			model = table.getModel()
-			columns = model.getColumns() 
+			columnsCount = model.getColumns().length
 
 			@columns_ = 
 				# prepared empty row is counted as the first `added`
-				removed:[], updated:[], added:[columns.length], count:columns.length
+				removed: [], updated: [], added: [columnsCount], count: columnsCount
 
-			@setValues model.getName(), columns
+			@setValues model
 
 			# @TODO change of inputs of rows added from model
 			rows = goog.dom.getChildren @colslist
 			
-			# each row except first (head row) and last (empty row) is row that 
+			# each row except first (head row) and last (empty row) is row that is
 			# from original model, so its change is update
 			for i in [1..rows.length - 2]
 				row = rows[i]
@@ -80,7 +81,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 	* @param {number} index Column index
   * @return {dm.model.TableColumn} model of columns with passed index
 	###
-	getColumnModel: (index) ->
+	getColumnData: (index) ->
 		column = goog.dom.query "*[name='#{index}']", @colslist
 			
 		# that should never throw
@@ -89,10 +90,11 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		# query returns node list, column element have to be selected
 		[column] = column
 
-		name: goog.dom.getElementByClass('name', column).value
-		type: goog.dom.getElementByClass('type', column).value
+		model:
+			name: goog.dom.getElementByClass('name', column).value
+			type: goog.dom.getElementByClass('type', column).value
+			isNotNull:goog.dom.getElementByClass('notnull', column).checked
 		isPk: goog.dom.getElementByClass('primary', column).checked
-		isNotNull:goog.dom.getElementByClass('notnull', column).checked
 		isUnique:goog.dom.getElementByClass('unique', column).checked
 
 	###*
@@ -105,15 +107,24 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 	###*
 	* Set table values (name and columns) to dialog, used when editing table
 	*
-	* @param {string=} name
-	* @param {Array.<dm.model.Table>=} cols
+	* @param {dm.model.Table=} model
 	###
-	setValues: (name = '', cols = []) ->
+	setValues: (model) ->
+		name = model.getName() ? ''
+		cols = model.getColumns() ? []
+		uniqs = model.getColumnsIdsByIndex dm.model.Table.index.UNIQUE
+		pks = model.getColumnsIdsByIndex dm.model.Table.index.PK
+
 		goog.dom.setProperties @nameField, 'value': name
 
+		for col, id in cols
+			if id in uniqs then cols[id].isUnique = true 
+			if id in pks then cols[id].isPk = true
+
 		@colslist.innerHTML = tmpls.dialogs.createTable.columnsList {
-			types: DB.types, columns: cols
+			types: DB.types, columns: cols 
 		}
+
 	###*
 	* Add new `column` row to dialog, empty or set in depend if values are passed
 	*
@@ -124,15 +135,6 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		
 		@columns_.count++
 		opts.id = @columns_.count
-
-		###
-		if column?
-			if goog.isString(column.name) then opts.name = column.name
-			if goog.isString(column.type) then opts.type = column.type
-			if column.isPk? then opts.isPk = column.isPk
-			if column.isNotNull? then opts.isNotNull = column.isNotNull
-			if column.isUnique? then opts.isUnique = column.isUnique
-		###
 
 		@colslist.innerHTML += tmpls.dialogs.createTable.tableColumn opts
 
@@ -162,13 +164,26 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 
 		model.setName @getName()
 
-		model.setColumn @getColumnModel(id), id for id in @columns_.updated
+		# update earlie created columns and its indexes
+		for id in @columns_.updated
+			colData = @getColumnData(id)
+			model.setColumn colData.model, id
+			model.setIndex id, dm.model.Table.index.UNIQUE, not colData.isUnique
+			model.setIndex id, dm.model.Table.index.PK, not colData.isPk
+		
+		# removed deleted columns
 		model.removeColumn id for id in @columns_.removed
 		
-		# add columns that have filled name
+		# add columns (and its indexes) that have filled name
 		for id in @columns_.added
-			colmodel = @getColumnModel(id) 
-			if colmodel.name? and colmodel.name isnt '' then model.setColumn colmodel
+			colData = @getColumnData(id) 
+			
+			if not colData.model.name? or colData.model.name is '' then continue
+				
+			colId = model.setColumn colData.model
+			if colData.isUnique then model.setIndex colId, dm.model.Table.index.UNIQUE
+			if colData.isPk then model.setIndex colId, dm.model.Table.index.PK
+
 
 		#@table_.setModel model
 		#confirmEvent =  new dm.dialogs.TableDialog.Confirm(@, @relatedTable, tabName, columns)
