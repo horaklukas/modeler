@@ -257,6 +257,12 @@ class dm.ui.Relation extends goog.ui.Component
   * @param {dm.ui.Table} child
 	###
 	setRelatedTables: (parent, child) ->
+		if @childTab?
+			model = @childTab.getModel()
+			# remove columns of old child table created by relation
+			ids = model.getColumnsIdsByIndex dm.model.Table.index.FK
+			model.removeColumn id for id in ids
+
 		@parentTab = parent
 		@childTab = child
 

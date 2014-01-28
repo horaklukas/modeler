@@ -159,6 +159,39 @@ describe 'class Relation', ->
 			fakepath.lineTo.should.been.calledWithExactly 21, 98
 			fakepath.lineTo.should.been.calledWithExactly 89, 44
 
+	describe 'method setRelatedTables', ->
+		srtk = null
+		model = null
+
+		before ->
+			srtk = sinon.stub rel, 'setRelatedTablesKeys'
+			model =
+				getColumnsIdsByIndex: sinon.stub()
+				removeColumn: sinon.spy()
+
+		beforeEach ->
+			rel.childTab = null
+			rel.parentTab = null
+
+		after ->
+			srtk.restore()
+
+		it 'should delete fk columns of previous child table if exists', ->
+			rel.childTab = getModel: -> model
+			model.getColumnsIdsByIndex.returns [4, 5]
+
+			rel.setRelatedTables 'parentTableName', 'childTableName'
+
+			model.removeColumn.should.been.calledTwice
+			model.removeColumn.should.been.calledWithExactly 4
+			model.removeColumn.should.been.calledWithExactly 5
+
+		it 'should save child and parent table', ->
+			rel.setRelatedTables 'parentTableName', 'childTableName'
+
+			rel.should.have.property 'childTab', 'childTableName'
+			rel.should.have.property 'parentTab', 'parentTableName'
+
 	describe 'method setRelatedTableKeys', ->
 		gcols = sinon.stub()
 		gcolid = sinon.stub()
