@@ -29,7 +29,7 @@ class dm.ui.Relation extends goog.ui.Component
 	###*
   * @type {dm.ui.Table}
 	###
-	@childTab: null
+	childTab: null
 
 	###*
 	* @param {dm.model.Relation}
