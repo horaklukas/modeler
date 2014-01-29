@@ -91,7 +91,7 @@ class dm.ui.Relation extends goog.ui.Component
 
 		relationModel = @getModel()
 		childTabModel = @childTab.getModel()
-		fkColumns = childTabModel.getColumnsIdsByIndex dm.model.Table.index.FK
+		fkColumns = relationModel.getFkColumnsIds()
 
 		for column in fkColumns
 			childTabModel.setIndex(
@@ -258,10 +258,10 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	setRelatedTables: (parent, child) ->
 		if @childTab?
-			model = @childTab.getModel()
+			tableModel = @childTab.getModel()
 			# remove columns of old child table created by relation
-			ids = model.getColumnsIdsByIndex dm.model.Table.index.FK
-			model.removeColumn id for id in ids
+			ids = @getModel().getFkColumnsIds()
+			goog.array.forEachRight ids, (id) -> tableModel.removeColumn id
 
 		@parentTab = parent
 		@childTab = child
@@ -269,35 +269,27 @@ class dm.ui.Relation extends goog.ui.Component
 		@setRelatedTablesKeys()
 
 	###*
-  * Add primary column from parent table to child table
+  * Adds foreign keys columns to child table and add primary index to it, if
+  * relation is identifying
 	###
 	setRelatedTablesKeys: ->
 		parentModel = @parentTab.getModel()
 		childModel = @childTab.getModel()
+		relationModel = @getModel()
+		ids = []
+
 		parentCols = parentModel.getColumns()
 		parentPkColIds = parentModel.getColumnsIdsByIndex dm.model.Table.index.PK
-		isIdentifying = @getModel().isIdentifying()
+		isIdentifying = relationModel.isIdentifying()
 
 		for pkColId in parentPkColIds
 			childTableColumn = goog.object.clone parentCols[pkColId]
 
 			id = childModel.setColumn childTableColumn
+			ids.push id
 			
 			childModel.setIndex id, dm.model.Table.index.FK
 			
 			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
-			
-		###	
-		for column in  when column.isPk is yes
-			childTableColumn = goog.object.clone column
-			childModel = @childTab.getModel()
-			
-			id = childModel.setColumn childTableColumn
-			
-			childTableColumn.isPk = no
-			
-			if @getModel().isIdentifying()
-				childModel.setIndex id, dm.model.Table.index.PK
 
-			childModel.setIndex id, dm.model.Table.index.FK
-		###
+		relationModel.setFkColumnsIds ids

@@ -162,29 +162,45 @@ describe 'class Relation', ->
 	describe 'method setRelatedTables', ->
 		srtk = null
 		model = null
+		gfci = sinon.stub()
 
 		before ->
 			srtk = sinon.stub rel, 'setRelatedTablesKeys'
-			model =
-				getColumnsIdsByIndex: sinon.stub()
-				removeColumn: sinon.spy()
+			model =	removeColumn: sinon.spy()
+			sinon.stub(rel, 'getModel').returns getFkColumnsIds: gfci
 
 		beforeEach ->
 			rel.childTab = null
 			rel.parentTab = null
+			gfci.reset()
+			model.removeColumn.reset()
 
 		after ->
 			srtk.restore()
+			rel.getModel.restore()
 
 		it 'should delete fk columns of previous child table if exists', ->
 			rel.childTab = getModel: -> model
-			model.getColumnsIdsByIndex.returns [4, 5]
+			gfci.returns [4, 5]
 
 			rel.setRelatedTables 'parentTableName', 'childTableName'
 
 			model.removeColumn.should.been.calledTwice
 			model.removeColumn.should.been.calledWithExactly 4
 			model.removeColumn.should.been.calledWithExactly 5
+
+		it 'should delete fk columns in descending order', ->
+			rel.childTab = getModel: -> model
+			rm6 = model.removeColumn.withArgs(6)
+			rm5 = model.removeColumn.withArgs(5)
+			rm4 = model.removeColumn.withArgs(4)
+			gfci.returns [4, 5, 6]
+
+			rel.setRelatedTables 'parent', 'child'
+
+			model.removeColumn.should.been.calledThrice
+			rm6.should.been.calledBefore rm5
+			rm5.should.been.calledBefore rm4
 
 		it 'should save child and parent table', ->
 			rel.setRelatedTables 'parentTableName', 'childTableName'
@@ -198,13 +214,16 @@ describe 'class Relation', ->
 		scol = sinon.stub()
 		sindex = sinon.spy()
 		iident = sinon.stub()
+		sfkci = sinon.spy()
 
 		before ->
 			rel.parentTab = getModel: -> {
 				getColumns: gcols, getColumnsIdsByIndex: gcolid
 			}
 			rel.childTab = getModel: -> { setColumn: scol, setIndex: sindex	}
-			sinon.stub(rel, 'getModel').returns isIdentifying: iident
+			sinon.stub(rel, 'getModel').returns {
+				isIdentifying: iident, setFkColumnsIds: sfkci
+			}
 
 		beforeEach ->
 			gcols.reset()
@@ -212,6 +231,7 @@ describe 'class Relation', ->
 			scol.reset()
 			iident.reset()
 			sindex.reset()
+			sfkci.reset()
 
 		after ->
 			rel.getModel.restore()
@@ -253,4 +273,13 @@ describe 'class Relation', ->
 			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk2'
 			parentColumns[1].should.deep.equal name: 'Pk2'
 
+		it 'should save ids of foreign key columns', ->
+			parentColumns = [	{name:'nPk1'},{name:'nPk2'},{name:'Pk2'},{name:'Pk3'}	]
+			gcolid.returns [2, 3]
+			scol.withArgs({name:'Pk2'}).returns 2
+			scol.withArgs({name:'Pk3'}).returns 3
+			gcols.returns parentColumns
 
+			rel.setRelatedTablesKeys()
+
+			sfkci.should.been.calledOnce.and.calledWithExactly [2, 3]

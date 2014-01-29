@@ -12,7 +12,15 @@ class dm.model.Relation extends goog.events.EventTarget
 		super()
 		#@setRelatedTables startTab, endTab
 		
+		###*
+    * @type {boolean}
+		###
 		@identifying_ = identify
+
+		###*
+    * @type {Array.<number>} 
+		###
+		@fkColumnsIds_ = []
 
 	###
 	setRelatedTables: (parent, child) =>
@@ -32,3 +40,16 @@ class dm.model.Relation extends goog.events.EventTarget
 	###
 	isIdentifying: ->
 		@identifying_
+
+	###*
+  * Saves ids of child table columns that are foreign keys
+  * @param {Array.<number>} ids
+	###
+	setFkColumnsIds: (ids) ->
+		@fkColumnsIds_ = ids
+
+	###
+	* @return {Array.<number>}
+	###
+	getFkColumnsIds: ->
+		@fkColumnsIds_
