@@ -132,7 +132,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@addChild table, false
 		@addTableInternal_ table
 		
-		# update position of table if table is outside the canvas 
+		# update position of table if any part of table is outside the canvas 
 		pos = table.getPosition()
 		size = table.getSize()
 

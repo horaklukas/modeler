@@ -115,17 +115,6 @@ class dm.ui.Table extends goog.ui.Component
   * @param {number} y
 	###
 	setPosition: (x, y) =>
-		# if passed coordinates would caused that any part of table would be
-		# outside canvas, recount coordinates
-		###canvasSize = goog.style.getSize @getCanvas()
-
-		if x + @size_.w > canvasSize.width then x = canvasSize.width - @size_.w
-		else if x < 0 then x = 0
-
-		if y + @size_.h > canvasSize.height then y = canvasSize.height - @size_.h
-		else if y < 0 then y = 0
-		###
-	
 		# table's position coordinates and size dimensions
 		@position_.x = x
 		@position_.y = y

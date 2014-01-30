@@ -10,6 +10,7 @@ goog.require 'dm.dialogs.RelationDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.Toolbar'
+goog.require 'dm.ui.tools.EventType'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
 goog.require 'goog.events'
@@ -34,7 +35,7 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
 	if object instanceof dm.ui.Relation then relationDialog.show yes, object
 	else if object instanceof dm.ui.Table then tableDialog.show yes, object
 
-goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
+goog.events.listen mainToolbar, dm.ui.tools.EventType.CREATE, (ev) ->
 	switch ev.objType
 		when 'table'
 			tab = new dm.ui.Table new dm.model.Table(), ev.data.x, ev.data.y
