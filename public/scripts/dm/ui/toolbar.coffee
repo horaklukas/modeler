@@ -195,11 +195,16 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
   * @param {?HTMLElement} object
 	###
 	finishAction: (position, object) ->
-		unless (@parentTable and @childTable) then return false
-		
-		goog.dom.classes.remove @parentTable.getElement(), 'active'
-		goog.dom.classes.remove @childTable.getElement(), 'active'
+		# if creating relation canceled with other action before select both tables
+		# do not dispatch event, only unmark `active`
 
+		unless @parentTable then return false
+		else goog.dom.classes.remove @parentTable.getElement(), 'active'
+
+		unless @childTable then return false
+		
+		goog.dom.classes.remove @childTable.getElement(), 'active'
+		
 		@dispatchEvent new dm.ui.Toolbar.ObjectCreate(
 			'relation', {parent: @parentTable, child: @childTable}
 		)

@@ -133,6 +133,12 @@ class dm.ui.Table extends goog.ui.Component
 		if @isInDocument()
 			goog.style.setPosition @element_, @position_.x, @position_.y
 
+  ###*
+  * @return {goog.math.Coordinate}
+  ###
+	getPosition: ->
+		@position_
+
 	###*
   * @return {goog.math.Rect}
 	###

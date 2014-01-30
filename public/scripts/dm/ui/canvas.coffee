@@ -131,11 +131,17 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 	addTable: (table) =>
 		@addChild table, false
 		@addTableInternal_ table
-		#id = dm.actualModel.addTable @html, tabPos.x, tabPos.y
-		#goog.style.showElement @clueTable.getElement(), false
+		
+		# update position of table if table is outside the canvas 
+		pos = table.getPosition()
+		size = table.getSize()
 
-		#dm.tableDialog.setValues()
-		#dm.tableDialog.show id
+		{width, height} = @getSize()
+
+		x = if pos.x + size.width > width then width - size.width else pos.x
+		y = if pos.y + size.height > height then height - size.height else pos.y
+
+		if pos.x > x or pos.y > y then table.setPosition x, y 
 
 	###*
   * Add element to DOM
