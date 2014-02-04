@@ -10,8 +10,8 @@ helping =
 	renderWorkspace: (res) ->
 		options =
 			title: Server.databases.dbs[Server.databases.selected].name
-			types: Server.databases.dbs[Server.databases.selected].types
-
+		
+		res.expose {types: Server.databases.dbs[Server.databases.selected].types}, 'DB'
 		res.render 'main', options
 
 routes =

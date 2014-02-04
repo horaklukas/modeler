@@ -1,0 +1,8 @@
+{
+  "name": "dbModeler",
+  "version": "0.3.0",
+  "dependencies": {
+    "este-library": "git://github.com/steida/este-library.git",
+    "soyutils": "*"
+  }
+}

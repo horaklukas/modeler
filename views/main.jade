@@ -1,28 +1,23 @@
-doctype 5
+doctype html
 html
 	head
 		title= title
-		link(rel="stylesheet", type="text/css", href="/styles/main.css")
+		link(rel="stylesheet", type="text/css", href="/public/styles/main.css")
+		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/common.css")
+		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/dialog.css")
+		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/toolbar.css")
+		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/button.css")
+		script(src="http://localhost:35729/livereload.js")
 		//script(src="/socket.io/socket.io.js")
-		script(src="/scripts/lib/raphael.min.js")
-		script(src="/scripts/lib/jquery.min.js")
-		script(src="/scripts/lib/soyutils.js")
-		script(src="/templates/dialogs/createTable.js")
-		script(src="/templates/components/model/table.js")
-		script(src="/scripts/dialogs/common.js")
-		script(src="/scripts/dialogs/createTable.js")
-		script(src="/scripts/components/canvas.js")
-		script(src="/scripts/components/controlPanel.js")
-		script(src="/scripts/components/model/model.js")
-		script(src="/scripts/components/model/relation.js")
-		script(src="/scripts/components/model/table.js")
+		script(src="/bower_components/closure-library/closure/goog/base.js")
+		script(src="/public/scripts/dm/app-deps.js")
 	body
 		div#app
-			div#controlPanel
-				button.icon.tool(name="createTable")
-				button.icon.tool(name="createRelation")
 			div#modelerCanvas
 
-		script
-			window.DB = {types: "#{types}".split(',')};
-		script(src="/scripts/app.js")
+		script!= javascript
+		script.
+			goog.require('dm');
+		
+		script(src="/public/scripts/dm/test-data.js")
+				

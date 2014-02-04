@@ -1,0 +1,56 @@
+{namespace tmpls.dialogs.createRelation}
+
+/**
+ * Main function for creating dialog
+ *
+ * @param ident
+ * @param parentTable
+ * @param childTable
+ */
+{template .dialog}
+<div id="createRelation" class="dialog">
+	{call .prefs data="all" /}
+</div>
+{/template}
+
+/**
+ * @param ident
+ * @param parentTable
+ * @param childTable
+ */
+{template .prefs}
+<form id="relprefs">
+	{call .ident}
+		{param isident: $ident /}
+	{/call}
+	{call .selectParent}
+		{param parent: $parentTable /}
+		{param child: $childTable /}
+	{/call}
+</form>	
+{/template}	
+
+/**
+ * Form with select of relation identifying
+ *
+ * @param isident
+ */
+{template .ident}
+	<div>Relation type</div>
+	<input type="radio" name="ident" value="0" {if not $isident}checked{/if}>
+		Non-Identifying relation<br />
+	<input type="radio" name="ident" value="1" {if $isident}checked{/if}>
+		Identifying relation	
+{/template}
+
+/**
+ * @param parent
+ * @param child
+ */
+{template .selectParent}
+<div>
+	<p><span>Parent table:</span> <strong class="parent" >{$parent}</strong></p>
+	<button id="swaptables">Swap tables</button>
+	<p><span>Child table:</span> <strong class="child">{$child}</strong></p>
+</div>
+{/template}

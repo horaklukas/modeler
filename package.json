@@ -1,26 +1,33 @@
 {
-	"name":"dbModeler",
-	"version":"0.2.5",
-	"description":"",
-	"dependencies": {
-		"pg": "*",
-		"jquery": "*",
-		"jade": "*",
-		"stylus": "*",
-		"nib": "*",
-		"express.io": "*"
-	},
-	"devDependencies": {
-		"mocha": "*",
-		"chai": "*",
-		"sinon": "*",
-		"sinon-chai": "*",
-		"coffee-script":"*"
-	},
-	"engines": {
-		"node": "0.8.4"
-	},
-	"scripts": {
-	    "start": "node app.js"
-	}
+  "name": "dbModeler",
+  "version": "0.3.0",
+  "description": "",
+  "dependencies": {
+    "pg": "*",
+    "jquery": "*",
+    "jade": "*",
+    "stylus": "*",
+    "nib": "*",
+    "express": "3.x.x",
+    "express-expose": "~0.3.3"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "sinon": "*",
+    "sinon-chai": "*",
+    "grunt": "~0.4.1",
+    "grunt-closure-tools": "~0.8.3",
+    "grunt-closure-soy": "~0.2.0",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-mocha-phantomjs": "~0.3.0",
+    "grunt-este": "~2.4.6"
+  },
+  "engines": {
+    "node": "0.8.4"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
 }

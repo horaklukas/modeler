@@ -1,0 +1,21 @@
+.table
+	position: absolute
+	min-width: 100px
+	min-height: 80px
+	border: 1px solid black
+	user-select: none
+	cursor: default
+	background-color: white
+	&.active
+		border-width: 2px
+	&.move
+		opacity: 0.5
+		cursor: move !important
+	.head
+		box-model: inherit, 20px, 0, 0
+		no-border()
+		background-color: #ccc
+	.idx
+		font-size: 0.8em
+		font-weight: bold
+		margin: 0 0 0 5px

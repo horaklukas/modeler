@@ -1,3 +1,7 @@
 node_modules
-*.uncompr.js
+bower_components
 *sublime*
+
+public/scripts/lib
+
+*.js
