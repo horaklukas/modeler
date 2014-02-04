@@ -91,7 +91,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		[column] = column
 
 		model:
-			name: goog.dom.getElementByClass('name', column).value
+			name: goog.dom.getElementByClass('name', column).value.replace ' ', '_'
 			type: goog.dom.getElementByClass('type', column).value
 			isNotNull:goog.dom.getElementByClass('notnull', column).checked
 		isPk: goog.dom.getElementByClass('primary', column).checked

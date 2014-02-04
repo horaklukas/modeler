@@ -63,7 +63,7 @@ tab7 = new dm.ui.Table tab7model, 450, 400
 
 tab8model = new dm.model.Table 'ParentTableOfParent', [
 	{ name:'parentofparent_id', type:'integer', isNotNull:false }
-	{ name: 'not null column', type: 'varchar', isNotNull: true}
+	{ name: 'not_null_column', type: 'varchar', isNotNull: true}
 ]
 tab8model.setIndex 0, dm.model.Table.index.PK
 tab8 = new dm.ui.Table tab8model, 250, 600
@@ -71,7 +71,7 @@ tab8 = new dm.ui.Table tab8model, 250, 600
 tab9model = new dm.model.Table 'ParentTableOfParent2', [
 	{ name:'parentofparent2_id', type:'integer', isNotNull:false }
 	{ name:'parentofparent2_id2', type:'integer', isNotNull:false }
-	{ name: 'ordinary column', type: 'date', isNotNull: false}
+	{ name: 'ordinary_column', type: 'date', isNotNull: false}
 ]
 tab9model.setIndex 0, dm.model.Table.index.PK
 tab9model.setIndex 1, dm.model.Table.index.PK

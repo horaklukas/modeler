@@ -18,12 +18,6 @@ module.exports = (grunt) ->
   grunt.registerTask('build', ['closureBuilder']);
 
   grunt.registerTask('test',['coffee:test','esteUnitTests'])
-  
-  srcCoffees = [
-    './*.coffee'
-    'src/**/*.coffee'
-    'public/scripts/**/*.coffee'
-  ]
 
   grunt.initConfig
     coffee:
@@ -31,10 +25,16 @@ module.exports = (grunt) ->
         compile: true
         bare: true
 
-      run:
-        expand: true,
-        src: srcCoffees,
-        ext: '.js'
+      app:
+        files: [{
+          expand: true,
+          src: [
+            './*.coffee'
+            'src/**/*.coffee'
+            'public/scripts/**/*.coffee'
+          ]
+          ext: '.js'
+        }]
       test:
         expand: true,
         src: ['test/unit/**/*.coffee'],
@@ -60,6 +60,10 @@ module.exports = (grunt) ->
             'bower_components/este-library/este/thirdparty'
             'public/scripts/dm'
           ]
+
+    coffee2closure:
+      app:
+        files: '<%= coffee.app.files %>'
 
     closureBuilder:
       options:
@@ -106,7 +110,7 @@ module.exports = (grunt) ->
 
     watch:
       coffee:
-        files: srcCoffees
+        files: 'public/scripts/**/*.coffee' #'<%= coffee.app.files[0].src %>'
         tasks: ['coffee']
         options:
           livereload: true

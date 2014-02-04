@@ -7,7 +7,7 @@ goog.require 'goog.array'
 goog.require 'goog.object'
 
 ###*
-* @typedef {{name:string, type:string, isPk: boolean, isNotNull:boolean}}
+* @typedef {{name:string, type:string, isNotNull:boolean}}
 ###
 dm.model.TableColumn
 
