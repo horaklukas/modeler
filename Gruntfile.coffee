@@ -49,32 +49,21 @@ module.exports = (grunt) ->
           shouldGenerateJsdoc: true
           shouldProvideRequireSoyNamespaces: true
 
-    closureDepsWriter:
-      options:
-        closureLibraryPath: './public/scripts/lib/closure-library'
-        root_with_prefix: [
-          '"/srv/git/modeler/public/scripts/dm ../../../../dm"'
-          '"/srv/git/modeler/public/scripts/lib/soyutils ../../../soyutils"'
-        ]
-
-      all:
-        dest: '/srv/git/modeler/public/scripts/dm/app-deps.js'
-
     esteDeps:
       all:
         options:
-          outputFile: 'public/scripts/dm/app-deps.js'
+          outputFile: 'public/scripts/dm/deps.js'
           prefix: '../../../../'
           root: [
             'bower_components/closure-library'
             'bower_components/closure-templates'
-            'bower_components/este-library/este'
+            'bower_components/este-library/este/thirdparty'
             'public/scripts/dm'
           ]
 
     closureBuilder:
       options:
-        closureLibraryPath: 'public/scripts/lib/closure-library'
+        closureLibraryPath: 'bower_components/closure-library'
         inputs: './public/scripts/dm/app.js'
 
         # [OPTIONAL] The location of the compiler.jar
@@ -94,16 +83,12 @@ module.exports = (grunt) ->
         #   maxBuffer: 999999 * 1024
       
       all:
-        src: [
-          './public/scripts/dm'
-          './public/scripts/lib/soyutils'
-          './public/scripts/lib/closure-library'
-        ]
+        src: '<%= esteDeps.all.options.root %>'
         dest: './public/scripts/modeler.min.js'
 
     esteUnitTests:
       options:
-        depsPath: '<%= closureDepsWriter.all.dest %>'
+        depsPath: '<%= esteDeps.all.options.outputFile %>'
         prefix: '<%= esteDeps.all.options.prefix %>'
       
         mocha: do ->
