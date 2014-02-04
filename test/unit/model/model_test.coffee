@@ -1,3 +1,4 @@
+###
 Model = require "#{scriptsDir}/components/model/model"
 model = null
 canvas = $('canvas')
@@ -77,4 +78,4 @@ describe 'class Model', ->
 			expect(model.getTabNumberId('tabb_13'), 'tab_13').to.be.false
 			expect(model.getTabNumberId('tab_ds2'), 'tab_ds2').to.be.false
 			expect(model.getTabNumberId('tab_'), 'tab_').to.be.false
-
+###

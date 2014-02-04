@@ -24,7 +24,8 @@ app.configure ->
 	app.use express.urlencoded()
 	app.use express.methodOverride()
 	app.use stylus.middleware src: __dirname + '/public', compile: stylusCompile
-	app.use express.static __dirname + '/public'
+	app.use '/bower_components', express.static(__dirname + '/bower_components')
+	app.use '/public', express.static __dirname + '/public'
 	app.use app.router
 	app.use express.errorHandler()
 

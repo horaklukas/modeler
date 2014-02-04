@@ -1,3 +1,4 @@
+###
 Relation = require "#{scriptsDir}/components/model/relation"
 rel = null
 # Fake canvas that returns obj with spy at attr method
@@ -83,5 +84,5 @@ describe 'class Relation', ->
 
 		it 'should break at x and y if positions arent at direction', ->
 			expect(rel.getBreakPoints {x:20, y:130}, 'top', {x:90, y:100}, 'left')
-			.to.deep.equal [{x: 90, y: 130}, {x: 90, y: 130}]
-			
+			.to.deep.equal [{x: 90, y: 130}, {x: 90, y: 130}]		
+###

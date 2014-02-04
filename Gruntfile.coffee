@@ -1,4 +1,24 @@
+chai = require 'chai'
+sinonChai = require 'sinon-chai'
+
 module.exports = (grunt) ->
+  # load plugins that provides tasks
+  grunt.loadNpmTasks 'grunt-closure-soy'
+  grunt.loadNpmTasks 'grunt-closure-tools'
+  grunt.loadNpmTasks 'grunt-contrib-coffee'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-este'
+
+  # define tasks
+  grunt.registerTask('default', ['closureSoys','closureDepsWriter']);
+
+  # tasks aliases
+  grunt.registerTask('deps', ['esteDeps']);  
+  grunt.registerTask('soy', ['closureSoys']);
+  grunt.registerTask('build', ['closureBuilder']);
+
+  grunt.registerTask('test',['coffee:test','esteUnitTests'])
+  
   srcCoffees = [
     './*.coffee'
     'src/**/*.coffee'
@@ -7,20 +27,18 @@ module.exports = (grunt) ->
 
   grunt.initConfig
     coffee:
+      options:
+        compile: true
+        bare: true
+
       run:
         expand: true,
         src: srcCoffees,
         ext: '.js'
-        options:
-          compile: true
-          bare: true
       test:
         expand: true,
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
-        options:
-          compile: true
-          bare: true
 
     closureSoys:
       all:
@@ -41,6 +59,18 @@ module.exports = (grunt) ->
 
       all:
         dest: '/srv/git/modeler/public/scripts/dm/app-deps.js'
+
+    esteDeps:
+      all:
+        options:
+          outputFile: 'public/scripts/dm/app-deps.js'
+          prefix: '../../../../'
+          root: [
+            'bower_components/closure-library'
+            'bower_components/closure-templates'
+            'bower_components/este-library/este'
+            'public/scripts/dm'
+          ]
 
     closureBuilder:
       options:
@@ -71,10 +101,23 @@ module.exports = (grunt) ->
         ]
         dest: './public/scripts/modeler.min.js'
 
-    mocha_phantomjs:
-      all: ['test/**/*Test.html']
+    esteUnitTests:
       options:
-        reporter: 'spec'
+        depsPath: '<%= closureDepsWriter.all.dest %>'
+        prefix: '<%= esteDeps.all.options.prefix %>'
+      
+        mocha: do ->
+          global.expect = chai.expect
+          chai.use sinonChai
+          chai.should()
+
+          ui: 'bdd'
+          reporter: 'spec'
+          globals: []
+          timeout: 100
+          bail: true
+        
+      src: ['test/unit/**/*_test.js']
 
     watch:
       coffee:
@@ -87,23 +130,5 @@ module.exports = (grunt) ->
         files: [
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
-          'test/**/*Test.html'
         ]
         tasks: ['test']
-
-  # load plugins that provides tasks
-  grunt.loadNpmTasks 'grunt-closure-soy'
-  grunt.loadNpmTasks 'grunt-closure-tools'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-mocha-phantomjs'
-
-  # define tasks
-  grunt.registerTask('default', ['closureSoys','closureDepsWriter']);
-
-  # tasks aliases
-  grunt.registerTask('deps', ['closureDepsWriter']);  
-  grunt.registerTask('soy', ['closureSoys']);
-  grunt.registerTask('build', ['closureBuilder']);
-
-  grunt.registerTask('test',['coffee:test','mocha_phantomjs:all'])

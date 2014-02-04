@@ -192,11 +192,12 @@ describe 'class Table', ->
 
 		it 'should replace old column element with new column element', ->
 			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes[2].innerText', 'col4'
+			expect(tab).to.have.deep.property 'body_.childNodes[2]'
+			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col4'
 
 			tab.updateColumn 1, {name: 'col6', isPk: false}
 
-			expect(tab).to.have.deep.property 'body_.childNodes[2].innerText', 'col6'
+			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col6'
 
 	describe 'method removeColumn', ->
 		before ->
@@ -220,8 +221,10 @@ describe 'class Table', ->
 
 		it 'should remove column with passed index', ->
 			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes[2].innerText', 'col2'
+			expect(tab).to.have.deep.property 'body_.childNodes[2]'
+			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col2'
+
 
 			tab.removeColumn 1
 
-			expect(tab).to.have.deep.property 'body_.childNodes[2].innerText', 'col3'
+			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col3'

@@ -1,7 +1,7 @@
 {
   "name": "dbModeler",
   "dependencies": {
-    "closure-library": "git://github.com/steida/google-closure-library.git",
+    "este-library": "git://github.com/steida/este-library.git",
     "soyutils": "*"
   }
 }
