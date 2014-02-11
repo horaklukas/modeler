@@ -18,15 +18,18 @@ class dm.model.Relation extends goog.events.EventTarget
 		@identifying_ = identify
 
 		###*
-    * @type {Array.<number>} 
+		* List of parent column id -> child column id mapping
+    * @type {Array.<Object.<string, number>>} 
 		###
-		@fkColumnsIds_ = []
+		@keyColumnsMapping_ = []
 
-	###
-	setRelatedTables: (parent, child) =>
-		@startTab = parent
-		@endTab = child
-	###
+		###*
+	  * @type {Object.<string, string>}
+		###
+		@tables = 
+			parent: null
+			child: null
+		
 	###*
 	* @param {boolean} identify True if relation is identyfing
 	###
@@ -42,14 +45,23 @@ class dm.model.Relation extends goog.events.EventTarget
 		@identifying_
 
 	###*
-  * Saves ids of child table columns that are foreign keys
-  * @param {Array.<number>} ids
+  * Saves list of ids of child table columns that are foreign keys and 
+  *  corresponding parent table columns that are primary keys 
+  * @param {Array.<Object.<string,number>>} ids
 	###
-	setFkColumnsIds: (ids) ->
-		@fkColumnsIds_ = ids
+	setColumnsMapping: (ids) ->
+		@keyColumnsMapping_ = ids
 
 	###
-	* @return {Array.<number>}
+	* @return {Array.<Object.<string,number>>}
 	###
-	getFkColumnsIds: ->
-		@fkColumnsIds_
+	getColumnsMapping: ->
+		@keyColumnsMapping_
+		
+	###*
+  * @param {string} parent Name of parent table
+  * @param {string} child Name of child table
+	###
+	setRelatedTables: (parent, child) =>
+		@tables.parent = parent
+		@tables.child = child

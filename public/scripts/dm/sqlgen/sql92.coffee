@@ -17,26 +17,45 @@ class dm.sqlgen.Sql92
 
 	generate: (model) ->
 		sql = ''
+		parentTables = {}
+		tables = @getTablesByName_ model.tables
 
-		sql += @createTable table for table in model.tables
+		for tableName, table of tables
+			for rel in model.relations when rel.tables.child is tableName
+				columnsMapping = rel.getColumnsMapping()
+				parentTableColumns = tables[rel.tables.parent].getColumns()
+
+				for keyMap in columnsMapping
+					parentTables[keyMap.child] = {
+						table: rel.tables.parent
+						column: parentTableColumns[keyMap.parent].name
+					}
+			
+			sql += @createTable table, parentTables
 
 		console.log sql
 
 	###*
   * @param {dm.model.Table} table
+  * @param {Object.<number, string>=} parentTabs Tables that are parent
+  *  tables of passed table
   * @return {string} generated sql code that create table
 	###
-	createTable: (table) ->
+	createTable: (table, parentTabs = {}) ->
 		columns = table.getColumns()
 		mapName = (id) -> columns[id].name
 
 		pks = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.PK), mapName 
 		uniques = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.UNIQUE), mapName
+		fks = table.getColumnsIdsByIndex(dm.model.Table.index.FK)
 
 		colsSql = goog.array.map columns, (column) => "\t#{@createColumn column}"
 
 		if uniques.length then colsSql.push "\tUNIQUE (#{uniques.join ', '})"
 		if pks.length then colsSql.push "\tPRIMARY KEY (#{pks.join ', '})"
+		if fks.length then for fk in fks
+			colsSql.push "\tFOREIGN KEY (#{columns[fk].name}) REFERENCES " +
+				"#{parentTabs[fk].table} (#{parentTabs[fk].column})"
 
 		"CREATE TABLE #{table.getName()} (\n #{colsSql.join ',\n'} \n);\n\n"
 
@@ -49,3 +68,16 @@ class dm.sqlgen.Sql92
 		
 		"#{column.name} #{column.type}#{notNull}"
 
+	###*
+  * Maps tables by its names
+  *
+  * @param {Array.<dm.model.Table>} tables
+  * @return {Object.<string, dm.model.Table>}
+  * @private
+	###
+	getTablesByName_: (tables) ->
+		mappedTables = {}
+		
+		mappedTables[table.getName()] = table for table in tables
+
+		mappedTables 

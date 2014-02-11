@@ -14,15 +14,26 @@ class dm.ui.tools.GenerateSql extends goog.ui.ToolbarButton
 	startAction: ->
 		generator = new dm.sqlgen.Sql92
 
-		generator.generate tables: [
-			tab0model
-			tab1model
-			tab2model
-			tab3model
-			tab4model
-			tab5model
-			tab6model
-			tab7model
-			tab8model
-			tab9model
-		]
+		generator.generate {
+			tables: [
+				tab0model
+				tab1model
+				tab2model
+				tab3model
+				tab4model
+				tab5model
+				tab6model
+				tab7model
+				tab8model
+				tab9model
+			],
+			relations: [
+				rel1model
+				rel2model
+				rel3model
+				rel4model
+				rel5model
+				rel6model
+				rel7model
+			]
+		} 

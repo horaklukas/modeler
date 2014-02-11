@@ -167,7 +167,9 @@ describe 'class Relation', ->
 		before ->
 			srtk = sinon.stub rel, 'setRelatedTablesKeys'
 			model =	removeColumn: sinon.spy()
-			sinon.stub(rel, 'getModel').returns getFkColumnsIds: gfci
+			sinon.stub(rel, 'getModel').returns {
+				getFkColumnsIds: gfci, setRelatedTables: sinon.spy()
+			}
 
 		beforeEach ->
 			rel.childTab = null
@@ -183,7 +185,10 @@ describe 'class Relation', ->
 			rel.childTab = getModel: -> model
 			gfci.returns [4, 5]
 
-			rel.setRelatedTables 'parentTableName', 'childTableName'
+			rel.setRelatedTables(
+				{getModel: -> {getName: -> 'parentTableName'}},
+				{getModel: -> {getName: -> 'childTableName'}}
+			)
 
 			model.removeColumn.should.been.calledTwice
 			model.removeColumn.should.been.calledWithExactly 4
@@ -196,17 +201,25 @@ describe 'class Relation', ->
 			rm4 = model.removeColumn.withArgs(4)
 			gfci.returns [4, 5, 6]
 
-			rel.setRelatedTables 'parent', 'child'
+			rel.setRelatedTables(
+				{getModel: -> {getName: -> 'parent'}},
+				{getModel: -> {getName: -> 'child'}}
+			)
 
 			model.removeColumn.should.been.calledThrice
 			rm6.should.been.calledBefore rm5
 			rm5.should.been.calledBefore rm4
 
 		it 'should save child and parent table', ->
-			rel.setRelatedTables 'parentTableName', 'childTableName'
+			rel.setRelatedTables(
+				{getModel: -> {getName: -> 'parentTableName'}},
+				{getModel: -> {getName: -> 'childTableName'}}
+			)
 
-			rel.should.have.property 'childTab', 'childTableName'
-			rel.should.have.property 'parentTab', 'parentTableName'
+			rel.should.have.deep.property 'childTab.getModel'
+			rel.childTab.getModel().getName().should.equal 'childTableName'
+			rel.should.have.deep.property 'parentTab.getModel'
+			rel.parentTab.getModel().getName().should.equal 'parentTableName'
 
 	describe 'method setRelatedTableKeys', ->
 		gcols = sinon.stub()
@@ -214,7 +227,7 @@ describe 'class Relation', ->
 		scol = sinon.stub()
 		sindex = sinon.spy()
 		iident = sinon.stub()
-		sfkci = sinon.spy()
+		scm = sinon.spy()
 
 		before ->
 			rel.parentTab = getModel: -> {
@@ -222,7 +235,7 @@ describe 'class Relation', ->
 			}
 			rel.childTab = getModel: -> { setColumn: scol, setIndex: sindex	}
 			sinon.stub(rel, 'getModel').returns {
-				isIdentifying: iident, setFkColumnsIds: sfkci
+				isIdentifying: iident, setColumnsMapping: scm
 			}
 
 		beforeEach ->
@@ -231,7 +244,7 @@ describe 'class Relation', ->
 			scol.reset()
 			iident.reset()
 			sindex.reset()
-			sfkci.reset()
+			scm.reset()
 
 		after ->
 			rel.getModel.restore()
@@ -273,13 +286,15 @@ describe 'class Relation', ->
 			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk2'
 			parentColumns[1].should.deep.equal name: 'Pk2'
 
-		it 'should save ids of foreign key columns', ->
+		it 'should save mapping of fk-> pk columns id', ->
 			parentColumns = [	{name:'nPk1'},{name:'nPk2'},{name:'Pk2'},{name:'Pk3'}	]
 			gcolid.returns [2, 3]
-			scol.withArgs({name:'Pk2'}).returns 2
-			scol.withArgs({name:'Pk3'}).returns 3
+			scol.withArgs({name:'Pk2'}).returns 4
+			scol.withArgs({name:'Pk3'}).returns 5
 			gcols.returns parentColumns
 
 			rel.setRelatedTablesKeys()
 
-			sfkci.should.been.calledOnce.and.calledWithExactly [2, 3]
+			scm.should.been.calledOnce.and.calledWithExactly [
+				{ parent: 2, child: 4 }, { parent: 3, child: 5 }
+			]
