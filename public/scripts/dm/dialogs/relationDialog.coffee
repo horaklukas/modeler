@@ -71,12 +71,11 @@ class dm.dialogs.RelationDialog extends goog.ui.Dialog
 			@relatedRelation = relation
 			@isIdentifying = relation.getModel().isIdentifying()
 			@tablesSwaped = false
+			parentName = relation.parentTab.getModel().getName()
+			childName = relation.childTab.getModel().getName()
 
-			@setValues(
-				relation.parentTab.getModel().getName(),
-				relation.childTab.getModel().getName(),
-				@isIdentifying
-			)
+			@setValues parentName,	childName, @isIdentifying
+			@setTitle "Relation between tables \"#{parentName}\" and \"#{childName}\""
 
 		@setVisible show 
 

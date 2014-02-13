@@ -8,12 +8,19 @@ goog.provide 'dm.sqlgen.Sql92'
 
 goog.require 'dm.model.Table.index'
 goog.require 'goog.array'
+goog.require 'goog.ui.Dialog'
+goog.require 'goog.ui.Dialog.ButtonSet'
 
 class dm.sqlgen.Sql92
 	###*
   * @param {Object} options
 	###
 	constructor: (@options) ->
+		###*
+    * @type {goog.ui.Dialog}
+		###
+		@dialog = new goog.ui.Dialog()
+		@dialog.setButtonSet goog.ui.Dialog.ButtonSet.OK
 
 	generate: (model) ->
 		sql = ''
@@ -33,7 +40,7 @@ class dm.sqlgen.Sql92
 			
 			sql += @createTable table, parentTables
 
-		console.log sql
+		@showDialog sql
 
 	###*
   * @param {dm.model.Table} table
@@ -80,4 +87,12 @@ class dm.sqlgen.Sql92
 		
 		mappedTables[table.getName()] = table for table in tables
 
-		mappedTables 
+		mappedTables
+
+	###*
+  * @param {string} sql
+	###
+	showDialog: (sql) -> 
+		@dialog.setTitle 'SQL'
+		@dialog.setContent "<textarea cols='100' rows='20'>#{sql}</textarea>"
+		@dialog.setVisible true

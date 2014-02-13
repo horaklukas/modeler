@@ -19,7 +19,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 
 	constructor: () ->
 		super() #'createTable', types
-		
+
 		@setContent tmpls.dialogs.createTable.dialog {types: DB.types}
 		@setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL
 		@setDraggable false
@@ -61,6 +61,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 				removed: [], updated: [], added: [columnsCount], count: columnsCount
 
 			@setValues model
+			@setTitle "Table \"#{model.getName()}\""
 
 			# @TODO change of inputs of rows added from model
 			rows = goog.dom.getChildren @colslist
