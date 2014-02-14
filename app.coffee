@@ -2,16 +2,11 @@ express = require 'express'
 expose = require 'express-expose'
 stylus = require 'stylus'
 nib = require 'nib'
-routes = require './src/routes'
+routes = require './lib/routes'
 
 # Main namespace on server side
-global.Server = Server = {}
 
-Server.app = app = express()
-Server.databases = {}
-Server.databases.dbs = {}
-Server.databases.list = []
-Server.databases.selected = null
+app = express()
 
 stylusCompile = (str, path) ->
 	stylus(str).set('filename', path).set('compress', yes)

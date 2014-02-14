@@ -2,19 +2,19 @@ chai = require 'chai'
 sinonChai = require 'sinon-chai'
 
 module.exports = (grunt) ->
-  # load plugins that provides tasks
-  grunt.loadNpmTasks 'grunt-closure-soy'
-  grunt.loadNpmTasks 'grunt-closure-tools'
+  # load plugins that provides tasks  
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-este'
+  grunt.loadNpmTasks 'grunt-mocha-cli'
 
   # define tasks
-  grunt.registerTask('default', ['closureSoys','closureDepsWriter']);
+  grunt.registerTask('default', ['esteTemplates','closureDepsWriter']);
 
   # tasks aliases
   grunt.registerTask('deps', ['esteDeps']);  
-  grunt.registerTask('soy', ['closureSoys']);
+  grunt.registerTask('soy', ['esteTemplates']);
   grunt.registerTask('build', ['closureBuilder']);
 
   grunt.registerTask('test',['coffee:test','esteUnitTests'])
@@ -30,7 +30,7 @@ module.exports = (grunt) ->
           expand: true,
           src: [
             './*.coffee'
-            'src/**/*.coffee'
+            'lib/**/*.coffee'
             'public/scripts/**/*.coffee'
           ]
           ext: '.js'
@@ -40,14 +40,10 @@ module.exports = (grunt) ->
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
 
-    closureSoys:
+    esteTemplates:
       all:
         src: './public/scripts/dm/templates/**/*.soy'
-        soyToJsJarPath: '/srv/www/GoogleClosure/templates/SoyCompiler/SoyToJsSrcCompiler.jar'
         outputPathFormat: '{INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js'
-        options:
-          shouldGenerateJsdoc: true
-          shouldProvideRequireSoyNamespaces: true
 
     esteDeps:
       all:
@@ -108,16 +104,28 @@ module.exports = (grunt) ->
         
       src: ['test/unit/**/*_test.js']
 
+    mochacli:
+      options:
+        reporter: 'spec',
+        ui: 'bdd'
+        compilers: ['coffee:coffee-script/register']
+        bail: true
+        colors: true
+        require: ['./test/common.js']
+
+      src: 'test/unit/**/*Test.js'
+
     watch:
       coffee:
-        files: 'public/scripts/**/*.coffee' #'<%= coffee.app.files[0].src %>'
-        tasks: ['coffee']
+        files: '<%= coffee.app.files[0].src %>' #'public/scripts/**/*.coffee' #
+        tasks: ['coffee:app']
         options:
           livereload: true
 
       test:
         files: [
+          'lib/**/*.coffee'
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
         ]
-        tasks: ['test']
+        tasks: ['coffee:test','test', 'mochacli']
