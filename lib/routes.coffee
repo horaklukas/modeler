@@ -1,4 +1,3 @@
-fs = require 'fs'
 databases = require './dbs'
 
 	#fs.readFile "defs/#{name}.json", 'utf8', (err, cont) ->
@@ -13,20 +12,9 @@ renderWorkspace = (res) ->
 	res.render 'main', title: selectedDb.name
 
 exports.intro = (req, res) ->	
-	list = databases.getList()
-
-	unless list.length
-		fs.readdir 'defs', (err, files) ->
-			if err then return console.log 'Error at reading defs dir!'
-			 
-			list = files.filter (file) -> /\.js$/.test file
-			list = list.map (file) -> file.replace '.js', ''
-			
-			databases.setList list 
-			
-			res.render 'intro', dbs: list
-	else	
-		res.render 'intro', dbs: list
+	databases.getList (err, list) ->
+		if err? then console.error err 	
+		else res.render 'intro', dbs: list
 
 exports.app = (req, res) ->
 	# Intro not displayed (and dbs selected) yet

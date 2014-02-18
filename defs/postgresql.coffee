@@ -1,5 +1,5 @@
 sql92Definition = require './sql92'
-extend = require 'extend'
+extend = require '../lib/extendDef'
 
 postgreDefinition = 
 	'name': 'PostgreSQL'
@@ -51,6 +51,8 @@ postgreDefinition =
 			'xml'
 		]
 
-extend true, postgreDefinition, sql92Definition
+extendedSql92Definition = {types: {}}
+extend extendedSql92Definition, sql92Definition
+extend extendedSql92Definition, postgreDefinition
 
-module.exports = postgreDefinition
+module.exports = extendedSql92Definition

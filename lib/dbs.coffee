@@ -1,17 +1,28 @@
-dbs = {}
-list = []
+path = require 'path'
+fs = require 'fs'
+
+dbs = null
 selected = null
 
-module.exports =
-	getList: -> list
-	
-	setList: (lst) ->
-		list = lst
+defsDir = path.join __dirname, '..', 'defs'
+
+module.exports = databases =
+	getList: (cb) -> 
+		responseCb = (err) ->
+			if err and cb then cb err
+			else cb null, (
+				for id, info of dbs
+					id: id, title: info.name + ' ' + info.version 
+				)
+
+		unless dbs? then databases.loadAllDefinitions(responseCb)
+		else responseCb()
 
 	getDb: (name) ->
 		dbs[name]
 	
-	setDb: -> dbs
+	setDbs: (newDbs) -> 
+		dbs = newDbs
 
 	getSelected: -> 
 		selected
@@ -19,11 +30,21 @@ module.exports =
 	setSelected: (name) ->
 		selected = name
 
-	loadDefinition: (name, cb) ->
+	loadDefinition: (name) ->
 		# we can load it synchronously with require, because definitio should be 
 		# small and simple script
-		try 
 			dbs[name] = require "#{__dirname}/../defs/#{name}"
-			cb null, dbs[name]
-		catch err
-			cb err
+
+	loadAllDefinitions: (cb) ->
+		fs.readdir 'defs', (err, files) ->
+			if err then return cb 'Error at reading defs dir!'
+			 
+			dbsList = files.filter (file) -> /\.js$/.test file
+			dbsList = dbsList.map (file) -> file.replace '.js', ''
+
+			dbs = {}
+			for dbName in dbsList
+				try databases.loadDefinition dbName
+				catch err then return cb err.message
+
+			cb()

@@ -30,6 +30,7 @@ module.exports = (grunt) ->
           expand: true,
           src: [
             './*.coffee'
+            './defs/*.coffee'
             'lib/**/*.coffee'
             'public/scripts/**/*.coffee'
           ]
@@ -128,4 +129,4 @@ module.exports = (grunt) ->
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
         ]
-        tasks: ['coffee:test','test', 'mochacli']
+        tasks: ['coffee:app','coffee:test','test', 'mochacli']
