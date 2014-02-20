@@ -6,7 +6,7 @@ module.exports =
 			'bit'						# not found at postgresql string types
 			'bit varying'		# not found at postgresql string types
 			'character'
-			'character varying'
+			'varchar' #'character varying'
 		]
 		'numeric': [
 			'decimal'

@@ -1,5 +1,5 @@
 sql92Definition = require './sql92'
-extend = require '../lib/extendDef'
+extend = require '../extendDef'
 
 postgreDefinition = 
 	'name': 'PostgreSQL'

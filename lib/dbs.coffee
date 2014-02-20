@@ -36,7 +36,7 @@ module.exports = databases =
 			dbs[name] = require path.join defsDir, name
 
 	loadAllDefinitions: (cb) ->
-		fs.readdir 'defs', (err, files) ->
+		fs.readdir defsDir, (err, files) ->
 			if err then return cb 'Error at reading defs dir!'
 			 
 			dbsList = files.filter (file) -> /\.js$/.test file

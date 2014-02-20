@@ -55,7 +55,7 @@ tab6 = new dm.ui.Table tab6model, 250, 400
 
 tab7model = new dm.model.Table 'ChildTable', [
 	{ name:'child_id', type:'integer', isNotNull:false }
-	{ name: 'unique_column', type: 'string', isNotNull: false }
+	{ name: 'unique_column', type: 'varchar', isNotNull: false }
 ]
 tab7model.setIndex 0, dm.model.Table.index.PK
 tab7model.setIndex 1, dm.model.Table.index.UNIQUE

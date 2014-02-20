@@ -17,6 +17,9 @@ describe 'class Table', ->
 			expect(tab).to.have.property 'name_', 'tablename'			
 
 	describe 'method setColumn', ->
+		before ->
+			sinon.stub tab, 'getColumnByName'
+
 		beforeEach ->
 			tab.columns_ = [
 					{name: 'one', type: 'char'}
@@ -26,6 +29,32 @@ describe 'class Table', ->
 			tab.indexes = {}
 
 			spy.reset()
+			tab.getColumnByName.reset()
+			tab.getColumnByName.returns null
+
+		after ->
+			tab.getColumnByName.restore()
+
+		it 'should add suffix to column name if new column\'s name exists', ->
+			tab.getColumnByName.returns tab.columns_[2]
+			tab.setColumn {name: 'three', type: null}
+
+			expect(tab.columns_[3]).to.exist.and.have.property 'name', 'three_0'
+
+		it 'should add suffix to col name if updated column\'s name has another column ', ->
+			tab.getColumnByName.returns tab.columns_[0]
+			tab.setColumn {name: 'one', type: 'number'}, 2
+
+			expect(tab.columns_[2]).to.have.property 'name', 'one_0'
+
+		it 'should not add suffix if updated column but name not change', ->
+			expect(tab.columns_[1]).to.have.property 'type', 'varchar'
+			tab.getColumnByName.returns tab.columns_[1]
+
+			tab.setColumn {name: 'other', type: 'number'}, 1
+
+			expect(tab.columns_[1]).to.have.property 'name', 'other'
+			expect(tab.columns_[1]).to.have.property 'type', 'number'
 
 		it 'should save column to passed index', ->
 			expect(tab.columns_[1]).to.have.property 'name', 'second'
