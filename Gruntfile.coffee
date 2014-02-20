@@ -30,7 +30,7 @@ module.exports = (grunt) ->
           expand: true,
           src: [
             './*.coffee'
-            './defs/*.coffee'
+            '!./Gruntfile.coffee'
             'lib/**/*.coffee'
             'public/scripts/**/*.coffee'
           ]

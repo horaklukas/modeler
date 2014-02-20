@@ -4,7 +4,7 @@ fs = require 'fs'
 dbs = null
 selected = null
 
-defsDir = path.join __dirname, '..', 'defs'
+defsDir = path.join __dirname, 'defs'
 
 module.exports = databases =
 	getList: (cb) -> 
@@ -33,7 +33,7 @@ module.exports = databases =
 	loadDefinition: (name) ->
 		# we can load it synchronously with require, because definitio should be 
 		# small and simple script
-			dbs[name] = require "#{__dirname}/../defs/#{name}"
+			dbs[name] = require path.join defsDir, name
 
 	loadAllDefinitions: (cb) ->
 		fs.readdir 'defs', (err, files) ->
