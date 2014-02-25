@@ -25,22 +25,39 @@ class dm.sqlgen.Sql92
 	generate: (model) ->
 		sql = ''
 		parentTables = {}
-		tables = @getTablesByName_ model.tables
+		tablesByName = @getTablesByName_ model.tables
 
-		for tableName, table of tables
-			for rel in model.relations when rel.tables.child is tableName
-				columnsMapping = rel.getColumnsMapping()
-				parentTableColumns = tables[rel.tables.parent].getColumns()
+		for table in model.tables
+			sql += @createTable table 
 
-				for keyMap in columnsMapping
-					parentTables[keyMap.child] = {
-						table: rel.tables.parent
-						column: parentTableColumns[keyMap.parent].name
-					}
+
+		for rel in model.relations
+			{parent, child} = rel.tables
+			columnsMapping = rel.getColumnsMapping()
+			parentColumns = tablesByName[parent].getColumns()
+			childColumns = tablesByName[child].getColumns()
+			name = "constr_#{@getNameShortcut child}_#{@getNameShortcut parent}_fk"
 			
-			sql += @createTable table, parentTables
+			sql += "/* Relation between tables #{parent} and #{child} */\n"
+
+			for map, id in columnsMapping
+				childColumn = childColumns[map.child].name
+				parentColumn = parentColumns[map.parent].name
+
+				sql += "ALTER TABLE #{child} ADD CONSTRAINT #{name + id} FOREIGN KEY "+
+					"(#{childColumn}) REFERENCES #{parent} (#{parentColumn});\n\n"
 
 		@showDialog sql
+
+	###*
+  * Gets name of object (table, relation, etc.) and returns its shortcut
+  * useful at eg. names of constraints
+  *
+  * @param {string} name
+  * @return {string}
+	###
+	getNameShortcut: (name) ->
+		name.toLowerCase().substr(0, 3)
 
 	###*
   * @param {dm.model.Table} table
@@ -54,15 +71,16 @@ class dm.sqlgen.Sql92
 
 		pks = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.PK), mapName 
 		uniques = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.UNIQUE), mapName
-		fks = table.getColumnsIdsByIndex(dm.model.Table.index.FK)
+		#fks = table.getColumnsIdsByIndex(dm.model.Table.index.FK)
 
 		colsSql = goog.array.map columns, (column) => "\t#{@createColumn column}"
 
 		if uniques.length then colsSql.push "\tUNIQUE (#{uniques.join ', '})"
 		if pks.length then colsSql.push "\tPRIMARY KEY (#{pks.join ', '})"
-		if fks.length then for fk in fks
-			colsSql.push "\tFOREIGN KEY (#{columns[fk].name}) REFERENCES " +
-				"#{parentTabs[fk].table} (#{parentTabs[fk].column})"
+		
+		#if fks.length then for fk in fks
+		#	colsSql.push "\tFOREIGN KEY (#{columns[fk].name}) REFERENCES " +
+		#		"#{parentTabs[fk].table} (#{parentTabs[fk].column})"
 
 		"CREATE TABLE #{table.getName()} (\n #{colsSql.join ',\n'} \n);\n\n"
 
