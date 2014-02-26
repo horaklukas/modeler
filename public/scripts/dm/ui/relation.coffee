@@ -257,16 +257,23 @@ class dm.ui.Relation extends goog.ui.Component
   * @param {dm.ui.Table} child
 	###
 	setRelatedTables: (parent, child) ->
+		relationModel = @getModel()
+
 		if @childTab?
 			tableModel = @childTab.getModel()
 			# remove columns of old child table created by relation
-			ids = @getModel().getFkColumnsIds()
+			ids = relationModel.getFkColumnsIds()
 			goog.array.forEachRight ids, (id) -> tableModel.removeColumn id
 
 		@parentTab = parent
 		@childTab = child
 
+		relationModel.setRelatedTables(
+			@parentTab.getModel().getName(), @childTab.getModel().getName()
+		)
+
 		@setRelatedTablesKeys()
+
 
 	###*
   * Adds foreign keys columns to child table and add primary index to it, if
@@ -276,7 +283,7 @@ class dm.ui.Relation extends goog.ui.Component
 		parentModel = @parentTab.getModel()
 		childModel = @childTab.getModel()
 		relationModel = @getModel()
-		ids = []
+		keysMapping = []
 
 		parentCols = parentModel.getColumns()
 		parentPkColIds = parentModel.getColumnsIdsByIndex dm.model.Table.index.PK
@@ -286,10 +293,10 @@ class dm.ui.Relation extends goog.ui.Component
 			childTableColumn = goog.object.clone parentCols[pkColId]
 
 			id = childModel.setColumn childTableColumn
-			ids.push id
+			keysMapping.push parent: pkColId, child: id
 			
 			childModel.setIndex id, dm.model.Table.index.FK
 			
 			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
 
-		relationModel.setFkColumnsIds ids
+		relationModel.setColumnsMapping keysMapping

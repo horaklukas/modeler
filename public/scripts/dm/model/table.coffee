@@ -7,7 +7,7 @@ goog.require 'goog.array'
 goog.require 'goog.object'
 
 ###*
-* @typedef {{name:string, type:string, isPk: boolean, isNotNull:boolean}}
+* @typedef {{name:string, type:string, isNotNull:boolean}}
 ###
 dm.model.TableColumn
 
@@ -76,8 +76,17 @@ class dm.model.Table extends goog.events.EventTarget
 	* @return {number} id of new or updated column
 	###
 	setColumn: (column, idx) ->
-		if idx? then @columns_[idx] = column
-		else @columns_.push column
+		# before add (or update) column check if its name is unique and add suffix
+		# in case that not
+		if idx?
+			columnByName = @getColumnByName column.name
+			if columnByName? and columnByName isnt @columns_[idx]
+				column.name += '_0'
+
+			@columns_[idx] = column
+		else
+			if @getColumnByName(column.name)? then column.name += '_0'  
+			@columns_.push column
 
 		if @indexes[column.name] then column.indexes = @indexes[column.name]
 

@@ -2,28 +2,22 @@ chai = require 'chai'
 sinonChai = require 'sinon-chai'
 
 module.exports = (grunt) ->
-  # load plugins that provides tasks
-  grunt.loadNpmTasks 'grunt-closure-soy'
-  grunt.loadNpmTasks 'grunt-closure-tools'
+  # load plugins that provides tasks  
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-este'
+  grunt.loadNpmTasks 'grunt-mocha-cli'
 
   # define tasks
-  grunt.registerTask('default', ['closureSoys','closureDepsWriter']);
+  grunt.registerTask('default', ['esteTemplates','closureDepsWriter']);
 
   # tasks aliases
   grunt.registerTask('deps', ['esteDeps']);  
-  grunt.registerTask('soy', ['closureSoys']);
+  grunt.registerTask('soy', ['esteTemplates']);
   grunt.registerTask('build', ['closureBuilder']);
 
   grunt.registerTask('test',['coffee:test','esteUnitTests'])
-  
-  srcCoffees = [
-    './*.coffee'
-    'src/**/*.coffee'
-    'public/scripts/**/*.coffee'
-  ]
 
   grunt.initConfig
     coffee:
@@ -31,50 +25,46 @@ module.exports = (grunt) ->
         compile: true
         bare: true
 
-      run:
-        expand: true,
-        src: srcCoffees,
-        ext: '.js'
+      app:
+        files: [{
+          expand: true,
+          src: [
+            './*.coffee'
+            '!./Gruntfile.coffee'
+            './lib/**/*.coffee'
+            './public/scripts/**/*.coffee'
+          ]
+          ext: '.js'
+        }]
       test:
         expand: true,
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
 
-    closureSoys:
+    esteTemplates:
       all:
         src: './public/scripts/dm/templates/**/*.soy'
-        soyToJsJarPath: '/srv/www/GoogleClosure/templates/SoyCompiler/SoyToJsSrcCompiler.jar'
         outputPathFormat: '{INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js'
-        options:
-          shouldGenerateJsdoc: true
-          shouldProvideRequireSoyNamespaces: true
-
-    closureDepsWriter:
-      options:
-        closureLibraryPath: './public/scripts/lib/closure-library'
-        root_with_prefix: [
-          '"/srv/git/modeler/public/scripts/dm ../../../../dm"'
-          '"/srv/git/modeler/public/scripts/lib/soyutils ../../../soyutils"'
-        ]
-
-      all:
-        dest: '/srv/git/modeler/public/scripts/dm/app-deps.js'
 
     esteDeps:
       all:
         options:
-          outputFile: 'public/scripts/dm/app-deps.js'
+          outputFile: 'public/scripts/dm/deps.js'
           prefix: '../../../../'
           root: [
             'bower_components/closure-library'
             'bower_components/closure-templates'
-            'bower_components/este-library/este'
+            'bower_components/este-library/este/thirdparty'
             'public/scripts/dm'
           ]
 
+    coffee2closure:
+      app:
+        files: '<%= coffee.app.files %>'
+
     closureBuilder:
       options:
-        closureLibraryPath: 'public/scripts/lib/closure-library'
+        closureLibraryPath: 'bower_components/closure-library'
         inputs: './public/scripts/dm/app.js'
 
         # [OPTIONAL] The location of the compiler.jar
@@ -94,16 +84,12 @@ module.exports = (grunt) ->
         #   maxBuffer: 999999 * 1024
       
       all:
-        src: [
-          './public/scripts/dm'
-          './public/scripts/lib/soyutils'
-          './public/scripts/lib/closure-library'
-        ]
+        src: '<%= esteDeps.all.options.root %>'
         dest: './public/scripts/modeler.min.js'
 
     esteUnitTests:
       options:
-        depsPath: '<%= closureDepsWriter.all.dest %>'
+        depsPath: '<%= esteDeps.all.options.outputFile %>'
         prefix: '<%= esteDeps.all.options.prefix %>'
       
         mocha: do ->
@@ -119,16 +105,33 @@ module.exports = (grunt) ->
         
       src: ['test/unit/**/*_test.js']
 
+    mochacli:
+      options:
+        reporter: 'spec',
+        ui: 'bdd'
+        compilers: ['coffee:coffee-script/register']
+        bail: true
+        colors: true
+        require: ['./test/common.js']
+
+      src: 'test/unit/**/*Test.js'
+
     watch:
       coffee:
-        files: srcCoffees
-        tasks: ['coffee']
+        files: [
+         './*.coffee'
+          '!./Gruntfile.coffee'
+          './lib/**/*.coffee'
+          './public/scripts/**/*.coffee'
+        ] #'<%= coffee.app.files[0].src %>'
+        tasks: ['coffee:app']
         options:
           livereload: true
 
       test:
         files: [
+          'lib/**/*.coffee'
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
         ]
-        tasks: ['test']
+        tasks: ['coffee:app','coffee:test','test', 'mochacli']

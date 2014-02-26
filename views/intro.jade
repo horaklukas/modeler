@@ -8,6 +8,6 @@ html
 		form(action='/modeler',method='post')
 			select(name='dbs')
 				each db in dbs
-					option(value=db)= db
+					option(value=db.id)= db.title
 
 			input(type='submit', value='selectdb')
