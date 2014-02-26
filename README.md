@@ -20,9 +20,11 @@ _The uploaded application needn't corespond to latest state_
 
 ## TODO
 
+### App
+
 ### Table
-* <s>column indexes (unique, not null)</s>
 * create system of counting best point to connect relation
+* <s>column indexes (unique, not null)</s>
 * <s>change mouse cursor type to `move` when moving table - as listed out  in
 [this topic](http://stackoverflow.com/questions/8942805/chrome-bug-cursor-changes-on-mouse-down-move/), for absolute positioned elements at chrome it may be impossible</s>
 * <s>fix positions of relation endpoints</s>
@@ -34,9 +36,9 @@ _The uploaded application needn't corespond to latest state_
 * <s>dont allow to move table outside canvas</s>
 
 ### Relation
-* multiple relations on same table side
-* <s>types of relation - identifying, non-identifyig</s>
 * fix not disabled opossite points when counting path connection points
+* <s>multiple relations on same table side</s> resolved with direct realtions
+* <s>types of relation - identifying, non-identifyig</s>
 * <s>cancel creating of relation if second point not defined</s>
 * <s>create new object - relationship between tables</s>
 * <s>fix the problem of uncomplete relation when table is at bottom of canvas
@@ -44,6 +46,13 @@ _The uploaded application needn't corespond to latest state_
  developer console_
 * <s>get the relation between tables broken instead of straight</s>
 * "selfish relation" is relation from table to the same table 
+
+### Dialogs
+
+#### Table dialog
+* fix propagating name of table to relation model if table name change
+* make columns creted by relation not deletable and editable (only name can
+* change)
 
 ### Model
 * create autodesigner that space out objects hold as the data
@@ -53,8 +62,3 @@ _The uploaded application needn't corespond to latest state_
 ### Control Panel
 * <s>__fix error when select activated tool once again__</s>
 * <s>fix tools icons to be exclusive</s>
-
-### <s>Anchor</s> _object canceled_
-* <s>set right coordinates of anchor, in depend on its position</s>
-* <s>create anchor test with mocked canvas</s>
-* <s>move anchors when moving table</s>
