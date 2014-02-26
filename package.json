@@ -4,16 +4,11 @@
   "description": "",
   "dependencies": {
     "pg": "*",
-    "jquery": "*",
     "jade": "*",
     "stylus": "*",
     "nib": "*",
     "express": "3.x.x",
     "express-expose": "~0.3.3",
-    "extend": "~1.2.1"
-  },
-  "devDependencies": {
-    "mocha": "*",
     "chai": "*",
     "sinon": "*",
     "sinon-chai": "*",
@@ -21,10 +16,13 @@
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-este": "~2.4.6",
-    "grunt-closure-tools": "~0.9.2",
+    "grunt-closure-tools": "~0.9.2"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "sinon": "*",
     "coffee-script": "~1.7.1",
-    "mockery": "~1.4.0",
-    "grunt-mocha-cli": "~1.5.0"
+    "mockery": "~1.4.0"
   },
   "engines": {
     "node": "0.8.4"
