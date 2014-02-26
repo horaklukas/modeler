@@ -22,9 +22,17 @@ class dm.sqlgen.Sql92
 		@dialog = new goog.ui.Dialog()
 		@dialog.setButtonSet goog.ui.Dialog.ButtonSet.OK
 
+		###*
+		* List of names of already created foreign key constraints, used to ensure
+		* uniqueness of constraint name
+		*
+		* @type {Array.<string>}
+		###
+		@relConstraintNames = []
+
 	generate: (model) ->
 		sql = ''
-		parentTables = {}
+		@relConstraintNames = []
 		tablesByName = @getTablesByName_ model.tables
 
 		for table in model.tables
@@ -39,16 +47,6 @@ class dm.sqlgen.Sql92
 			sql += @createRelationConstraint rel, childColumns, parentColumns
 
 		@showDialog sql
-
-	###*
-  * Gets name of object (table, relation, etc.) and returns its shortcut
-  * useful at eg. names of constraints
-  *
-  * @param {string} name
-  * @return {string}
-	###
-	getNameShortcut: (name) ->
-		name.toLowerCase().substr(0, 3)
 
 	###*
   * @param {dm.model.Table} table
@@ -87,9 +85,12 @@ class dm.sqlgen.Sql92
 		childColumnsNames = []
 		parentColumnsNames = []
 
-		# name of constraint, unique in scope of table
-		name = "constr_#{@getNameShortcut child}_#{@getNameShortcut parent}_fk"
 
+		# name of constraint, unique in scope of table
+		name = @getUniqueConstraintName child, parent
+		
+		@relConstraintNames.push name
+		
 		for map in columnsMapping
 			childColumnsNames.push childColumns[map.child].name
 			parentColumnsNames.push parentColumns[map.parent].name
@@ -97,6 +98,26 @@ class dm.sqlgen.Sql92
 		"ALTER TABLE #{child} ADD CONSTRAINT #{name} FOREIGN KEY " +
 			"(#{childColumnsNames.join(', ')}) REFERENCES " +
 			"#{parent} (#{parentColumnsNames.join(', ')});\n\n"
+
+	###*
+	* Returns unique name of foreign key constraint
+	*
+  * @param {string} child Name of child table
+  * @param {string} parent Name of parent table
+	###
+	getUniqueConstraintName: (child, parent) ->
+		childShortcut = child.toLowerCase().substr(0, 3)
+		parentShortcut = parent.toLowerCase().substr(0, 3)
+
+		id = -1
+		pos = 0
+		name = "constr_#{childShortcut}_#{parentShortcut}_fk"
+
+		while pos > -1
+			id++
+			pos = goog.array.indexOf @relConstraintNames, name + id 
+		
+		name + id
 
 	###*
   * @param {dm.mode.TableColumn} column
