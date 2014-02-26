@@ -9,15 +9,15 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-este'
   grunt.loadNpmTasks 'grunt-mocha-cli'
 
-  # define tasks
-  grunt.registerTask('default', ['esteTemplates','closureDepsWriter']);
-
   # tasks aliases
-  grunt.registerTask('deps', ['esteDeps']);  
-  grunt.registerTask('soy', ['esteTemplates']);
-  grunt.registerTask('build', ['closureBuilder']);
+  grunt.registerTask 'deps', ['esteDeps']
+  grunt.registerTask 'soy', ['esteTemplates']
+  grunt.registerTask 'build', ['closureBuilder']
 
-  grunt.registerTask('test',['coffee:test','esteUnitTests'])
+  grunt.registerTask 'test', ['coffee:test','esteUnitTests']
+
+  # task for heroku deployment
+  grunt.registerTask 'heroku:development', ['coffee:app', 'soy', 'deps']
 
   grunt.initConfig
     coffee:
