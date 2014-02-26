@@ -17,7 +17,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']
 
   # task for heroku deployment
-  grunt.registerTask 'heroku:development', 'coffee:app soy deps'
+  grunt.registerTask 'heroku:development', ['coffee:app', 'soy', 'deps']
 
   grunt.initConfig
     coffee:
