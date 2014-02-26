@@ -118,7 +118,12 @@ module.exports = (grunt) ->
 
     watch:
       coffee:
-        files: '<%= coffee.app.files[0].src %>' #'public/scripts/**/*.coffee' #
+        files: [
+         './*.coffee'
+          '!./Gruntfile.coffee'
+          './lib/**/*.coffee'
+          './public/scripts/**/*.coffee'
+        ] #'<%= coffee.app.files[0].src %>'
         tasks: ['coffee:app']
         options:
           livereload: true

@@ -30,22 +30,13 @@ class dm.sqlgen.Sql92
 		for table in model.tables
 			sql += @createTable table 
 
-
 		for rel in model.relations
 			{parent, child} = rel.tables
-			columnsMapping = rel.getColumnsMapping()
 			parentColumns = tablesByName[parent].getColumns()
 			childColumns = tablesByName[child].getColumns()
-			name = "constr_#{@getNameShortcut child}_#{@getNameShortcut parent}_fk"
 			
 			sql += "/* Relation between tables #{parent} and #{child} */\n"
-
-			for map, id in columnsMapping
-				childColumn = childColumns[map.child].name
-				parentColumn = parentColumns[map.parent].name
-
-				sql += "ALTER TABLE #{child} ADD CONSTRAINT #{name + id} FOREIGN KEY "+
-					"(#{childColumn}) REFERENCES #{parent} (#{parentColumn});\n\n"
+			sql += @createRelationConstraint rel, childColumns, parentColumns
 
 		@showDialog sql
 
@@ -71,18 +62,41 @@ class dm.sqlgen.Sql92
 
 		pks = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.PK), mapName 
 		uniques = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.UNIQUE), mapName
-		#fks = table.getColumnsIdsByIndex(dm.model.Table.index.FK)
 
 		colsSql = goog.array.map columns, (column) => "\t#{@createColumn column}"
 
 		if uniques.length then colsSql.push "\tUNIQUE (#{uniques.join ', '})"
 		if pks.length then colsSql.push "\tPRIMARY KEY (#{pks.join ', '})"
-		
-		#if fks.length then for fk in fks
-		#	colsSql.push "\tFOREIGN KEY (#{columns[fk].name}) REFERENCES " +
-		#		"#{parentTabs[fk].table} (#{parentTabs[fk].column})"
 
 		"CREATE TABLE #{table.getName()} (\n #{colsSql.join ',\n'} \n);\n\n"
+
+	###*
+  * Generates sql for creating foreign key constraints belongs to relation
+  * 
+  * @param {dm.model.Relation} rel Model of related relation
+  * @param {Array.<dm.model.TableColumn>} childColumns List of columns of child
+  *  table related with the relation
+  * @param {Array.<dm.model.TableColumn>} parentColumns List of columns of 
+  *  parent table related with the relation
+  * @return {string} generated sql
+	###
+	createRelationConstraint: (rel, childColumns, parentColumns) ->
+		{parent, child} = rel.tables
+		columnsMapping = rel.getColumnsMapping()
+
+		childColumnsNames = []
+		parentColumnsNames = []
+
+		# name of constraint, unique in scope of table
+		name = "constr_#{@getNameShortcut child}_#{@getNameShortcut parent}_fk"
+
+		for map in columnsMapping
+			childColumnsNames.push childColumns[map.child].name
+			parentColumnsNames.push parentColumns[map.parent].name
+
+		"ALTER TABLE #{child} ADD CONSTRAINT #{name} FOREIGN KEY " +
+			"(#{childColumnsNames.join(', ')}) REFERENCES " +
+			"#{parent} (#{parentColumnsNames.join(', ')});\n\n"
 
 	###*
   * @param {dm.mode.TableColumn} column
