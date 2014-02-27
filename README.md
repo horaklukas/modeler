@@ -4,7 +4,7 @@
 
 _The uploaded application needn't corespond to latest state_
 
-[Demo on Heroku](http://desolate-peak-6141.herokuapp.com/) 
+[Demo on Heroku](http://db-modeler.herokuapp.com/) 
 
 ## WORK PLAN
 1. Frontend modeler part
