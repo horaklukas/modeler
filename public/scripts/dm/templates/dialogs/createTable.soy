@@ -13,7 +13,8 @@
 	<div id="columns_list">
 		{call .columnsList data="all" /}
 	</div>
-	<button class="add">Add new column</button>
+	<button class="add">Add new column</button><br />
+	<strong>* <small>foreign key columns can change only name</small></strong>
 </div>
 {/template}
 
@@ -48,11 +49,13 @@
 			{param types: $types /}
 			{param type: $column.type /}
 			{param isPk: $column.isPk /}
+			{param isFk: $column.isFk /}
 			{param isNotNull: $column.isNotNull /}
 			{param isUnique: $column.isUnique /}
 		{/call}
 	{/foreach}
 {/if}
+/* empty row for new column */
 {call .tableColumn}
 	{param id: isNonnull($columns) ? length($columns) : 0 /}
 	{param types: $types /}
@@ -65,37 +68,48 @@
  * @param types
  * @param? type
  * @param? isPk
+ * @param? isFk 
  * @param? isNotNull
  * @param? isUnique
  */
 {template .tableColumn}
 <div class="row" {if isNonnull($id)}name="{$id}"{/if} >
-	<span><input type="text" class="name" value="{if $name}{$name}{/if}"/></span>
+	<span>
+		{if $isFk == true}<strong>*</strong>{else}&nbsp;&nbsp;{/if}
+		<input type="text" class="name" value="{if $name}{$name}{/if}"/>
+	</span>
 	<span>		
 		{call .typesList}
 			{param types: $types /}
+			{param editable: $isFk == true /}
 			{param selectedType: $type /}
 		{/call}
 	</span>
 	<span>
-		<input type="checkbox" class="primary" {if $isPk == true}checked{/if} />
+		<input type="checkbox" class="primary" {if $isPk == true}checked{/if} 
+			{if $isFk == true}disabled{/if} />
 	</span>
 	<span>
-		<input type="checkbox" class="notnull" {if $isNotNull == true}checked{/if} />
+		<input type="checkbox" class="notnull" {if $isNotNull == true}checked{/if} 
+			{if $isFk == true}disabled{/if} />
 	</span>
 	<span>
-		<input type="checkbox" class="unique" {if $isUnique == true}checked{/if} />
+		<input type="checkbox" class="unique" {if $isUnique == true}checked{/if} 
+			{if $isFk == true}disabled{/if} />
 	</span>
-	<span><button class="delete">Del</button></span>
+	<span>
+		<button class="delete" {if $isFk == true}disabled{/if}>Del</button>
+	</span>
 </div>
 {/template}
 
 /**
  * @param types
+ * @param editable
  * @param? selectedType
  */ 
 {template .typesList}
-<select class="type">
+<select class="type" {if $editable == true}disabled{/if}>
 	{foreach $typesGroup in keys($types)}
 		<optgroup label="{$typesGroup}">
 			{foreach $type in $types[$typesGroup]}

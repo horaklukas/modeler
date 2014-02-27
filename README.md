@@ -21,8 +21,10 @@ _The uploaded application needn't corespond to latest state_
 ## TODO
 
 ### App
+* Options to delete objects
 
 ### Table
+* Fix changing columns at relation and table model when some column is deleted
 * create system of counting best point to connect relation
 * <s>column indexes (unique, not null)</s>
 * <s>change mouse cursor type to `move` when moving table - as listed out  in
@@ -52,8 +54,8 @@ _The uploaded application needn't corespond to latest state_
 ### Dialogs
 
 #### Table dialog
-* make columns creted by relation not deletable and editable (only name can
-* change)
+* <s>make columns creted by relation not deletable and editable (only name can
+  change)</s>
 
 ### Model
 * create autodesigner that space out objects hold as the data

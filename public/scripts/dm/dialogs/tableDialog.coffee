@@ -115,12 +115,14 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		cols = model.getColumns() ? []
 		uniqs = model.getColumnsIdsByIndex dm.model.Table.index.UNIQUE
 		pks = model.getColumnsIdsByIndex dm.model.Table.index.PK
+		fks = model.getColumnsIdsByIndex dm.model.Table.index.FK
 
 		goog.dom.setProperties @nameField, 'value': name
 
 		for col, id in cols
 			if id in uniqs then cols[id].isUnique = true 
 			if id in pks then cols[id].isPk = true
+			if id in fks then cols[id].isFk = true
 
 		@colslist.innerHTML = tmpls.dialogs.createTable.columnsList {
 			types: DB.types, columns: cols 
