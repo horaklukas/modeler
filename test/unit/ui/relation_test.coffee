@@ -170,6 +170,8 @@ describe 'class Relation', ->
 			sinon.stub(rel, 'getModel').returns {
 				getFkColumnsIds: gfci, setRelatedTables: sinon.spy()
 			}
+			sinon.stub rel, 'setTablesNamesToModel'
+			sinon.stub goog.events, 'listen'
 
 		beforeEach ->
 			rel.childTab = null
@@ -180,15 +182,14 @@ describe 'class Relation', ->
 		after ->
 			srtk.restore()
 			rel.getModel.restore()
+			rel.setTablesNamesToModel.restore()
+			goog.events.listen.restore()
 
 		it 'should delete fk columns of previous child table if exists', ->
 			rel.childTab = getModel: -> model
 			gfci.returns [4, 5]
 
-			rel.setRelatedTables(
-				{getModel: -> {getName: -> 'parentTableName'}},
-				{getModel: -> {getName: -> 'childTableName'}}
-			)
+			rel.setRelatedTables {getModel: -> 'parent'}, {getModel: -> 'child'}
 
 			model.removeColumn.should.been.calledTwice
 			model.removeColumn.should.been.calledWithExactly 4
@@ -201,25 +202,11 @@ describe 'class Relation', ->
 			rm4 = model.removeColumn.withArgs(4)
 			gfci.returns [4, 5, 6]
 
-			rel.setRelatedTables(
-				{getModel: -> {getName: -> 'parent'}},
-				{getModel: -> {getName: -> 'child'}}
-			)
+			rel.setRelatedTables {getModel: -> 'parent'}, {getModel: -> 'child'}
 
 			model.removeColumn.should.been.calledThrice
 			rm6.should.been.calledBefore rm5
 			rm5.should.been.calledBefore rm4
-
-		it 'should save child and parent table', ->
-			rel.setRelatedTables(
-				{getModel: -> {getName: -> 'parentTableName'}},
-				{getModel: -> {getName: -> 'childTableName'}}
-			)
-
-			rel.should.have.deep.property 'childTab.getModel'
-			rel.childTab.getModel().getName().should.equal 'childTableName'
-			rel.should.have.deep.property 'parentTab.getModel'
-			rel.parentTab.getModel().getName().should.equal 'parentTableName'
 
 	describe 'method setRelatedTableKeys', ->
 		gcols = sinon.stub()

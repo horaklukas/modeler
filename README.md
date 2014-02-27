@@ -37,6 +37,8 @@ _The uploaded application needn't corespond to latest state_
 
 ### Relation
 * fix not disabled opossite points when counting path connection points
+* "selfish relation" is relation from table to the same table 
+* <s>fix propagating name of table to relation model if table name change</s>
 * <s>multiple relations on same table side</s> resolved with direct realtions
 * <s>types of relation - identifying, non-identifyig</s>
 * <s>cancel creating of relation if second point not defined</s>
@@ -44,13 +46,12 @@ _The uploaded application needn't corespond to latest state_
 * <s>fix the problem of uncomplete relation when table is at bottom of canvas
 </s> _probably happens, when size of canvas changes, eg. when resizing Chrome
  developer console_
-* <s>get the relation between tables broken instead of straight</s>
-* "selfish relation" is relation from table to the same table 
+* get the relation between tables broken instead of straight - this maybe won't
+  be required
 
 ### Dialogs
 
 #### Table dialog
-* fix propagating name of table to relation model if table name change
 * make columns creted by relation not deletable and editable (only name can
 * change)
 

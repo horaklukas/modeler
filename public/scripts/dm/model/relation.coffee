@@ -59,9 +59,9 @@ class dm.model.Relation extends goog.events.EventTarget
 		@keyColumnsMapping_
 		
 	###*
-  * @param {string} parent Name of parent table
-  * @param {string} child Name of child table
+  * @param {?string} parent Name of parent table
+  * @param {?string=} child Name of child table
 	###
 	setRelatedTables: (parent, child) =>
-		@tables.parent = parent
-		@tables.child = child
+		if parent? then @tables.parent = parent
+		if child? then @tables.child = child

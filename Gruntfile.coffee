@@ -113,8 +113,8 @@ module.exports = (grunt) ->
         bail: true
         colors: true
         require: ['./test/common.js']
-
-      src: 'test/unit/**/*Test.js'
+      
+      src: 'test/unit/**/*Test.coffee'
 
     watch:
       coffee:
@@ -134,4 +134,4 @@ module.exports = (grunt) ->
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
         ]
-        tasks: ['coffee:app','coffee:test','test', 'mochacli']
+        tasks: ['coffee:app','test', 'mochacli']

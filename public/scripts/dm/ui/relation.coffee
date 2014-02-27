@@ -257,23 +257,32 @@ class dm.ui.Relation extends goog.ui.Component
   * @param {dm.ui.Table} child
 	###
 	setRelatedTables: (parent, child) ->
-		relationModel = @getModel()
+		#relationModel = 
 
 		if @childTab?
 			tableModel = @childTab.getModel()
 			# remove columns of old child table created by relation
-			ids = relationModel.getFkColumnsIds()
+			ids = @getModel().getFkColumnsIds()
 			goog.array.forEachRight ids, (id) -> tableModel.removeColumn id
 
 		@parentTab = parent
 		@childTab = child
 
-		relationModel.setRelatedTables(
-			@parentTab.getModel().getName(), @childTab.getModel().getName()
-		)
 
+		goog.events.listen parent.getModel(), 'name-change', @setTablesNamesToModel
+		goog.events.listen child.getModel(), 'name-change', @setTablesNamesToModel
+
+		@setTablesNamesToModel()
 		@setRelatedTablesKeys()
 
+	###*
+  * Updates names of relation related tables if tables names change, used at
+  * method `setRelatedTables` above
+	###
+	setTablesNamesToModel: =>
+		@getModel().setRelatedTables(
+			@parentTab.getModel().getName(), @childTab.getModel().getName()
+		)
 
 	###*
   * Adds foreign keys columns to child table and add primary index to it, if
