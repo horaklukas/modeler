@@ -1,81 +1,57 @@
-###
-Model = require "#{scriptsDir}/components/model/model"
-model = null
-canvas = $('canvas')
+goog.require 'dm.model.Model'
 
-describe 'class Model', ->
+describe 'class model.Model', ->
+	model = null
+
 	before ->
-		model = new Model('model1')
+		model = new dm.model.Model('model1')
 
 	describe 'constructor', ->
 		it 'should throw error if name of model not defined', ->
-			expect(-> new Model()).to.throw 'Model name must be specified!'
+			expect(-> new dm.model.Model()).to.throw 'Model name must be specified!'
 
 		it 'should create empty lists of tables and relations', ->
-			model.tables.should.be.an('array').and.be.empty
-			model.relations.should.be.an('array').and.be.empty
+			model.should.have.property('tables_').that.is.an('object').and.empty
+			model.should.have.property('relations_').that.is.an('object').and.empty
 
 	describe 'method addTable', ->
-		global.Table = sinon.stub().returns  {x: 40; y: 30}
+		beforeEach ->
+			model.tables_ = {}
 
-		before ->
-			model.addTable '<canvas>', 38, 64
+		it 'add save table model by table id', ->
+			table = 
+				getId: sinon.stub().returns 'id1'
+				getModel: sinon.stub().returns 'model1'
 
-		it 'should take passed canvas and positon make id and create table', ->
-			Table.should.been.calledWith '<canvas>', 'tab_0', 38, 64
+			model.addTable table 
 
-		it 'should save created table to list', ->
-			model.addTable '<canvas2>', 20, 160
-
-			model.tables.should.have.length 2
-			model.tables[0].should.deep.equal {x:40, y: 30}
-			model.tables[1].should.deep.equal {x:40, y: 30}
+			expect(model).to.have.deep.property 'tables_.id1', 'model1'
 
 	describe 'method addRelation', ->
-		global.Relation = sinon.stub().returns {id: 'rel'}
-		gtni = null
-		before ->
-			gtni = sinon.stub model, 'getTabNumberId'
-			gtni.withArgs(1).returns 0
-			gtni.withArgs(2).returns 1
-			gtni.withArgs(3).returns 2
-			gtni.withArgs(4).returns 3
-			model.tables = [{addRelation: sinon.spy()}, {addRelation: sinon.spy()}]
+		beforeEach ->
+			model.relations_ = {}
 
-		after ->
-			gtni.restore()
-			model.tables = []
+		it 'should save relation model by relation id', ->
+			relation =
+				getId: sinon.stub().returns 'rel1'
+				getModel: sinon.stub().returns 'model2'
 
-		it 'should return false if start or end table isnt found', ->
-			expect(model.addRelation '<canvas>', 3, 4).to.be.false
-			expect(model.addRelation '<canvas>', 1, 3).to.be.false
-			expect(model.addRelation '<canvas>', 2, 4).to.be.false
+			model.addRelation relation
 
-		it 'should add new relation to the list of relations', ->
-			model.addRelation '<c>', 1, 2
+			expect(model).to.have.deep.property 'relations_.rel1', 'model2'
 
-			expect(Relation).to.be.calledWith '<c>', model.tables[0], model.tables[1]
-			expect(model.relations).to.have.length 1
-			expect(model.relations[0]).to.deep.equal {id: 'rel'}
+	describe 'method getTablesByName', ->
+		tab1 = getName: (-> 'table1'), id: 'tb1'
+		tab2 = getName: (-> 'table2'), id: 'tb2'
+		tab3 = getName: (-> 'table3'), id: 'tb3'
 
-		it 'should add relation reference to end tables', ->
-			model.addRelation '<c>', 1, 2
+		beforeEach ->
+			model.tables_ = { 'tab1': tab1, 'tab2': tab2, 'tab3': tab3	}
 
-			expect(model.tables[0].addRelation).to.been.calledWith {id: 'rel'}
-			expect(model.tables[1].addRelation).to.been.calledWith {id: 'rel'}
+		it 'should return tables with their names as a keys', ->
+			tabsByName = model.getTablesByName()
 
-	describe 'method getTabNumberId', ->
-		it 'should return the id number if id has right format', ->
-			expect(model.getTabNumberId('tab_0'), 'tab_0').to.be.a('number')
-			.and.equal 0
-			expect(model.getTabNumberId('tab_23'), 'tab_23').to.be.a('number')
-			.and.equal 23
-			expect(model.getTabNumberId('tab_123'), 'tab_123').to.be.a('number')
-			.and.equal 123
-
-		it 'should return false id if has wrong format', ->
-			expect(model.getTabNumberId('tab_12f'), 'tab_12f').to.be.false
-			expect(model.getTabNumberId('tabb_13'), 'tab_13').to.be.false
-			expect(model.getTabNumberId('tab_ds2'), 'tab_ds2').to.be.false
-			expect(model.getTabNumberId('tab_'), 'tab_').to.be.false
-###
+			expect(tabsByName).to.be.an('object')
+			expect(tabsByName).to.have.deep.property 'table1', tab1
+			expect(tabsByName).to.have.deep.property 'table2', tab2
+			expect(tabsByName).to.have.deep.property 'table3', tab3

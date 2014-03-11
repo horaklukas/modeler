@@ -9,26 +9,18 @@ class dm.model.Model
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
 
-		@idgen_ = new goog.ui.IdGenerator()
+		#@idgen_ = new goog.ui.IdGenerator()
 
 		@tables_ = {}
 		@relations_ = {}
 
 	###*
-	* Add table to canvas and to model's list of tables
+	* Add model of the table to model's list of tables
 	*
-	* @param {Canvas} canvas Place where to create table
-	* @param {number} x Horizontal position of table on canvas
-	* @param {number} y Vertical position of table on canvas
-  * @return {string} id of new table
+	* @param {dm.ui.Table} table
 	###
-	addTable: (canvas, x, y, name) =>
-		id = @idgen_.getNextUniqueId()
-		table = new dm.model.Table canvas, id, x, y
-		
-		@tables_[id] = table
-		
-		return id
+	addTable: (table) =>
+		@tables_[table.getId()] = table.getModel()
 
 	###*
   * Pass new values from table dialog to table
@@ -36,6 +28,7 @@ class dm.model.Model
   * @param {string} id Identificator of table to edit
   * @param {string} name Name of table to set
   * @param {Array.<Object.<string,*>>=} columns
+	###
 	###
 	setTable: (id, name, columns) =>
 		table = @getTableById id
@@ -45,28 +38,14 @@ class dm.model.Model
 		if columns?
 			table.setColumns columns
 			table.render()
-
-	###*
-  * Add relation to canvas, the add relation to list of model's relations and
-  * to both table list of related relations
 	###
-	addRelation: (canvas, startTabId, endTabId, ident) =>
-		id = @idgen_.getNextUniqueId()
+	###*
+	* @param {dm.ui.Relation} relation
+	###
+	addRelation: (relation) ->
+		@relations_[relation.getId()] = relation.getModel()
 
-		startTab = @getTableById startTabId
-		endTab = @getTableById endTabId
-
-		if startTab? and endTab?
-			newRelation = new dm.model.Relation canvas, id, startTab, endTab, ident
-			@relations_[id] = newRelation
-			
-			startTab.addRelation newRelation
-			endTab.addRelation newRelation
-			
-			return id
-		else 
-			return false
-
+	###
 	setRelation: (id, ident, parentTab, childTab) ->
 		rel = @getRelationById id
 
@@ -77,9 +56,10 @@ class dm.model.Model
 			childTab.setColumn column.clone()
 
 		childTab.render()
+	###
 
 	###*
-	* Returns table object by table id
+	* Returns table model by table id
   * @param {string} id
   * @return {dm.model.Table=}
 	###
@@ -87,11 +67,33 @@ class dm.model.Model
 		@tables_[id] ? null
 
 	###*
-  * Returns relation object by relation id
+  * Returns relation model relation id
   * @param {string} id
   * @return {dm.model.Relation=}
 	###
 	getRelationById: (id) ->
 		@relations_[id] ? null
 
-if not window? then module.exports = Model
+	###*
+  * @return {Array.<dm.model.Table>}
+	###
+	getTables: ->
+		@tables_
+
+	###*
+  * @return {Array.<dm.model.Table>}
+	###
+	getRelations: ->
+		@relations_
+
+	###*
+  * Maps tables by its names
+  *
+  * @return {Object.<string, dm.model.Table>}
+	###
+	getTablesByName: ->
+		mappedTables = {}
+		
+		mappedTables[table.getName()] = table for id, table of @tables_
+
+		mappedTables

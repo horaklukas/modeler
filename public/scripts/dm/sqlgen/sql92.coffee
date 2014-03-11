@@ -33,15 +33,14 @@ class dm.sqlgen.Sql92
 	generate: (model) ->
 		sql = ''
 		@relConstraintNames = []
-		tablesByName = @getTablesByName_ model.tables
 
-		for table in model.tables
+		for name, table of model.tables
 			sql += @createTable table 
 
-		for rel in model.relations
+		for id, rel of model.relations
 			{parent, child} = rel.tables
-			parentColumns = tablesByName[parent].getColumns()
-			childColumns = tablesByName[child].getColumns()
+			parentColumns = model.tables[parent].getColumns()
+			childColumns = model.tables[child].getColumns()
 			
 			sql += "/* Relation between tables #{parent} and #{child} */\n"
 			sql += @createRelationConstraint rel, childColumns, parentColumns
@@ -127,20 +126,6 @@ class dm.sqlgen.Sql92
 		notNull = if column.isNotNull then ' NOT NULL' else ''
 		
 		"#{column.name} #{column.type}#{notNull}"
-
-	###*
-  * Maps tables by its names
-  *
-  * @param {Array.<dm.model.Table>} tables
-  * @return {Object.<string, dm.model.Table>}
-  * @private
-	###
-	getTablesByName_: (tables) ->
-		mappedTables = {}
-		
-		mappedTables[table.getName()] = table for table in tables
-
-		mappedTables
 
 	###*
   * @param {string} sql
