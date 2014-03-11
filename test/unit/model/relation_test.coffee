@@ -1,88 +1,67 @@
-###
-Relation = require "#{scriptsDir}/components/model/relation"
-rel = null
-# Fake canvas that returns obj with spy at attr method
-canvas = path: sinon.stub().returns { attr: sinon.spy() }
+goog.require 'dm.model.Relation'
 
-stab = getConnPoints: sinon.spy()
-etab = getConnPoints: sinon.spy()
+describe 'class model.Relation', ->
+	rel = null
 
-describe 'class Relation', ->
+	before ->
+		rel = new dm.model.Relation true
+
 	describe 'constructor', ->
+		it 'should save type of relation', ->
+			expect(rel).to.have.property 'identifying_', true
 
-	describe 'method recountPosition', ->
-		gcp = null
-		before ->
-			fakeEndPoints = 
-				start: x: 20, y: 40
-				break1: x: 120, y: 100
-				break2: x: 120, y: 100
-				stop: x: 220, y: 160
+		it 'should init empty columns mapping', ->
+			expect(rel).to.have.property('keyColumnsMapping_').that.is.empty
 
-			gcp = sinon.stub(Relation::, 'getRelationPoints').returns fakeEndPoints
-			rel = new Relation canvas, stab, etab
+	describe 'method setType', ->
+		it 'should set new type of relation', ->
+			rel.setType false
 
+			expect(rel).to.have.property 'identifying_', false
+
+		it 'should dispatch `type-change` event', ->
+			spy = sinon.spy()
+			rel.listen 'type-change', spy
+
+			rel.setType true
+
+			spy.should.been.calledOnce
+
+	describe 'method setRelatedTables', ->
 		beforeEach ->
-			gcp.reset()
+			rel.tables = parent: '', child: ''
 
-		after ->
-			gcp.restore()
+		it 'should set new parent table name if passed', ->
+			rel.setRelatedTables 'parentTable'
 
-		it 'should count correct path from got end points coordinates', ->
-			rel.obj.attr.reset()
-			rel.recountPosition()
+			expect(rel).to.have.deep.property 'tables.parent', 'parentTable'
+			expect(rel).to.have.deep.property 'tables.child', ''
 
-			rel.obj.attr.should.be.calledOnce
-			rel.obj.attr.should.be.calledWithExactly 'path','M20,40L120,100L120,100L220,160'
+		it 'should set new child table name if passed', ->
+			rel.setRelatedTables null, 'childTable'
 
-	describe 'method getPathDistance', ->
-		it 'should return false if points are opossite', ->
-			less = x:20, y:30
-			more = x:70, y:80
+			expect(rel).to.have.deep.property 'tables.child', 'childTable'
+			expect(rel).to.have.deep.property 'tables.parent', ''
 
-			expect(rel.getPathDistance 'left', less, 'right', more).to.be.false
-			expect(rel.getPathDistance 'right', more, 'left', less).to.be.false
-			expect(rel.getPathDistance 'top', less, 'bottom', more).to.be.false
-			expect(rel.getPathDistance 'bottom', more, 'top', less).to.be.false
+	describe 'method toJSON', ->
+		beforeEach ->
+			rel.setType true
+			rel.setColumnsMapping [
+				{ 'parent': 1, 'child': 2 }
+				{ 'parent': 2, 'child': 4 }
+				{ 'parent': 3, 'child': 5 }
+			]
+			rel.setRelatedTables 'parent1', 'child2'
 
-		it 'should return distance if points arent at same position', ->
-			c = x: 0, y:0
+		it 'should return JSON like representation of model', ->
+			json = rel.toJSON()
 
-			expect(rel.getPathDistance 'left', c, 'left', c).to.be.a 'number'
-			expect(rel.getPathDistance 'right', c, 'right', c).to.be.a 'number'
-			expect(rel.getPathDistance 'top', c, 'top', c).to.be.a 'number'
-			expect(rel.getPathDistance 'bottom', c, 'bottom', c).to.be.a 'number'
-
-	describe 'method getBreakPoints', ->
-		it 'should return array with two breaks at indexes 0 and 1', ->
-			br = rel.getBreakPoints {x:20, y:30}, 'left', {x:20, y:30}, 'top'
-
-			expect(br).to.be.an('array').and.have.length 2
-
-		it 'should set x and y coordinates for both breaks', ->
-			br = rel.getBreakPoints {x:20, y:30}, 'left', {x:20, y:30}, 'top'
-
-			expect(br[0]).to.be.an('object')
-									 .to.have.property('x').and.that.is.a 'number'
-			expect(br[0]).to.have.property('y').and.that.is.a 'number'
-
-			expect(br[1]).to.be.an('object')
-									 .to.have.property('x').and.that.is.a 'number'
-			expect(br[1]).to.have.property('y').and.that.is.a 'number'
-
-		it 'should break at y coordinate if positions are left and right', ->
-			br = rel.getBreakPoints {x:20, y:30}, 'left', {x:90, y:60}, 'right'
-
-			expect(br[0]).to.deep.equal x: 55, y: 30
-			expect(br[1]).to.deep.equal x: 55, y: 60
-
-		it 'should break at x coordinate if positions are top and bottom', ->
-			br = rel.getBreakPoints {x:60, y:30}, 'top', {x:120, y:70}, 'bottom'
-
-			expect(br[0]).to.deep.equal x: 60, y: 50
-			expect(br[1]).to.deep.equal x: 120, y: 50
-
-		it 'should break at x and y if positions arent at direction', ->
-			expect(rel.getBreakPoints {x:20, y:130}, 'top', {x:90, y:100}, 'left')
-			.to.deep.equal [{x: 90, y: 130}, {x: 90, y: 130}]		
-###
+			expect(json).to.have.property 'type', true
+			expect(json).to.have.deep.property 'mapping[0].parent', 1
+			expect(json).to.have.deep.property 'mapping[0].child', 2
+			expect(json).to.have.deep.property 'mapping[1].parent', 2
+			expect(json).to.have.deep.property 'mapping[1].child', 4
+			expect(json).to.have.deep.property 'mapping[2].parent', 3
+			expect(json).to.have.deep.property 'mapping[2].child', 5
+			expect(json).to.have.deep.property 'tables.parent', 'parent1'
+			expect(json).to.have.deep.property 'tables.child', 'child2'

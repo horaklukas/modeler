@@ -172,7 +172,7 @@ describe 'class model.Table', ->
 				{name: 'second', type: 'varchar'}
 				{name: 'third', type: 'number'}
 				{name: 'fourth', type: 'varchar'}
-			]		
+			]
 
 		it 'should return null if column with passed name not exist', ->
 			expect(tab.getColumnByName('fifth')).to.be.null
@@ -244,6 +244,27 @@ describe 'class model.Table', ->
 
 			expect(pks).to.be.an.array
 			expect(pks).to.be.empty
+
+	describe 'method toJSON', ->
+		beforeEach ->
+			tab.name_ = 'table1'
+			tab.columns_ = [
+				{name: 'one', type: 'char'}
+				{name: 'second', type: 'varchar'}
+				{name: 'third', type: 'number'}
+			]
+			tab.indexes = 1: ['unq', 'fk'], 2: ['pk'], 3: ['unq']
+
+		it 'should retunn JSON like representation of model', ->
+			json = tab.toJSON()
+
+			expect(json).to.have.property 'name', 'table1'
+			expect(json).to.have.deep.property 'columns[0].name', 'one'
+			expect(json).to.have.deep.property 'columns[1].name', 'second'
+			expect(json).to.have.deep.property 'columns[2].name', 'third'
+			expect(json).to.have.deep.property('indexes[1]').that.deep.equal ['unq', 'fk']
+			expect(json).to.have.deep.property('indexes[2]').that.deep.equal ['pk']
+			expect(json).to.have.deep.property('indexes[3]').that.deep.equal ['unq']
 
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->

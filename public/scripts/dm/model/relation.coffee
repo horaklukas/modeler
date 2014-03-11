@@ -65,3 +65,11 @@ class dm.model.Relation extends goog.events.EventTarget
 	setRelatedTables: (parent, child) =>
 		if parent? then @tables.parent = parent
 		if child? then @tables.child = child
+
+	###
+	 * @return {Object} table model at JSON representation
+	###
+	toJSON: ->
+		'type': @identifying_
+		'mapping': @keyColumnsMapping_
+		'tables': @tables

@@ -150,6 +150,14 @@ class dm.model.Table extends goog.events.EventTarget
 	getColumnsIdsByIndex: (index) ->
 		Number(id) for id, idx of @indexes when goog.array.contains(idx, index)
 
+	###*
+  * @return {Object} table model at JSON representation
+	###
+	toJSON: ->
+		'name': @name_
+		'columns': @columns_
+		'indexes': @indexes
+
 class dm.model.Table.ColumnsChange extends goog.events.Event
 	###*
   * @param {?dm.model.TableColumn} column
