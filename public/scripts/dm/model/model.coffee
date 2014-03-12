@@ -11,6 +11,7 @@ class dm.model.Model
 
 		#@idgen_ = new goog.ui.IdGenerator()
 
+		@name = name
 		@tables_ = {}
 		@relations_ = {}
 
@@ -20,7 +21,7 @@ class dm.model.Model
 	* @param {dm.ui.Table} table
 	###
 	addTable: (table) =>
-		@tables_[table.getId()] = table.getModel()
+		@tables_[table.getId()] = table#.getModel()
 
 	###*
   * Pass new values from table dialog to table
@@ -43,7 +44,7 @@ class dm.model.Model
 	* @param {dm.ui.Relation} relation
 	###
 	addRelation: (relation) ->
-		@relations_[relation.getId()] = relation.getModel()
+		@relations_[relation.getId()] = relation#.getModel()
 
 	###
 	setRelation: (id, ident, parentTab, childTab) ->
@@ -64,7 +65,7 @@ class dm.model.Model
   * @return {dm.model.Table=}
 	###
 	getTableById: (id) ->
-		@tables_[id] ? null
+		@tables_[id]?.getModel() ? null
 
 	###*
   * Returns relation model relation id
@@ -72,19 +73,19 @@ class dm.model.Model
   * @return {dm.model.Relation=}
 	###
 	getRelationById: (id) ->
-		@relations_[id] ? null
+		@relations_[id]?.getModel() ? null
 
 	###*
   * @return {Array.<dm.model.Table>}
 	###
 	getTables: ->
-		@tables_
+		(table.getModel() for id, table of @tables_)
 
 	###*
   * @return {Array.<dm.model.Table>}
 	###
 	getRelations: ->
-		@relations_
+		(relation.getModel() for id, relation of @relations_)
 
 	###*
   * Maps tables by its names
@@ -94,6 +95,23 @@ class dm.model.Model
 	getTablesByName: ->
 		mappedTables = {}
 		
-		mappedTables[table.getName()] = table for id, table of @tables_
+		for id, table of @tables_
+			model = table.getModel()
+			mappedTables[model.getName()] = model 
 
 		mappedTables
+
+	###*
+  * @return {Object} JSON representation of all data about model
+	###
+	toJSON: ->
+		tablesData = (for id, table of @tables_
+			{x, y} = table.getPosition()
+
+			model: table.getModel().toJSON()
+			pos: x: x, y: y
+		)
+
+		name: @name
+		tables: tablesData
+		relations: @getRelations().map (relModel) -> relModel.toJSON()
