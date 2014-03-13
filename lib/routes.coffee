@@ -31,3 +31,9 @@ exports.app = (req, res) ->
 
 	# Browser request, usually page refresh
 		when 'GET' then return res.redirect '/'
+
+exports.saveModel = (req, res) ->
+	res.attachment "#{req.body.name ? 'unknown'}.json"
+
+	res.setHeader 'Content-Type', 'application/json'
+	res.end req.body.model, 'utf8'

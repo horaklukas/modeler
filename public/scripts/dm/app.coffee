@@ -55,7 +55,16 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
 	)
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
-	console.log JSON.stringify actualModel.toJSON()
+	name = actualModel.name.toLowerCase()
+	model = JSON.stringify actualModel.toJSON()
+
+	form = goog.dom.createDom(
+		'form', {action: '/save', method: 'POST'}
+		goog.dom.createDom 'input', {type: 'hidden', name: 'name', value: name }
+		goog.dom.createDom 'input', {type: 'hidden', name: 'model', value: model }
+	)
+
+	form.submit()
 
 ###*
 * @param {dm.model.Table} model

@@ -15,6 +15,7 @@ stylusCompile = (str, path) ->
 app.configure ->
 	app.set 'view engine', 'jade'
 	app.set 'views', __dirname + '/views'
+	app.use express.logger 'dev'
 	app.use express.json()
 	app.use express.urlencoded()
 	app.use express.methodOverride()
@@ -27,6 +28,7 @@ app.configure ->
 app.get '/', routes.intro
 app.post '/modeler', routes.app
 app.get '/modeler', routes.app
+app.post '/save', routes.saveModel
 
 port = process.env.PORT or 5000
 app.listen port, -> console.log 'Listening on port ' + port 	
