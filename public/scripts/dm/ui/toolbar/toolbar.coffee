@@ -30,7 +30,8 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		super()
 
 		@addChild new dm.ui.tools.CreateTable, true
-		@addChild new dm.ui.tools.CreateRelation, true
+		@addChild new dm.ui.tools.CreateRelation(true), true
+		@addChild new dm.ui.tools.CreateRelation(false), true
 		@addChild new dm.ui.tools.GenerateSql, true
 
 	###* @override  ###
@@ -40,6 +41,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		
 		@selectionModel_.addItem @getChildAt 0
 		@selectionModel_.addItem @getChildAt 1
+		@selectionModel_.addItem @getChildAt 2
 
 		goog.events.listen this, goog.ui.Component.EventType.ACTION, (e) =>
 			if @selectionModel_.indexOfItem(e.target) > -1

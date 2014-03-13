@@ -41,7 +41,7 @@ goog.events.listen mainToolbar, dm.ui.tools.EventType.CREATE, (ev) ->
 			canvas.addTable tab
 			tableDialog.show true, tab
 		when 'relation'
-			rel = new dm.ui.Relation(new dm.model.Relation(no))
+			rel = new dm.ui.Relation new dm.model.Relation(ev.data.identifying)
 			rel.setRelatedTables ev.data.parent, ev.data.child 
 			canvas.addRelation rel
 			relationDialog.show true, rel
