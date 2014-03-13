@@ -1,9 +1,10 @@
 goog.provide 'dm.ui.Toolbar'
+goog.provide 'dm.ui.Toolbar.EventType'
 
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.tools.CreateTable'
 goog.require 'dm.ui.tools.CreateRelation'
-goog.require 'dm.ui.tools.GenerateSql'
+goog.require 'dm.ui.tools.SimpleCommandButton'
 goog.require 'goog.events'
 goog.require 'goog.events.Event'
 
@@ -13,7 +14,12 @@ goog.require 'goog.ui.Toolbar'
 #goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.ui.SelectionModel'
 
+
 class dm.ui.Toolbar extends goog.ui.Toolbar
+	@EventType =
+		CREATE: goog.events.getUniqueId 'object-created'
+		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
+		SAVE_MODEL: goog.events.getUniqueId 'save-model'
 
 	###*
   * @constructor
@@ -32,7 +38,13 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		@addChild new dm.ui.tools.CreateTable, true
 		@addChild new dm.ui.tools.CreateRelation(true), true
 		@addChild new dm.ui.tools.CreateRelation(false), true
-		@addChild new dm.ui.tools.GenerateSql, true
+		@addChild new dm.ui.tools.SimpleCommandButton(
+			'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL
+		), true
+		@addChild new dm.ui.tools.SimpleCommandButton(
+			'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL
+		), true
+		@addChild
 
 	###* @override  ###
 	enterDocument: ->

@@ -1,13 +1,11 @@
 goog.provide 'dm.ui.tools.CreateToggleButton'
 goog.provide 'dm.ui.tools.ObjectCreateEvent'
-goog.provide 'dm.ui.tools.EventType'
 
 goog.require 'goog.dom'
 goog.require 'goog.events'
 goog.require 'goog.ui.ToolbarToggleButton'
 goog.require 'goog.ui.Component.State'
 
-dm.ui.tools.EventType.CREATE = goog.events.getUniqueId 'object-created'
 
 class dm.ui.tools.CreateToggleButton extends goog.ui.ToolbarToggleButton
 	###*
@@ -40,4 +38,4 @@ class dm.ui.tools.ObjectCreateEvent extends goog.events.Event
   * @extends {goog.events.Event}
 	###
 	constructor: (@objType, @data) ->
-		super dm.ui.tools.EventType.CREATE
+		super dm.ui.Toolbar.EventType.CREATE

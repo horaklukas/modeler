@@ -10,7 +10,7 @@ goog.require 'dm.dialogs.RelationDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.Toolbar'
-goog.require 'dm.ui.tools.EventType'
+goog.require 'dm.ui.Toolbar.EventType'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
 goog.require 'goog.events'
@@ -34,7 +34,7 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
 mainToolbar = new dm.ui.Toolbar()
 mainToolbar.renderBefore canvasElement
 
-goog.events.listen mainToolbar, dm.ui.tools.EventType.CREATE, (ev) ->
+goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
 	switch ev.objType
 		when 'table'
 			tab = new dm.ui.Table new dm.model.Table(), ev.data.x, ev.data.y
@@ -46,13 +46,16 @@ goog.events.listen mainToolbar, dm.ui.tools.EventType.CREATE, (ev) ->
 			canvas.addRelation rel
 			relationDialog.show true, rel
 
-goog.events.listen mainToolbar, dm.ui.tools.EventType.GENERATE_SQL, (ev) ->
+goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
 	generator = new dm.sqlgen.Sql92
 
 	generator.generate(
 		tables: actualModel.getTablesByName()
 		relations: actualModel.getRelations()
 	)
+
+goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
+	console.log JSON.stringify actualModel.toJSON()
 
 ###*
 * @param {dm.model.Table} model
