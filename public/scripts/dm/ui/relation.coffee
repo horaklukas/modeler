@@ -91,11 +91,12 @@ class dm.ui.Relation extends goog.ui.Component
 
 		relationModel = @getModel()
 		childTabModel = @childTab.getModel()
-		fkColumns = relationModel.getFkColumnsIds()
+		mapping = relationModel.getColumnsMapping()
+		isIdentifying = relationModel.isIdentifying()
 
-		for column in fkColumns
+		for map in mapping
 			childTabModel.setIndex(
-				column, dm.model.Table.index.PK, not relationModel.isIdentifying()
+				map.child, dm.model.Table.index.PK, not isIdentifying
 			)
 
 	###*
