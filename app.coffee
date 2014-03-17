@@ -4,7 +4,8 @@ stylus = require 'stylus'
 nib = require 'nib'
 routes = require './lib/routes'
 
-# Main namespace on server side
+multipart = require 'connect-multiparty'
+multipartMiddleware = multipart()
 
 app = express()
 
@@ -29,7 +30,7 @@ app.get '/', routes.intro
 app.post '/modeler', routes.app
 app.get '/modeler', routes.app
 app.post '/save', routes.saveModel
-app.post '/load', routes.loadModel
+app.post '/load', multipartMiddleware, routes.loadModel
 
 port = process.env.PORT or 5000
 app.listen port, -> console.log 'Listening on port ' + port 	

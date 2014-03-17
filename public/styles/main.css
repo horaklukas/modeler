@@ -25,4 +25,5 @@ a a:link,a a:visited{color:#06c;cursor:pointer}
 .modal-dialog-content .row.head{background-color:#ccc}
 .modal-dialog-content .row > span{display:table-cell;text-align:center}
 .goog-buttonset-default{font-weight:bold}
+.modal-dialog .info.error{color:#f00}
 #columns_list{display:table}

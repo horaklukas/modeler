@@ -1,3 +1,4 @@
+fs = require 'fs'
 databases = require './dbs'
 
 	#fs.readFile "defs/#{name}.json", 'utf8', (err, cont) ->
@@ -39,6 +40,8 @@ exports.saveModel = (req, res) ->
 	res.end req.body.model, 'utf8'
 
 exports.loadModel = (req, res) ->
-	#fs.readFile
-	console.log req 
-	res.end '{}', 'utf8'
+	fs.readFile req.files.modelfile.path, (err, content) ->
+		if err? then res.send 500, err.code
+		else
+			try	res.end content, 'utf8'
+			catch e then res.send 500, 'Selected file isnt valid JSON'
