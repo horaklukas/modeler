@@ -5,6 +5,7 @@ module.exports = (grunt) ->
   # load plugins that provides tasks  
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-contrib-stylus'
   grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-este'
   grunt.loadNpmTasks 'grunt-mocha-cli'
@@ -115,6 +116,13 @@ module.exports = (grunt) ->
         require: ['./test/common.js']
       
       src: 'test/unit/**/*Test.coffee'
+
+    stylus:
+      options:
+        compile: true
+      compile:
+        files: 
+          'public/styles/main.css': 'public/styles/main.styl'
 
     watch:
       coffee:

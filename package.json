@@ -23,7 +23,8 @@
     "mocha": "*",
     "sinon": "*",
     "coffee-script": "~1.7.1",
-    "mockery": "~1.4.0"
+    "mockery": "~1.4.0",
+    "grunt-contrib-stylus": "~0.13.2"
   },
   "engines": {
     "node": "0.8.4"
