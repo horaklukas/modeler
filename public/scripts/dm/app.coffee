@@ -7,6 +7,7 @@ goog.require 'dm.ui.Relation'
 
 goog.require 'dm.dialogs.TableDialog'
 goog.require 'dm.dialogs.RelationDialog'
+goog.require 'dm.dialogs.LoadModelDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.Toolbar'
@@ -19,6 +20,7 @@ canvasElement = goog.dom.getElement 'modelerCanvas'
 
 tableDialog = new dm.dialogs.TableDialog()
 relationDialog = new dm.dialogs.RelationDialog()
+loadModelDialog = new dm.dialogs.LoadModelDialog()
 
 actualModel = new dm.model.Model 'Model1' 
 
@@ -65,6 +67,9 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
 	)
 
 	form.submit()
+
+goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
+	loadModelDialog.show yes
 
 ###*
 * @param {dm.model.Table} model

@@ -37,3 +37,8 @@ exports.saveModel = (req, res) ->
 
 	res.setHeader 'Content-Type', 'application/json'
 	res.end req.body.model, 'utf8'
+
+exports.loadModel = (req, res) ->
+	#fs.readFile
+	console.log req 
+	res.end '{}', 'utf8'

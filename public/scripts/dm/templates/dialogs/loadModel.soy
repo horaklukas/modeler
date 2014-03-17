@@ -1,0 +1,16 @@
+{namespace tmpls.dialogs.loadModel}
+
+/**
+ * Main function for creating dialog
+ */
+{template .dialog}
+<form id="load_model" class="dialog" method="POST" action="/load" 
+	enctype="multipart/form-data">
+	<p>Select JSON that contains model:</p>
+
+	<p>
+		<input type="file" name="modelfile" />
+		<input type="submit" name="load" value="Load model" />
+	</p>
+</form>
+{/template}

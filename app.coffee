@@ -29,6 +29,7 @@ app.get '/', routes.intro
 app.post '/modeler', routes.app
 app.get '/modeler', routes.app
 app.post '/save', routes.saveModel
+app.post '/load', routes.loadModel
 
 port = process.env.PORT or 5000
 app.listen port, -> console.log 'Listening on port ' + port 	

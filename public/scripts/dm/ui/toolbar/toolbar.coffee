@@ -11,7 +11,7 @@ goog.require 'goog.events.Event'
 goog.require 'goog.ui.Toolbar'
 #goog.require 'goog.ui.ToolbarMenuButton'
 #goog.require 'goog.ui.ToolbarSelect'
-#goog.require 'goog.ui.ToolbarSeparator'
+goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.ui.SelectionModel'
 
 
@@ -20,6 +20,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		CREATE: goog.events.getUniqueId 'object-created'
 		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
 		SAVE_MODEL: goog.events.getUniqueId 'save-model'
+		LOAD_MODEL: goog.events.getUniqueId 'load-model'
 
 	###*
   * @constructor
@@ -38,13 +39,17 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		@addChild new dm.ui.tools.CreateTable, true
 		@addChild new dm.ui.tools.CreateRelation(true), true
 		@addChild new dm.ui.tools.CreateRelation(false), true
+		@addChild new goog.ui.ToolbarSeparator(), true
 		@addChild new dm.ui.tools.SimpleCommandButton(
 			'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL
 		), true
 		@addChild new dm.ui.tools.SimpleCommandButton(
 			'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL
 		), true
-		@addChild
+		@addChild new dm.ui.tools.SimpleCommandButton(
+			'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL
+		), true
+		@addChild new goog.ui.ToolbarSeparator(), true
 
 	###* @override  ###
 	enterDocument: ->
