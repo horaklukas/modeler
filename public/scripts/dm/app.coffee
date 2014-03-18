@@ -9,6 +9,7 @@ goog.require 'dm.dialogs.TableDialog'
 goog.require 'dm.dialogs.RelationDialog'
 goog.require 'dm.dialogs.LoadModelDialog'
 goog.require 'dm.model.Model'
+goog.require 'dm.model.Table.index'
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.Toolbar'
 goog.require 'dm.ui.Toolbar.EventType'
@@ -71,6 +72,46 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
 	loadModelDialog.show yes
+
+###*
+* @param {string} value
+* @return {(boolean|number|string)}
+###
+columnCoercion = (value) ->
+	if value is 'true' then true
+	else if value is 'false' then false
+	else if goog.string.isNumeric value then goog.string.toNumber value
+	else value
+
+goog.events.listen loadModelDialog, dm.dialogs.LoadModelDialog.EventType.CONFIRM, (ev) ->
+	json = (`/** @type {Object} */`) ev.model
+
+	actualModel = new dm.model.Model json.name
+
+	for table in json.tables
+		columns = (for column in table.model.columns 
+			column[name] = columnCoercion(value) for name, value of column
+			column
+		)
+
+		tableModel = new dm.model.Table table.model.name, columns
+		
+		for columnId, columnIndexes of table.model.indexes
+			column = goog.string.toNumber(columnId)
+
+			# foreign key indexes are created by relation
+			for index in columnIndexes when index isnt dm.model.Table.index.FK
+				tableModel.setIndex column, index 
+			
+		table = dm.addTable tableModel, table.pos.x, table.pos.y
+
+	for relation in json.relations
+		relationModel = new dm.model.Relation relation.type 
+		dm.addRelation(
+			relationModel
+			actualModel.getTableIdByName relation.tables.parent
+			actualModel.getTableIdByName relation.tables.child
+		)
 
 ###*
 * @param {dm.model.Table} model

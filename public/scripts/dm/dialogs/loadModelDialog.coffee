@@ -3,6 +3,7 @@ goog.provide 'dm.dialogs.LoadModelDialog'
 goog.require 'goog.ui.Dialog'
 goog.require 'goog.net.IframeIo'
 goog.require 'goog.events'
+goog.require 'goog.events.Event'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
 goog.require 'tmpls.dialogs.loadModel'
@@ -26,12 +27,14 @@ class dm.dialogs.LoadModelDialog extends goog.ui.Dialog
   * @param {boolean} show
 	###
 	show: (show) ->
-		@setContent tmpls.dialogs.loadModel.dialog()
 		@setVisible show 
-		
-		form = (`/** @type {HTMLFormElement} */`) goog.dom.getElement 'load_model'
 
-		goog.events.listen form, goog.events.EventType.SUBMIT, @onUploadRequest
+		if show is true
+			@setContent tmpls.dialogs.loadModel.dialog()
+			
+			form = (`/** @type {HTMLFormElement} */`) goog.dom.getElement 'load_model'
+
+			goog.events.listen form, goog.events.EventType.SUBMIT, @onUploadRequest
 
 	onUploadRequest: (e) =>
 		e.preventDefault()
@@ -52,7 +55,8 @@ class dm.dialogs.LoadModelDialog extends goog.ui.Dialog
 			if e.type is goog.net.EventType.ERROR
 				throw new Error iFrameIo.getLastError()
 
-			console.log iFrameIo.getResponseJson()
+			@dispatchEvent new ModelLoadedEvent(iFrameIo.getResponseJson())
+			@show false
 		catch e
 			infobar = goog.dom.getElementByClass 'info', @getContentElement()
 			goog.dom.setTextContent infobar, e.message
@@ -60,3 +64,15 @@ class dm.dialogs.LoadModelDialog extends goog.ui.Dialog
 
 		iFrameIo.removeAllListeners()
 		iFrameIo.dispose()
+
+class ModelLoadedEvent extends goog.events.Event
+	###*
+  * @param {Object} modelJSON
+	###
+	constructor: (modelJSON) ->
+		super dm.dialogs.LoadModelDialog.EventType.CONFIRM
+
+		###*
+    * @type {Object}
+		###
+		@model = modelJSON

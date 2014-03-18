@@ -246,6 +246,9 @@ describe 'class model.Table', ->
 			expect(pks).to.be.empty
 
 	describe 'method toJSON', ->
+		before ->
+			sinon.stub(tab, 'getColumnsIdsByIndex').returns []
+
 		beforeEach ->
 			tab.name_ = 'table1'
 			tab.columns_ = [
@@ -254,6 +257,10 @@ describe 'class model.Table', ->
 				{name: 'third', type: 'number'}
 			]
 			tab.indexes = 1: ['unq', 'fk'], 2: ['pk'], 3: ['unq']
+			tab.getColumnsIdsByIndex.reset()
+
+		after ->
+			tab.getColumnsIdsByIndex.restore()
 
 		it 'should retunn JSON like representation of model', ->
 			json = tab.toJSON()
@@ -265,6 +272,14 @@ describe 'class model.Table', ->
 			expect(json).to.have.deep.property('indexes[1]').that.deep.equal ['unq', 'fk']
 			expect(json).to.have.deep.property('indexes[2]').that.deep.equal ['pk']
 			expect(json).to.have.deep.property('indexes[3]').that.deep.equal ['unq']
+
+		it 'should filter foreign key columns', ->
+			tab.getColumnsIdsByIndex.returns [0]
+
+			json = tab.toJSON()
+			expect(json.columns).to.be.an('array').and.have.length 2
+			expect(json).to.have.deep.property 'columns[0].name', 'second'
+			expect(json).to.have.deep.property 'columns[1].name', 'third'
 
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->

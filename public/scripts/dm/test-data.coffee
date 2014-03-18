@@ -1,5 +1,5 @@
 # Some test tables and relations
-tab0model = new dm.model.Table 'Person', [
+###tab0model = new dm.model.Table 'Person', [
 	{ name:'person_id', type:'smallint', isNotNull:false }
 	{ name:'name', type:'varchar', isNotNull:false }
 ]
@@ -97,3 +97,4 @@ dm.addRelation rel6model, tab8, tab6
 
 rel7model = new dm.model.Relation false
 dm.addRelation rel7model, tab9, tab6
+###

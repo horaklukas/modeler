@@ -24,40 +24,10 @@ class dm.model.Model
 		@tables_[table.getId()] = table#.getModel()
 
 	###*
-  * Pass new values from table dialog to table
-  *
-  * @param {string} id Identificator of table to edit
-  * @param {string} name Name of table to set
-  * @param {Array.<Object.<string,*>>=} columns
-	###
-	###
-	setTable: (id, name, columns) =>
-		table = @getTableById id
-
-		table.setName name
-
-		if columns?
-			table.setColumns columns
-			table.render()
-	###
-	###*
 	* @param {dm.ui.Relation} relation
 	###
 	addRelation: (relation) ->
 		@relations_[relation.getId()] = relation#.getModel()
-
-	###
-	setRelation: (id, ident, parentTab, childTab) ->
-		rel = @getRelationById id
-
-		rel.setIdentifying ident
-		rel.setRelatedTables parentTab, childTab
-
-		for column in parentTab.getColumns() when column.isPrimary() is true
-			childTab.setColumn column.clone()
-
-		childTab.render()
-	###
 
 	###*
 	* Returns table model by table id
@@ -100,6 +70,15 @@ class dm.model.Model
 			mappedTables[model.getName()] = model 
 
 		mappedTables
+
+	###*
+  * @param {string} name
+  * @param {string} id
+	###
+	getTableIdByName: (name) ->
+		for id, table of @tables_ when table.getModel().getName() is name
+			#console.log '' table.getModel().getName(), name
+			return table.getId(); break
 
 	###*
   * @return {Object} JSON representation of all data about model

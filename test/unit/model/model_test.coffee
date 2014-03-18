@@ -117,6 +117,24 @@ describe 'class model.Model', ->
 			expect(tabsByName).to.have.deep.property 'table2', model2
 			expect(tabsByName).to.have.deep.property 'table3', model3
 
+	describe 'getTableIdByName', ->
+		tab1 = null
+		tab2 = null
+		tab3 = null
+
+		before ->
+			tab1 = getModel: (-> {getName: (-> 'table1')}), getId: -> 'tb1'
+			tab2 = getModel: (-> {getName: (-> 'table2')}), getId: -> 'tb2'
+			tab3 = getModel: (-> {getName: (-> 'table3')}), getId: -> 'tb3'
+
+		beforeEach ->
+			model.tables_ = { 'tab1': tab1, 'tab2': tab2, 'tab3': tab3	}
+
+		it 'should return id of table by table name', ->
+			expect(model.getTableIdByName 'table2').to.equal 'tb2'
+			expect(model.getTableIdByName 'table1').to.equal 'tb1'
+			expect(model.getTableIdByName 'table3').to.equal 'tb3'
+
 	describe 'method toJSON', ->
 		before ->
 			model.name = 'model1'
