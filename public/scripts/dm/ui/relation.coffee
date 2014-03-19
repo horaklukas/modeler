@@ -268,13 +268,18 @@ class dm.ui.Relation extends goog.ui.Component
 
 		@parentTab = parent
 		@childTab = child
+		parentModel = parent.getModel()
+		childModel = child.getModel()
 
-
-		goog.events.listen parent.getModel(), 'name-change', @setTablesNamesToModel
-		goog.events.listen child.getModel(), 'name-change', @setTablesNamesToModel
+		goog.events.listen parentModel, 'name-change', @setTablesNamesToModel
+		goog.events.listen childModel, 'name-change', @setTablesNamesToModel
 
 		@setTablesNamesToModel()
 		@setRelatedTablesKeys()
+		
+		columnsListChangeEvents = ['column-add', 'column-delete']
+		goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
+		goog.events.listen childModel, columnsListChangeEvents, @recountPosition
 
 	###*
   * Updates names of relation related tables if tables names change, used at

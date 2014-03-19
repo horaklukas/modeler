@@ -178,6 +178,7 @@ describe 'class Relation', ->
 			rel.parentTab = null
 			gfci.reset()
 			model.removeColumn.reset()
+			goog.events.listen.reset()
 
 		after ->
 			srtk.restore()
@@ -207,6 +208,20 @@ describe 'class Relation', ->
 			model.removeColumn.should.been.calledThrice
 			rm6.should.been.calledBefore rm5
 			rm5.should.been.calledBefore rm4
+
+		it 'should listen for recount position if tables columns change', ->
+			events = ['column-add', 'column-delete']
+
+			rel.setRelatedTables(
+				{getModel: -> 'parentModel'}, {getModel: -> 'childModel'}
+			)
+
+			goog.events.listen.should.been.calledWithExactly(
+				'parentModel', events, rel.recountPosition
+			)
+			goog.events.listen.should.been.calledWithExactly(
+				'childModel', events, rel.recountPosition
+			)
 
 	describe 'method setRelatedTableKeys', ->
 		gcols = sinon.stub()
