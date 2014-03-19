@@ -8,20 +8,23 @@ _The uploaded application needn't corespond to latest state_
 
 ## WORK PLAN
 1. Frontend modeler part
-	* creating table and relation objects	_in progress_
-	* making table structure by selected database type
+  * creating table and relation objects _in progress_
+  * making table structure by selected database type
 2. Backend modeler part
   * reingeneering of tables and relations from database
   * _possiblly creating of tables and relations from  database catalog_
 3. Managment of models part
-	* making image snapshoots from models
-	* versioning of models
-	* creation of packages to distribute model eg. as mail attachment
+  * making image snapshoots from models
+  * versioning of models
+  * creation of packages to distribute model eg. as mail attachment
 
 ## TODO
 
 ### App
-* Options to delete objects
+* options to delete objects (tables/relations)
+* create database connections manager
+* add reingeneering of model from database
+* <s>add load/save model funcionality</s>
 
 ### Table
 * Fix changing columns at relation and table model when some column is deleted
@@ -59,6 +62,7 @@ _The uploaded application needn't corespond to latest state_
 
 ### Model
 * create autodesigner that space out objects hold as the data
+* remove unnecessary data  generated with `toJSON` method 
 * <s>create object that holds actual model - its table and relations</s>
 * <s>holds methods for placing object to canvas</s>
 
