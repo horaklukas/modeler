@@ -1,5 +1,4 @@
 goog.provide 'dm.dialogs.TableDialog'
-goog.provide 'dm.dialogs.TableDialog.Confirm'
 
 goog.require 'goog.ui.Dialog'
 goog.require 'tmpls.dialogs.createTable'
@@ -17,10 +16,10 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 	@EventType =
 		CONFIRM: goog.events.getUniqueId 'dialog-confirmed'
 
-	constructor: () ->
+	constructor: (@types) ->
 		super() #'createTable', types
 
-		@setContent tmpls.dialogs.createTable.dialog {types: DB.types}
+		@setContent tmpls.dialogs.createTable.dialog {types: @types}
 		@setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL
 		@setDraggable false
 
@@ -125,7 +124,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 			if id in fks then cols[id].isFk = true
 
 		@colslist.innerHTML = tmpls.dialogs.createTable.columnsList {
-			types: DB.types, columns: cols 
+			types: @types, columns: cols 
 		}
 
 	###*
@@ -134,7 +133,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 	* @param {dm.model.TableColumn} column
 	###
 	addColumn: (column) =>
-		opts = types: DB.types
+		opts = types: @types
 		
 		@columns_.count++
 		opts.id = @columns_.count

@@ -20,6 +20,8 @@ describe 'Module dbs', ->
 
 		after ->
 			databases.loadAllDefinitions.restore()
+			mockery.deregisterAll()
+			mockery.disable()
 
 		it 'should pass error to calback if loading definitions failed', ->
 			databases.getList cb

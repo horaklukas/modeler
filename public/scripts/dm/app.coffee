@@ -8,6 +8,7 @@ goog.require 'dm.ui.Relation'
 goog.require 'dm.dialogs.TableDialog'
 goog.require 'dm.dialogs.RelationDialog'
 goog.require 'dm.dialogs.LoadModelDialog'
+goog.require 'dm.dialogs.SelectDbDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.model.Table.index'
 goog.require 'dm.ui.Canvas'
@@ -18,16 +19,25 @@ goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
 goog.require 'goog.events'
 
-canvasElement = goog.dom.getElement 'modelerCanvas'
-
-tableDialog = new dm.dialogs.TableDialog()
+tableDialog = new dm.dialogs.TableDialog dmAssets.types
 relationDialog = new dm.dialogs.RelationDialog()
 loadModelDialog = new dm.dialogs.LoadModelDialog()
 
 actualModel = new dm.model.Model 'Model1' 
 
+canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
 canvas.render canvasElement
+
+if dmAssets.dbs?
+	selectDbDialog = new dm.dialogs.SelectDbDialog dmAssets.dbs
+	selectDbDialog.show true
+
+	goog.events.listen selectDbDialog, dm.dialogs.SelectDbDialog.EventType.SELECTED, (ev) ->
+		#dmAssets.types = ev.assets.types
+		tableDialog = new dm.dialogs.TableDialog ev.assets.types
+		goog.dom.setTextContent goog.dom.getElementsByTagNameAndClass('title')[0], ev.assets.name
+		# fill <title> with ev.assets.name 
 
 goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) -> 
 	object = ev.target

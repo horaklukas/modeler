@@ -1,5 +1,4 @@
 goog.provide 'dm.dialogs.RelationDialog'
-goog.provide 'dm.dialogs.RelationDialog.Confirm'
 
 goog.require 'goog.ui.Dialog'
 goog.require 'tmpls.dialogs.createRelation'

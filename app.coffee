@@ -1,4 +1,5 @@
 express = require 'express'
+
 expose = require 'express-expose'
 stylus = require 'stylus'
 nib = require 'nib'
@@ -8,6 +9,7 @@ multipart = require 'connect-multiparty'
 multipartMiddleware = multipart()
 
 app = express()
+
 
 stylusCompile = (str, path) ->
 	stylus(str).set('filename', path).set('compress', yes)
@@ -25,12 +27,15 @@ app.configure ->
 	app.use '/public', express.static __dirname + '/public'
 	app.use app.router
 	app.use express.errorHandler()
-
-app.get '/', routes.intro
-app.post '/modeler', routes.app
-app.get '/modeler', routes.app
+	
+app.get '/', routes.app
+app.post '/', routes.app
+app.post '/list', routes.getList
 app.post '/save', routes.saveModel
 app.post '/load', multipartMiddleware, routes.loadModel
 
 port = process.env.PORT or 5000
-app.listen port, -> console.log 'Listening on port ' + port 	
+app.listen port, -> console.log 'Listening on port ' + port
+
+# used for testing http requests
+module.exports = app

@@ -1,0 +1,23 @@
+{namespace tmpls.dialogs.selectDb}
+
+/**
+ * Main function for creating dialog
+ * @param dbs
+ */
+{template .dialog}
+<div class="dialog">
+	<strong>List of databases</strong>
+
+	<div class="info"></div>
+
+	<form id="select_db">	
+		<select name="db">
+		{foreach $db in $dbs}
+			<option value="{$db.id}">{$db.title}</option>
+		{/foreach}
+		</select>
+
+		<input type="submit" value="Select" />
+	</form>
+</div>
+{/template}
