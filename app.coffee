@@ -10,7 +10,6 @@ multipartMiddleware = multipart()
 
 app = express()
 
-
 stylusCompile = (str, path) ->
 	stylus(str).set('filename', path).set('compress', yes)
 		.use(nib()).import 'nib'

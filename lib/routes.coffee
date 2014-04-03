@@ -23,7 +23,10 @@ exports.app = (req, res) ->
 			if selectedId then selectedDb = databases.getDb selectedId
 	
 			if selectedDb
-				res.expose {types: selectedDb?.types, dbs: null}, 'dmAssets'
+				res.expose {
+					name: selectedDb.name, version: selectedDb.version
+					types: selectedDb.types, dbs: null
+				}, 'dmAssets'
 				return res.render 'main', title: selectedDb?.name
 			
 			databases.getList (err, list) ->

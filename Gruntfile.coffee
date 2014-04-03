@@ -120,6 +120,7 @@ module.exports = (grunt) ->
     stylus:
       options:
         compile: true
+        use: [ require('nib') ]
       compile:
         files: 
           'public/styles/main.css': 'public/styles/main.styl'

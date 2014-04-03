@@ -29,6 +29,9 @@ canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
 canvas.render canvasElement
 
+mainToolbar = new dm.ui.Toolbar()
+mainToolbar.renderBefore canvasElement
+
 if dmAssets.dbs?
 	selectDbDialog = new dm.dialogs.SelectDbDialog dmAssets.dbs
 	selectDbDialog.show true
@@ -36,8 +39,12 @@ if dmAssets.dbs?
 	goog.events.listen selectDbDialog, dm.dialogs.SelectDbDialog.EventType.SELECTED, (ev) ->
 		#dmAssets.types = ev.assets.types
 		tableDialog = new dm.dialogs.TableDialog ev.assets.types
+		# fill <title> with database name
 		goog.dom.setTextContent goog.dom.getElementsByTagNameAndClass('title')[0], ev.assets.name
-		# fill <title> with ev.assets.name 
+
+		mainToolbar.setStatus "#{ev.assets.name} #{ev.assets.version}"
+else
+	mainToolbar.setStatus "#{dmAssets.name} #{dmAssets.version}"
 
 goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) -> 
 	object = ev.target
@@ -45,8 +52,6 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
 	if object instanceof dm.ui.Relation then relationDialog.show yes, object
 	else if object instanceof dm.ui.Table then tableDialog.show yes, object
 
-mainToolbar = new dm.ui.Toolbar()
-mainToolbar.renderBefore canvasElement
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
 	switch ev.objType

@@ -7,12 +7,12 @@ goog.require 'dm.ui.tools.CreateRelation'
 goog.require 'dm.ui.tools.SimpleCommandButton'
 goog.require 'goog.events'
 goog.require 'goog.events.Event'
-
 goog.require 'goog.ui.Toolbar'
 #goog.require 'goog.ui.ToolbarMenuButton'
 #goog.require 'goog.ui.ToolbarSelect'
 goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.ui.SelectionModel'
+goog.require 'goog.dom'
 
 
 class dm.ui.Toolbar extends goog.ui.Toolbar
@@ -32,6 +32,11 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		@selectionModel_ = new goog.ui.SelectionModel()
 		@selectionModel_.setSelectionHandler @onSelect
 
+		###*
+    * @type {Element}
+		###
+		@statusBar_ = null
+
 	###* @override	###
 	createDom: ->
 		super()
@@ -50,6 +55,11 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL
 		), true
 		@addChild new goog.ui.ToolbarSeparator(), true
+
+		@statusBar_ = @getDomHelper().createDom(
+			'div', 'statusbar goog-inline-block'
+		)
+		goog.dom.appendChild @getContentElement(), @statusBar_
 
 	###* @override  ###
 	enterDocument: ->
@@ -84,5 +94,8 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		if select is true then button.startAction()
 		else if select is false then button.finishAction()
 
-
-
+	###*
+  * @param {string} status
+	###
+	setStatus: (status) =>
+		goog.dom.setTextContent @statusBar_, status
