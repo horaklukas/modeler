@@ -34,20 +34,24 @@ describe 'class TableDialog', ->
 			listen = sinon.stub goog.events, 'listen'
 			svi = sinon.stub tabd, 'setVisible'
 			sva = sinon.stub tabd, 'setValues'
+			sinon.stub tabd, 'setTitle'
 
 		beforeEach ->
 			fakeModel.getColumns.reset()
+			fakeModel.getName.reset()
 			faketab.getModel.reset()
 			gch.reset()
 			listen.reset()
 			svi.reset()
 			sva.reset()
+			tabd.setTitle.reset()
 
 		after ->
 			gch.restore()
 			listen.restore()
 			svi.restore()
 			sva.restore()
+			tabd.setTitle.restore()
 
 		it 'should only show/hide if table not passed', ->
 			tabd.show true
@@ -71,6 +75,20 @@ describe 'class TableDialog', ->
 			listen.should.been.calledTwice
 			listen.should.been.calledWith 'column1'
 			listen.should.been.calledWith 'column2'
+
+		it 'should set title of dialog with table name if exists', ->
+			fakeModel.getName.returns 'tab1'
+
+			tabd.show true, faketab
+
+			tabd.setTitle.should.been.calledWithExactly 'Table "tab1"'
+
+		it 'should set title of dialog with "unnamed" if name doesnt exist', ->
+			fakeModel.getName.returns ''
+
+			tabd.show true, faketab
+
+			tabd.setTitle.should.been.calledWithExactly 'Table "unnamed"'
 
 	describe 'method getColumnData', ->
 		beforeEach ->

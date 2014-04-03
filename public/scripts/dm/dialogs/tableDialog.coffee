@@ -60,21 +60,23 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 				removed: [], updated: [], added: [columnsCount], count: columnsCount
 
 			@setValues model
-			@setTitle "Table \"#{model.getName()}\""
+			@setTitle "Table \"#{model.getName() or 'unnamed'}\""
 
 			# @TODO change of inputs of rows added from model
 			rows = goog.dom.getChildren @colslist
 			
-			# each row except first (head row) and last (empty row) is row that is
-			# from original model, so its change is update
-			for i in [1..rows.length - 2]
-				row = rows[i]
-				goog.events.listen row, goog.events.EventType.CHANGE, (e) =>
-					columnRow = goog.dom.getAncestorByClass e.target, 'row'
-					index = goog.string.toNumber columnRow.getAttribute 'name'
-					# dont add column that already exists there 
-					unless index in @columns_.updated then @columns_.updated.push index
-		
+			# if table isnt empty (has only head and new column row) each row except
+			# first (head row) and last (empty row) is row that is from original 
+			# model, so its change is update
+			if rows.length > 2
+				for i in [1..rows.length - 2]
+					row = rows[i]
+					goog.events.listen row, goog.events.EventType.CHANGE, (e) =>
+						columnRow = goog.dom.getAncestorByClass e.target, 'row'
+						index = goog.string.toNumber columnRow.getAttribute 'name'
+						# dont add column that already exists there 
+						unless index in @columns_.updated then @columns_.updated.push index
+			
 		@setVisible show
 
 	###*
