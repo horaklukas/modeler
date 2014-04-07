@@ -2,6 +2,22 @@ goog.require 'dm.dialogs.TableDialog'
 
 global.DB = types: [] 
 
+# functin for creating test rows
+createRow = (id = '', name = '', type = '', pk, nn, unq)->
+	"<div class=\"row\" name=\"#{id}\">"+
+		"<span><input type=\"text\" class=\"name\" value=\"#{name}\"/></span>"+
+		"<span><select class=\"type\"><option>#{type}</option></select></span>"+
+		"<span>"+
+		"<input type=\"checkbox\" class=\"primary\" #{if pk then 'checked' else ''}/>"+
+		"</span>"+
+		"<span>"+
+		"<input type=\"checkbox\" class=\"notnull\" #{if nn then 'checked' else ''}/>"+
+		"</span>"+
+		"<span>"+
+		"<input type=\"checkbox\" class=\"unique\" #{if unq then 'checked' else ''}/>"+
+		"</span>"+
+	"</div>"
+
 describe 'class TableDialog', ->
 	tabd = null
 
@@ -92,19 +108,10 @@ describe 'class TableDialog', ->
 
 	describe 'method getColumnData', ->
 		beforeEach ->
-			tabd.colslist.innerHTML = '<div class="row" name="2">'+
-			'<span><input type="text" class="name" value="bob"/></span>'+
-			'<span><select class="type"><option>T1</option></select></span>'+
-			'<span><input type="checkbox" class="primary" /></span>'+
-			'<span><input type="checkbox" class="notnull" checked /></span>'+
-			'<span><input type="checkbox" class="unique" checked /></span></div>'+
-			'<div class="row" name="3">'+
-			'<span><input type="text" class="name" value="bobek"/></span>'+
-			'<span><select class="type"><option>T2</option></select></span>'+
-			'<span><input type="checkbox" class="primary" checked/></span>'+
-			'<span><input type="checkbox" class="notnull" /></span>'+
-			'<span><input type="checkbox" class="unique" /></span></div>' 
-
+			tabd.colslist.innerHTML = 
+				createRow('2', 'bob', 'T1', no, yes, yes) +
+				createRow('3', 'bobek', 'T2', yes, no, no)
+				
 		it 'should find column by index and returns its values', ->
 			tabd.getColumnData(3).should.deep.equal {
 				model: name:'bobek', type:'T2',	isNotNull:false
@@ -115,9 +122,16 @@ describe 'class TableDialog', ->
 			expect(-> tabd.getColumnData(7)).to.throw 'Column not exist'
 
 	describe 'method addColumn', ->
+		before ->
+			#sinon.stub tmpls.dialogs.createTable, 'tableColumn', createRow
+
 		beforeEach ->
 			tabd.columns_.count = 0
 			tabd.columns_.added = []
+			#tmpls.dialogs.createTable.tableColumn.reset()
+
+		after ->
+			#tmpls.dialogs.createTable.tableColumn.restore()
 
 		it 'should increment count of columns', ->
 			tabd.columns_.count = 5
@@ -131,6 +145,32 @@ describe 'class TableDialog', ->
 
 			tabd.addColumn()
 			tabd.columns_.added.should.deep.equal [4, 5, 7]
+
+		it 'should add new column row to the end of list', ->
+			tabd.colslist.innerHTML = 
+				createRow('1', 'c3po', 'protocoral', no, yes, yes) +
+				createRow('2', 'r2d2', 'service', yes, no, no)
+
+			tabd.addColumn()
+			console.log tabd
+			expect(tabd.colslist.childNodes).to.exist.and.have.length 3
+
+		###
+		it 'should preserve not saved values in existing columns', ->
+			tabd.colslist.innerHTML = 
+				createRow('1', 'luke', 'son', no, yes, yes) +
+				createRow('2', 'leia', 'daughter', yes, no, no) +
+				createRow('3', 'obiwan', 'jedi', yes, no, yes)
+			
+			leia = goog.dom.getElementByClass 'name', tabd.colslist.childNodes[1]
+			expect(leia).to.have.property 'value', 'leia'
+
+			goog.dom.forms.setValue leia, 'amidala'
+
+			tabd.addColumn()
+
+			expect(leia).to.have.property 'value', 'amidala'
+		###
 
 	describe 'method removeColumn', ->
 		gabc = null

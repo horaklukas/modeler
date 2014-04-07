@@ -23,7 +23,6 @@ class dm.dialogs.SelectDbDialog extends goog.ui.Dialog
 		# force render dialog, so all control widgets exists since now
 		#content = @getContentElement()
 		
-
 	###*
   * @param {boolean} show
 	###

@@ -1,6 +1,7 @@
 goog.provide 'dm.dialogs.RelationDialog'
 
 goog.require 'goog.ui.Dialog'
+goog.require 'goog.ui.Dialog.ButtonSet'
 goog.require 'tmpls.dialogs.createRelation'
 goog.require 'goog.dom'
 goog.require 'goog.soy'
@@ -20,7 +21,7 @@ class dm.dialogs.RelationDialog extends goog.ui.Dialog
 		#@relatedTables = parent: null, child: null
 
 		@setContent tmpls.dialogs.createRelation.dialog false
-		@setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL
+		@setButtonSet goog.ui.Dialog.ButtonSet.createOkCancel()
 		@setDraggable false
 
 		# force render dialog, so all control widgets exists since now

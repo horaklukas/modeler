@@ -1,6 +1,7 @@
 goog.provide 'dm.dialogs.TableDialog'
 
 goog.require 'goog.ui.Dialog'
+goog.require 'goog.ui.Dialog.ButtonSet'
 goog.require 'tmpls.dialogs.createTable'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
@@ -20,7 +21,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		super() #'createTable', types
 
 		@setContent tmpls.dialogs.createTable.dialog {types: @types}
-		@setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL
+		@setButtonSet goog.ui.Dialog.ButtonSet.createOkCancel()
 		@setDraggable false
 
 		# force render dialog, so all control widgets exists since now
@@ -39,6 +40,7 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 			if goog.dom.classes.has e.target, 'delete' then @removeColumn e.target	
 
 		goog.events.listen @, goog.ui.Dialog.EventType.SELECT, @onSelect
+		goog.events.listen @nameField, goog.events.EventType.KEYUP, @onNameChange
 
 	###* @override ###
 	#enterDocument: ->
@@ -74,9 +76,13 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 					goog.events.listen row, goog.events.EventType.CHANGE, (e) =>
 						columnRow = goog.dom.getAncestorByClass e.target, 'row'
 						index = goog.string.toNumber columnRow.getAttribute 'name'
+
 						# dont add column that already exists there 
 						unless index in @columns_.updated then @columns_.updated.push index
 			
+			# disable OK button if table name not set (probably new table) 
+			@onNameChange()
+		
 		@setVisible show
 
 	###*
@@ -98,6 +104,9 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 			isNotNull:goog.dom.getElementByClass('notnull', column).checked
 		isPk: goog.dom.getElementByClass('primary', column).checked
 		isUnique:goog.dom.getElementByClass('unique', column).checked
+
+	onNameChange: =>
+		@getButtonSet().setButtonEnabled 'ok', @getName() isnt ''
 
 	###*
 	* Return table name, filled in dialog
@@ -130,17 +139,19 @@ class dm.dialogs.TableDialog extends goog.ui.Dialog
 		}
 
 	###*
-	* Add new `column` row to dialog, empty or set in depend if values are passed
+	* Add new empty `column` row to the end of dialog
 	*
 	* @param {dm.model.TableColumn} column
 	###
-	addColumn: (column) =>
+	addColumn: =>
 		opts = types: @types
 		
 		@columns_.count++
 		opts.id = @columns_.count
 
-		@colslist.innerHTML += tmpls.dialogs.createTable.tableColumn opts
+		goog.dom.appendChild @colslist, goog.soy.renderAsElement(
+			tmpls.dialogs.createTable.tableColumn, opts
+		)
 
 		@columns_.added.push @columns_.count
 

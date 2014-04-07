@@ -57,7 +57,8 @@ _The uploaded application needn't corespond to latest state_
 ### Dialogs
 
 #### Table dialog
-* fix lost of unsaved columns change when new column row is added
+* <s>fix lost of unsaved columns change when new column row is added</s>
+* <s>fix allow confirm if table name not filled</s>
 * <s>make columns creted by relation not deletable and editable (only name can
   change)</s>
 
