@@ -33,12 +33,12 @@ class dm.model.Table extends goog.events.EventTarget
     * table's list of related relations
     * @type {string}
     ###
-		@name_ = name
+		@name = name
 
 		###*
     * @type {Array.<dm.model.TableColumn>}
 		###
-		@columns_ = columns
+		@columns = columns
 
 		###*
 	  * @type {Object.<number, type}
@@ -49,14 +49,14 @@ class dm.model.Table extends goog.events.EventTarget
   * @param {string} name
 	###
 	setName: (name = '') ->
-		@name_ = name
+		@name = name
 		@dispatchEvent 'name-change'
 
 	###*
   * @return {string}
 	###
 	getName: ->
-		@name_
+		@name
 
 	###*
 	* Adds new columns or updates existing
@@ -80,31 +80,31 @@ class dm.model.Table extends goog.events.EventTarget
 		# in case that not
 		if idx?
 			columnByName = @getColumnByName column.name
-			if columnByName? and columnByName isnt @columns_[idx]
+			if columnByName? and columnByName isnt @columns[idx]
 				column.name += '_0'
 
-			@columns_[idx] = column
+			@columns[idx] = column
 		else
 			if @getColumnByName(column.name)? then column.name += '_0'  
-			@columns_.push column
+			@columns.push column
 
 		if @indexes[column.name] then column.indexes = @indexes[column.name]
 
 		@dispatchEvent new dm.model.Table.ColumnsChange column, idx
 		
-		idx ? @columns_.length - 1
+		idx ? @columns.length - 1
 
 	###*
   * @return {Array.<dm.model.TableColumn>} table columns
 	###
 	getColumns: ->
-		@columns_
+		@columns
 	
 	###*
   * @param {!number} idx
 	###
 	removeColumn: (idx) ->
-		goog.array.removeAt @columns_, idx
+		goog.array.removeAt @columns, idx
 		goog.object.remove @indexes, idx
 
 		@dispatchEvent new dm.model.Table.ColumnsChange null, idx
@@ -115,14 +115,14 @@ class dm.model.Table extends goog.events.EventTarget
 	###
 	getColumnById: (idx) ->
 		unless idx? then null
-		@columns_[idx] ? null
+		@columns[idx] ? null
 
 	###*
 	* @param {string} name
   * @return {(dm.model.TableColumn|null)}
 	###
 	getColumnByName: (name) ->
-		return col for col in @columns_ when col.name is name
+		return col for col in @columns when col.name is name
 		return null
 
 	###*
@@ -156,9 +156,9 @@ class dm.model.Table extends goog.events.EventTarget
 	toJSON: ->
 		fks = @getColumnsIdsByIndex dm.model.Table.index.FK
 		# foreign key columns are created by relation
-		columns =  goog.array.filter @columns_, (column, idx) -> idx not in fks
+		columns =  goog.array.filter @columns, (column, idx) -> idx not in fks
 
-		'name': @name_
+		'name': @name
 		'columns': columns
 		'indexes': @indexes
 

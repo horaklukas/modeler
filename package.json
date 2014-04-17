@@ -26,7 +26,8 @@
     "coffee-script": "~1.7.1",
     "mockery": "~1.4.0",
     "grunt-contrib-stylus": "~0.13.2",
-    "supertest": "~0.10.0"
+    "supertest": "~0.10.0",
+    "grunt-reactjsx": "~0.2.4"
   },
   "engines": {
     "node": "0.8.4"

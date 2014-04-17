@@ -9,6 +9,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-este'
   grunt.loadNpmTasks 'grunt-mocha-cli'
+  grunt.loadNpmTasks 'grunt-reactjsx'
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
@@ -41,6 +42,14 @@ module.exports = (grunt) ->
         expand: true,
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
+
+    reactjsx:
+      all:
+        files: [{
+          expand: true,
+          src: ['./public/scripts/dm/dialogs/*.js']
+          ext: '.js'
+        }]
 
     esteTemplates:
       all:
@@ -133,7 +142,7 @@ module.exports = (grunt) ->
           './lib/**/*.coffee'
           './public/scripts/**/*.coffee'
         ] #'<%= coffee.app.files[0].src %>'
-        tasks: ['coffee:app']
+        tasks: ['coffee:app', 'reactjsx:all']
         options:
           livereload: true
 
