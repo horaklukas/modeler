@@ -27,7 +27,8 @@
     "mockery": "~1.4.0",
     "grunt-contrib-stylus": "~0.13.2",
     "supertest": "~0.10.0",
-    "grunt-reactjsx": "~0.2.4"
+    "grunt-reactjsx": "~0.2.4",
+    "grunt-mocha-phantomjs": "~0.4.3"
   },
   "engines": {
     "node": "0.8.4"

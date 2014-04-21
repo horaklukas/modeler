@@ -10,6 +10,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-este'
   grunt.loadNpmTasks 'grunt-mocha-cli'
   grunt.loadNpmTasks 'grunt-reactjsx'
+  grunt.loadNpmTasks 'grunt-mocha-phantomjs'
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
@@ -126,6 +127,11 @@ module.exports = (grunt) ->
       
       src: 'test/unit/**/*Test.coffee'
 
+    mocha_phantomjs:
+      options:
+        'reporter': 'spec',
+      all: ['test/**/*Test.html']
+
     stylus:
       options:
         compile: true
@@ -151,5 +157,6 @@ module.exports = (grunt) ->
           'lib/**/*.coffee'
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
+          'test/unit/**/*Test.html'
         ]
-        tasks: ['coffee:app','test', 'mochacli']
+        tasks: ['coffee:app', 'coffee:test', 'test', 'mocha_phantomjs', 'mochacli']
