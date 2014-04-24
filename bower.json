@@ -3,6 +3,10 @@
   "version": "0.4.4",
   "dependencies": {
     "este-library": "git://github.com/steida/este-library.git",
-    "soyutils": "*"
+    "soyutils": "*",
+    "react": "~0.10.0"
+  },
+  "resolutions": {
+    "react": "~0.10.0"
   }
 }

@@ -1,6 +1,6 @@
-goog.require 'dm.dialogs.TableDialog'
+goog.require 'dm.ui.TableDialog'
 
-global.DB = types: [] 
+{TestUtils} = React.addons
 
 # functin for creating test rows
 createRow = (id = '', name = '', type = '', pk, nn, unq)->
@@ -19,12 +19,23 @@ createRow = (id = '', name = '', type = '', pk, nn, unq)->
 	"</div>"
 
 describe 'class TableDialog', ->
+	props = null
 	tabd = null
+	dialogRoot = null
 
 	before ->
-		tabd = dm.dialogs.TableDialog.getInstance()
+		props = 
+			types:
+				'group1': ['type1g1', 'type2g1', 'type3g1', 'type4g1']
+				'group2': ['type1g2', 'type2g2', 'type3g2', 'type4g2']
 
-	describe 'constructor', ->
+		tabd = TestUtils.renderIntoDocument dm.ui.TableDialog props
+		dialogRoot = TestUtils.findRenderedComponentWithType tabd, Dialog
+
+	it 'should left dialog hidden after render', ->
+		expect(dialogRoot.state).to.have.property 'visible', false
+	
+	describe.skip 'constructor', ->
 		it 'should have private property columns that held columns changes', ->
 			tabd.should.have.property 'columns_'
 			tabd.should.have.deep.property 'columns_.removed', null
@@ -45,35 +56,45 @@ describe 'class TableDialog', ->
 				getColumns: sinon.stub()
 				getName: sinon.stub()
 				getColumnsIdsByIndex: sinon.stub()
+
+			###	
 			faketab = getModel: sinon.stub().returns fakeModel
 			gch = sinon.stub goog.dom, 'getChildren'
 			listen = sinon.stub goog.events, 'listen'
 			svi = sinon.stub tabd, 'setVisible'
 			sva = sinon.stub tabd, 'setValues'
 			sinon.stub tabd, 'setTitle'
+			###
 
 		beforeEach ->
 			fakeModel.getColumns.reset()
 			fakeModel.getName.reset()
+
+			tabd.setState 'visible': false
+			###
 			faketab.getModel.reset()
 			gch.reset()
 			listen.reset()
 			svi.reset()
 			sva.reset()
 			tabd.setTitle.reset()
+			###
 
 		after ->
+			###
 			gch.restore()
 			listen.restore()
 			svi.restore()
 			sva.restore()
 			tabd.setTitle.restore()
+			###
 
-		it 'should only show/hide if table not passed', ->
-			tabd.show true
+		it 'should show dialog', ->
+			fakeModel.getName.returns ''
+			fakeModel.getColumns.returns []
+			tabd.show fakeModel
 
-			svi.should.been.calledOnce
-			faketab.getModel.should.not.been.called
+			expect(dialogRoot.state).to.have.property 'visible', true
 
 		it 'should set first `added` column to list', ->
 			gch.returns []

@@ -48,7 +48,10 @@ module.exports = (grunt) ->
       all:
         files: [{
           expand: true,
-          src: ['./public/scripts/dm/dialogs/*.js']
+          src: [
+            './public/scripts/dm/dialogs/*.js'
+            './public/scripts/dm/ui/*.js'
+          ]
           ext: '.js'
         }]
 
@@ -125,7 +128,7 @@ module.exports = (grunt) ->
         colors: true
         require: ['./test/common.js']
       
-      src: 'test/unit/**/*Test.coffee'
+      src: 'test/unit/lib/**/*Test.coffee'
 
     mocha_phantomjs:
       options:
@@ -159,4 +162,8 @@ module.exports = (grunt) ->
           'test/unit/**/*.coffee'
           'test/unit/**/*Test.html'
         ]
-        tasks: ['coffee:app', 'coffee:test', 'test', 'mocha_phantomjs', 'mochacli']
+        tasks: [
+          'coffee:app', 'reactjsx'
+          'coffee:test'
+          'test', 'mocha_phantomjs', 'mochacli'
+        ]

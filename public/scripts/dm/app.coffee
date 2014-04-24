@@ -5,10 +5,10 @@ goog.require 'dm.model.Relation'
 goog.require 'dm.ui.Table'
 goog.require 'dm.ui.Relation'
 
-goog.require 'dm.dialogs.TableDialog'
+goog.require 'dm.ui.SelectDbDialog'
+goog.require 'dm.ui.TableDialog'
 goog.require 'dm.dialogs.RelationDialog'
 goog.require 'dm.dialogs.LoadModelDialog'
-goog.require 'dm.dialogs.SelectDbDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.model.Table.index'
 goog.require 'dm.ui.Canvas'
@@ -19,8 +19,10 @@ goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
 goog.require 'goog.events'
 
-TableDialog = dm.dialogs.TableDialog types: dmAssets.types
-React.renderComponent TableDialog, goog.dom.getElement 'tableDialog'
+tableDialog = React.renderComponent(
+  dm.ui.TableDialog types: dmAssets.types
+  goog.dom.getElement 'tableDialog'
+)
 
 relationDialog = new dm.dialogs.RelationDialog()
 loadModelDialog = new dm.dialogs.LoadModelDialog()
@@ -35,16 +37,22 @@ mainToolbar = new dm.ui.Toolbar()
 mainToolbar.renderBefore canvasElement
 
 if dmAssets.dbs?
-  selectDbDialog = new dm.dialogs.SelectDbDialog dmAssets.dbs
-  selectDbDialog.show true
+  selectDbDialog = React.renderComponent(
+    dm.ui.SelectDbDialog dbs: dmAssets.dbs
+    goog.dom.getElement 'selectDbDialog'
+  )
 
-  goog.events.listen selectDbDialog, dm.dialogs.SelectDbDialog.EventType.SELECTED, (ev) ->
-    dmAssets.types = ev.assets.types
-    TableDialog.setProps types: ev.assets.types
+  selectDbDialog.setState visible: true
+
+  selectDbDialog.setProps onDatabaseSelect: (db) ->
+    dmAssets.types = db.types
+    tableDialog.setProps types: db.types
     # fill <title> with database name
-    goog.dom.setTextContent goog.dom.getElementsByTagNameAndClass('title')[0], ev.assets.name
+    goog.dom.setTextContent(
+      goog.dom.getElementsByTagNameAndClass('title')[0], db.name
+    )
 
-    mainToolbar.setStatus "#{ev.assets.name} #{ev.assets.version}"
+    mainToolbar.setStatus "#{db.name} #{db.version}"
 else
   mainToolbar.setStatus "#{dmAssets.name} #{dmAssets.version}"
 
@@ -54,7 +62,7 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
 
   if object instanceof dm.ui.Relation then relationDialog.show yes, object
   else if object instanceof dm.ui.Table
-    TableDialog.setState displayed: true, table: model
+    tableDialog.show model
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
   switch ev.objType
@@ -62,7 +70,7 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
       model = new dm.model.Table()
       tab = new dm.ui.Table model, ev.data.x, ev.data.y
       canvas.addTable tab
-      TableDialog.setState displayed: true, table: model
+      tableDialog.show model
     when 'relation'
       rel = new dm.ui.Relation new dm.model.Relation(ev.data.identifying)
       rel.setRelatedTables ev.data.parent, ev.data.child 

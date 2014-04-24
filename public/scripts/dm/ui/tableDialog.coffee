@@ -1,13 +1,12 @@
 `/** @jsx React.DOM */`
 
-goog.provide 'dm.dialogs.TableDialog'
+goog.provide 'dm.ui.TableDialog'
 
 goog.require 'goog.array'
 goog.require 'goog.object'
 
 goog.require 'goog.ui.Dialog'
 goog.require 'goog.ui.Dialog.ButtonSet'
-goog.require 'tmpls.dialogs.createTable'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
 goog.require 'goog.dom.query'
@@ -16,7 +15,22 @@ goog.require 'goog.events'
 goog.require 'goog.string'
 goog.require 'dm.model.Table'
 
-dm.dialogs.TableDialog = React.createClass
+goog.require 'dm.ui.Dialog'
+
+{Dialog} = dm.ui
+
+dm.ui.TableDialog = React.createClass
+  show: (model) ->
+    @setState
+      name: model.getName()
+      columns: model.getColumns() 
+      visible: true
+
+  hide: ->
+    @setState visible: false
+
+  onConfirm: ->
+
   addColumn: ->
     model = @state.table
     model.columns.push {}
@@ -27,35 +41,26 @@ dm.dialogs.TableDialog = React.createClass
     types: {}
     
   getInitialState: ->
-    table: name: null, columns: []
-    displayed: false
+    name: null # table name
+    columns: [] # table columns
+    visible: false
 
   render: ->
-    title = "Table \"#{@state.table.name or 'unnamed'}\""
-    styles = 
-      left: 153
-      top: 60
-      display: if @state.displayed then 'block' else 'none'
+    title = "Table \"#{@state.name or 'unnamed'}\""
+    show = @state.visible
 
     `(
-    <div className="modal-dialog dialog" style={styles}>
-      <div className="title">{title}</div>
-      <div className="content">
-        <div className="row">
-          <span><label>Table name</label></span>
-          <span><input ref="name" defaultValue={this.state.table.name}/></span>
-        </div>
+    <Dialog title={title} onConfirm={this.onConfirm} visible={show}>
+      <div className="row">
+        <span><label>Table name</label></span>
+        <span><input ref="name" defaultValue={this.state.name}/></span>
+      </div>
 
-        <strong>Table columns</strong>
-        <ColumnsList columns={this.state.table.columns} types={this.props.types} />
-        <button onClick={this.addColumn}>Add new column</button><br />
-        <strong>* <small>foreign key columns can change only name</small></strong>
-      </div>
-      <div className="buttons">
-        <button type="button">Ok</button>
-        <button type="button">Cancel</button>
-      </div>
-    </div>
+      <strong>Table columns</strong>
+      <ColumnsList columns={this.state.columns} types={this.props.types} />
+      <button onClick={this.addColumn}>Add new column</button><br />
+      <strong>* <small>foreign key columns can change only name</small></strong>
+    </Dialog>
     )`
 
 ColumnsList = React.createClass
@@ -65,76 +70,70 @@ ColumnsList = React.createClass
       `(<span>{title}</span>)`
 
     columns = goog.array.map @props.columns, (col, index) ->
-      `(
-      <Column id={index} name={col.name} types={this.props.types}
-        type={col.type} isPk={col.isPk} isFk={col.isFk} 
-        isNotNull={col.isNotNull} isUnique={col.isUnique} />
-      )`
+      `( <Column key={index} types={this.props.types} data={col} /> )`
 
     # last row is empty   
     `(
     <div>
       <div className="row head">{head}</div>
       {columns}
-
-      <Column types={this.props.types} />
+      { /* empty row for adding */ }
+      <Column types={this.props.types} data={{}} />
     </div>
     )`
+
 Column = React.createClass
   render: ->
+    {name, isPk, isFk, isUnique, isNotNull} = @props.data
+
     typesList = `(<TypesList types={this.props.types} 
-      disabled={!!this.props.isFk} selected={this.props.type} />)`
+      disabled={!!isFk} selected={this.props.type} />)`
 
     `(
-    <div className="row" name={this.props.id ? this.props.id : null} >
+    <div className="row" name={this.key ? this.key : null} >
       <span>
-        <strong>{this.props.isFk == true ? '*' : '  ' }</strong>
+        <strong>{isFk == true ? '*' : '  ' }</strong>
         <input type="text" className="name" value={name ? name : null} />
       </span>
       <span>{typesList}</span>
       <span>
-        <input type="checkbox" className="primary" checked={this.props.isPk} 
-          disabled={this.props.isFk} />
+        <input type="checkbox" className="primary" checked={isPk} 
+          disabled={isFk} />
       </span>
       <span>
-        <input type="checkbox" className="notnull" checked={this.props.isNotNull} disabled={this.props.isFk} />
+        <input type="checkbox" className="notnull" checked={isNotNull} disabled={isFk} />
       </span>
       <span>
-        <input type="checkbox" className="unique" checked={this.props.isUnique}
-          disabled={this.props.isFk} />
+        <input type="checkbox" className="unique" checked={isUnique}
+          disabled={isFk} />
       </span>
       <span>
-        <button className="delete" disabled={this.props.ifFk} >Del</button>
+        <button className="delete" disabled={isFk} >Del</button>
       </span>
     </div>
     )`
 
 TypesList = React.createClass
+  createType: (type, idx) ->
+    key = "#{type}-#{idx}"
+
+    `( <option key={key} value={type}>{type}</option> )`
+
+  createGroup: (groupName, groupTypes) ->
+    groupTypes = goog.array.map groupTypes, @createType
+
+    `( <optgroup label={groupName}>{groupTypes}</optgroup> )`
+
   getDefaultProps: ->
     disabled: false, selected: null
 
   render: ->
-    list = (for group, types of @props.types
-      typesElements = goog.array.map types, ((type, idx) ->
-        `(
-        <option value={type}>
-          {type}
-        </option>
-        )`
-        ).bind this
+    list = (@createGroup group, types for group, types of @props.types )
+    {disabled, selected} = @props
 
-      `(
-      <optgroup label={group}>
-        {typesElements}
-      </optgroup>
-      )`
-    )
+    `( <select disabled={disabled} value={selected}>{list}</select> )`
 
-    `(
-    <select disabled={this.props.disabled} value={this.props.selected}>
-      {list}
-    </select>
-    )`
+goog.provide 'dm.dialogs.TableDialogBAKUP'
 
 class dm.dialogs.TableDialogBAKUP extends goog.ui.Dialog
   @EventType =

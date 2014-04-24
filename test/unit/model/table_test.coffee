@@ -1,6 +1,6 @@
 goog.require 'dm.model.Table'
 
-describe 'class model.Table', ->
+describe.skip 'class model.Table', ->
 	tab = null
 	spy = sinon.spy()
 
