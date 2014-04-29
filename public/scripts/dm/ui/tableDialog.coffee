@@ -20,22 +20,110 @@ goog.require 'dm.ui.Dialog'
 {Dialog} = dm.ui
 
 dm.ui.TableDialog = React.createClass
+  _originalModel: null
+  removed: []
+  changed: []
+
   show: (model) ->
+    @_originalModel = model
+
+    columns = model.getColumns() ? []
+    uniqs = model.getColumnsIdsByIndex dm.model.Table.index.UNIQUE
+    pks = model.getColumnsIdsByIndex dm.model.Table.index.PK
+    fks = model.getColumnsIdsByIndex dm.model.Table.index.FK
+
+    for col, id in columns
+      if uniqs? and id in uniqs then columns[id].isUnique = true 
+      if pks? and id in pks then columns[id].isPk = true
+      if fks? and id in fks then columns[id].isFk = true
+
     @setState
       name: model.getName()
-      columns: model.getColumns() 
+      columns: columns
       visible: true
+
+    # one more empty row for adding
+    @addColumn()
 
   hide: ->
     @setState visible: false
 
   onConfirm: ->
+    tableName = @refs.tableName.getDOMNode().value
+    
+    if tableName is ''
+      @setState errorState: 'Table name have to be filled'
+      return false
+
+    @_originalModel.setName @state.name
+
+    for col in @state.columns
+      {id} = col
+
+      if id in @removed
+        @_originalModel.removeColumn id
+      else
+        # new or updated columns
+        model = {name: col.name, type: col.type, isNotNull: col.isNotNull}
+
+        # new column has not id and column name is filled
+        isNewColumn = not id? and col.name
+        isChangedColumn = id in @changed
+
+        unless isNewColumn or isChangedColumn then continue
+        
+        id = @_originalModel.setColumn model, id
+
+        # index can be deleted (third param) only when column is changing, not
+        # for new columns
+        if isChangedColumn or isNewColumn and col.isUnique is true
+          @_originalModel.setIndex(
+            id, dm.model.Table.index.UNIQUE,
+            isChangedColumn and not col.isUnique
+          )
+        
+        if isChangedColumn or isNewColumn and col.isPk is true
+          @_originalModel.setIndex(
+            id, dm.model.Table.index.PK
+            isChangedColumn and not col.isPk
+          )
+
+    #@_originalModel = null
+
+  nameChange: (e) ->
+    @setState name: e.target.value
 
   addColumn: ->
-    model = @state.table
-    model.columns.push {}
+    columns = @state.columns
+    columns.push {name: null, type: null, isNotNull: null}
     
-    @setState table model
+    @setState columns: columns
+
+  ###*
+  * Add column id to the list of those that should be removed
+  * @param {string} index Index of column that should be removed at columns 
+  * list 
+  ###
+  removeColumn: (index) ->
+    {columns} = @state
+    column = columns[index]
+    
+    if column.id then @removed.push column.id
+
+    goog.array.removeAt columns, index
+    @setState columns: columns
+
+  changeColumn: (index, name, value) ->
+    {columns} = @state
+    column = columns[index]
+
+    # set new value of changed column property
+    column[name] = value
+    columns[index] = column
+
+    if column.id then @changed.push column.id
+
+    @setState columns: columns
 
   getDefaultProps: ->
     types: {}
@@ -44,6 +132,7 @@ dm.ui.TableDialog = React.createClass
     name: null # table name
     columns: [] # table columns
     visible: false
+    errorState: ''
 
   render: ->
     title = "Table \"#{@state.name or 'unnamed'}\""
@@ -53,62 +142,85 @@ dm.ui.TableDialog = React.createClass
     <Dialog title={title} onConfirm={this.onConfirm} visible={show}>
       <div className="row">
         <span><label>Table name</label></span>
-        <span><input ref="name" defaultValue={this.state.name}/></span>
+        <span>
+          <input ref="tableName" value={this.state.name} 
+            onChange={this.nameChange} />
+        </span>
       </div>
 
       <strong>Table columns</strong>
-      <ColumnsList columns={this.state.columns} types={this.props.types} />
+      <ColumnsList columns={this.state.columns} types={this.props.types} 
+        onColumnRemove={this.removeColumn}
+        onColumnChange={this.changeColumn} />
+
       <button onClick={this.addColumn}>Add new column</button><br />
       <strong>* <small>foreign key columns can change only name</small></strong>
+
+      <div className="info error">{this.state.errorState}</div>
     </Dialog>
     )`
 
 ColumnsList = React.createClass
+  createColumn: (col, index) ->
+    `( <Column key={index} types={this.props.types} data={col}
+          onRemove={this.props.onColumnRemove} 
+          onChange={this.props.onColumnChange} /> )`
+
   render: ->
     titles = ['Name', 'Type', 'PK', 'Not NULL', 'Unique', '']
     head = goog.array.map titles, (title) ->
       `(<span>{title}</span>)`
 
-    columns = goog.array.map @props.columns, (col, index) ->
-      `( <Column key={index} types={this.props.types} data={col} /> )`
+    columns = goog.array.map @props.columns, @createColumn, this
 
     # last row is empty   
     `(
     <div>
       <div className="row head">{head}</div>
       {columns}
-      { /* empty row for adding */ }
-      <Column types={this.props.types} data={{}} />
     </div>
     )`
 
 Column = React.createClass
-  render: ->
-    {name, isPk, isFk, isUnique, isNotNull} = @props.data
+  handleRemove: ->
+    @props.onRemove @props.key
 
-    typesList = `(<TypesList types={this.props.types} 
-      disabled={!!isFk} selected={this.props.type} />)`
+  handleChange: (e) ->
+    field = e.target
+
+    classes = goog.dom.classes.get field
+    #value = if type is 'checkbox' then field.checked else field.checked
+    value = field.checked ? field.value
+
+    @props.onChange @props.key, classes.join(''), value 
+
+  render: ->
+    {name, type, isPk, isFk, isUnique, isNotNull} = @props.data
+
+    typesList = `(<TypesList types={this.props.types} disabled={isFk}
+      selected={type} onTypeChange={this.handleChange} />)`
 
     `(
-    <div className="row" name={this.key ? this.key : null} >
+    <div className="row tableColumn" >
       <span>
         <strong>{isFk == true ? '*' : '  ' }</strong>
-        <input type="text" className="name" value={name ? name : null} />
+        <input type="text" className="name" defaultValue={name ? name : null} 
+          onChange={this.handleChange} />
       </span>
       <span>{typesList}</span>
       <span>
-        <input type="checkbox" className="primary" checked={isPk} 
-          disabled={isFk} />
+        <input type="checkbox" className="isPk" defaultChecked={isPk} 
+          disabled={isFk} onChange={this.handleChange} />
       </span>
       <span>
-        <input type="checkbox" className="notnull" checked={isNotNull} disabled={isFk} />
+        <input type="checkbox" className="isNotNull" disabled={isFk} defaultChecked={isNotNull} onChange={this.handleChange} />
       </span>
       <span>
-        <input type="checkbox" className="unique" checked={isUnique}
-          disabled={isFk} />
+        <input type="checkbox" className="isUnique" defaultChecked={isUnique}
+          disabled={isFk} onChange={this.handleChange} />
       </span>
       <span>
-        <button className="delete" disabled={isFk} >Del</button>
+        <button className="delete" disabled={isFk} onClick={this.handleRemove}>Del</button>
       </span>
     </div>
     )`
@@ -131,7 +243,8 @@ TypesList = React.createClass
     list = (@createGroup group, types for group, types of @props.types )
     {disabled, selected} = @props
 
-    `( <select disabled={disabled} value={selected}>{list}</select> )`
+    `( <select className="type" disabled={disabled} defaultValue={selected} 
+        onChange={this.onTypeChange}>{list}</select> )`
 
 goog.provide 'dm.dialogs.TableDialogBAKUP'
 
@@ -318,6 +431,7 @@ class dm.dialogs.TableDialogBAKUP extends goog.ui.Dialog
       if not colData.model.name? or colData.model.name is '' then continue
         
       colId = model.setColumn colData.model
+      
       if colData.isUnique then model.setIndex colId, dm.model.Table.index.UNIQUE
       if colData.isPk then model.setIndex colId, dm.model.Table.index.PK
 

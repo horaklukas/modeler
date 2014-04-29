@@ -15,7 +15,10 @@
   <script src="../../../bower_components/closure-library/closure/goog/base.js"></script>
   <script src="../../../public/scripts/dm/deps.js"></script>
   <script>
-    mocha.setup('bdd');
+    mocha.setup({
+      ui: 'bdd',
+      bail: true
+    });
     expect = chai.expect;
     chai.should();
     

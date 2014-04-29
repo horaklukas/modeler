@@ -5,6 +5,7 @@ goog.require 'goog.events.EventTarget'
 goog.require 'goog.events.Event'
 goog.require 'goog.array'
 goog.require 'goog.object'
+goog.require 'goog.ui.IdGenerator'
 
 ###*
 * @typedef {{name:string, type:string, isNotNull:boolean}}
@@ -72,27 +73,32 @@ class dm.model.Table extends goog.events.EventTarget
 	* Add new or update existing column 
 	* 
   * @param {dm.model.TableColumn} column
-	* @param {number=} idx
+	* @param {number=} id
 	* @return {number} id of new or updated column
 	###
-	setColumn: (column, idx) ->
+	setColumn: (column, id) ->
 		# before add (or update) column check if its name is unique and add suffix
 		# in case that not
-		if idx?
+		if id?
 			columnByName = @getColumnByName column.name
-			if columnByName? and columnByName isnt @columns[idx]
+			if columnByName? and columnByName isnt @columns[id]
 				column.name += '_0'
 
-			@columns[idx] = column
+			@columns[id] = column
 		else
 			if @getColumnByName(column.name)? then column.name += '_0'  
+
+			# generate unique id for a new column
+			column.id = goog.ui.IdGenerator.getInstance().getNextUniqueId()
 			@columns.push column
 
+		# WHAT THE FUCK IS THAT
 		if @indexes[column.name] then column.indexes = @indexes[column.name]
 
-		@dispatchEvent new dm.model.Table.ColumnsChange column, idx
+		# When React will be in full production, this will be not necessary anymore
+		# @dispatchEvent new dm.model.Table.ColumnsChange column, idx
 		
-		idx ? @columns.length - 1
+		id ? column.id
 
 	###*
   * @return {Array.<dm.model.TableColumn>} table columns
@@ -101,21 +107,21 @@ class dm.model.Table extends goog.events.EventTarget
 		@columns
 	
 	###*
-  * @param {!number} idx
+  * @param {!string} id Id of column to remove
 	###
-	removeColumn: (idx) ->
-		goog.array.removeAt @columns, idx
-		goog.object.remove @indexes, idx
+	removeColumn: (id) ->
+		goog.object.remove @columns, id
+		goog.object.remove @indexes, id
 
 		@dispatchEvent new dm.model.Table.ColumnsChange null, idx
 
 	###*
-  * @param {string=} idx
+  * @param {string=} id
   * @return {?dm.model.TableColumn}
 	###
-	getColumnById: (idx) ->
-		unless idx? then null
-		@columns[idx] ? null
+	getColumnById: (id) ->
+		unless id? then null
+		@columns[id] ? null
 
 	###*
 	* @param {string} name
@@ -126,7 +132,7 @@ class dm.model.Table extends goog.events.EventTarget
 		return null
 
 	###*
-  * @param {number} id
+  * @param {string} id
   * @param {dm.model.Table.index} type
   * @param {boolean} del If true then column will be deleted, else upserted
 	###
