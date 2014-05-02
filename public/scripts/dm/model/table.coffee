@@ -37,7 +37,7 @@ class dm.model.Table extends goog.events.EventTarget
 		@name = name
 
 		###*
-    * @type {Array.<dm.model.TableColumn>}
+    * @type {Object.<string, dm.model.TableColumn>}
 		###
 		@columns = columns
 
@@ -85,26 +85,28 @@ class dm.model.Table extends goog.events.EventTarget
 				column.name += '_0'
 
 			@columns[id] = column
+			newColumn = false
 		else
 			if @getColumnByName(column.name)? then column.name += '_0'  
 
 			# generate unique id for a new column
-			column.id = goog.ui.IdGenerator.getInstance().getNextUniqueId()
-			@columns.push column
+			id = goog.ui.IdGenerator.getInstance().getNextUniqueId()
+			@columns[id] = column
+			newColumn = true
 
 		# WHAT THE FUCK IS THAT
 		if @indexes[column.name] then column.indexes = @indexes[column.name]
 
 		# When React will be in full production, this will be not necessary anymore
-		# @dispatchEvent new dm.model.Table.ColumnsChange column, idx
+		@dispatchEvent new dm.model.Table.ColumnsChange column, id, newColumn
 		
-		id ? column.id
+		id
 
 	###*
-  * @return {Array.<dm.model.TableColumn>} table columns
+  * @return {Object.<string, dm.model.TableColumn>} table columns
 	###
 	getColumns: ->
-		@columns
+		goog.object.clone @columns
 	
 	###*
   * @param {!string} id Id of column to remove
@@ -113,7 +115,7 @@ class dm.model.Table extends goog.events.EventTarget
 		goog.object.remove @columns, id
 		goog.object.remove @indexes, id
 
-		@dispatchEvent new dm.model.Table.ColumnsChange null, idx
+		@dispatchEvent new dm.model.Table.ColumnsChange null, id
 
 	###*
   * @param {string=} id
@@ -128,7 +130,7 @@ class dm.model.Table extends goog.events.EventTarget
   * @return {(dm.model.TableColumn|null)}
 	###
 	getColumnByName: (name) ->
-		return col for col in @columns when col.name is name
+		return col for id, col of @columns when col.name is name
 		return null
 
 	###*
@@ -154,7 +156,7 @@ class dm.model.Table extends goog.events.EventTarget
   * @return {Array.<number>} indexes of columns that have passed index
 	###
 	getColumnsIdsByIndex: (index) ->
-		Number(id) for id, idx of @indexes when goog.array.contains(idx, index)
+		id for id, idx of @indexes when goog.array.contains(idx, index)
 
 	###*
   * @return {Object} table model at JSON representation
@@ -171,14 +173,15 @@ class dm.model.Table extends goog.events.EventTarget
 class dm.model.Table.ColumnsChange extends goog.events.Event
 	###*
   * @param {?dm.model.TableColumn} column
-  * @param {number=} idx
+  * @param {number=} id
+  * @param {boolean} newColumn
 	###
-	constructor: (column, idx) ->
-		if idx?
-			eventName = if column? then 'column-change' else 'column-delete' 
-		else
+	constructor: (column, id, newColumn = false) ->
+		if newColumn
 			eventName = 'column-add'
+		else
+			eventName = if column? then 'column-change' else 'column-delete' 
 
 		super eventName
 
-		@column = data: column,	index: idx
+		@column = data: column,	id: id

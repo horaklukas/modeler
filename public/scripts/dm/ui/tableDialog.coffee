@@ -27,20 +27,28 @@ dm.ui.TableDialog = React.createClass
   show: (model) ->
     @_originalModel = model
 
-    columns = model.getColumns() ? []
+    @removed = []
+    @changed = []
+
+    columns = []
     uniqs = model.getColumnsIdsByIndex dm.model.Table.index.UNIQUE
     pks = model.getColumnsIdsByIndex dm.model.Table.index.PK
     fks = model.getColumnsIdsByIndex dm.model.Table.index.FK
 
-    for col, id in columns
-      if uniqs? and id in uniqs then columns[id].isUnique = true 
-      if pks? and id in pks then columns[id].isPk = true
-      if fks? and id in fks then columns[id].isFk = true
+    columns = (for id, col of model.getColumns()
+      id: id
+      name: col.name
+      type: col.type
+      isNotNull: col.isNotNull ? false
+      isUnique: uniqs? and id in uniqs
+      isPk: pks? and id in pks
+      isFk: fks? and id in fks
+    )
 
-    @setState
+    @setState 
+      visible: true    
       name: model.getName()
       columns: columns
-      visible: true
 
     # one more empty row for adding
     @addColumn()
@@ -56,37 +64,35 @@ dm.ui.TableDialog = React.createClass
       return false
 
     @_originalModel.setName @state.name
+    @_originalModel.removeColumn id for id in @removed
 
     for col in @state.columns
       {id} = col
+      
+      # new or updated columns
+      model = {name: col.name, type: col.type, isNotNull: !!col.isNotNull}
 
-      if id in @removed
-        @_originalModel.removeColumn id
-      else
-        # new or updated columns
-        model = {name: col.name, type: col.type, isNotNull: col.isNotNull}
+      # new column has not id and column name is filled
+      isNewColumn = not id? and col.name
+      isChangedColumn = id in @changed
 
-        # new column has not id and column name is filled
-        isNewColumn = not id? and col.name
-        isChangedColumn = id in @changed
+      unless isNewColumn or isChangedColumn then continue
+      
+      id = @_originalModel.setColumn model, id
 
-        unless isNewColumn or isChangedColumn then continue
-        
-        id = @_originalModel.setColumn model, id
-
-        # index can be deleted (third param) only when column is changing, not
-        # for new columns
-        if isChangedColumn or isNewColumn and col.isUnique is true
-          @_originalModel.setIndex(
-            id, dm.model.Table.index.UNIQUE,
-            isChangedColumn and not col.isUnique
-          )
-        
-        if isChangedColumn or isNewColumn and col.isPk is true
-          @_originalModel.setIndex(
-            id, dm.model.Table.index.PK
-            isChangedColumn and not col.isPk
-          )
+      # index can be deleted (third param) only when column is changing, not
+      # for new columns
+      if isChangedColumn or isNewColumn and col.isUnique is true
+        @_originalModel.setIndex(
+          id, dm.model.Table.index.UNIQUE,
+          isChangedColumn and not col.isUnique
+        )
+      
+      if isChangedColumn or isNewColumn and col.isPk is true
+        @_originalModel.setIndex(
+          id, dm.model.Table.index.PK
+          isChangedColumn and not col.isPk
+        )
 
     #@_originalModel = null
 
@@ -190,7 +196,7 @@ Column = React.createClass
 
     classes = goog.dom.classes.get field
     #value = if type is 'checkbox' then field.checked else field.checked
-    value = field.checked ? field.value
+    value = if field.type is 'checkbox' then field.checked else field.value
 
     @props.onChange @props.key, classes.join(''), value 
 
@@ -204,23 +210,23 @@ Column = React.createClass
     <div className="row tableColumn" >
       <span>
         <strong>{isFk == true ? '*' : '  ' }</strong>
-        <input type="text" className="name" defaultValue={name ? name : null} 
+        <input type="text" className="name" value={name ? name : ''} 
           onChange={this.handleChange} />
       </span>
       <span>{typesList}</span>
       <span>
-        <input type="checkbox" className="isPk" defaultChecked={isPk} 
+        <input type="checkbox" className="isPk" checked={isPk ? true : false} 
           disabled={isFk} onChange={this.handleChange} />
       </span>
       <span>
-        <input type="checkbox" className="isNotNull" disabled={isFk} defaultChecked={isNotNull} onChange={this.handleChange} />
+        <input type="checkbox" className="isNotNull" disabled={isFk ? true : false} checked={isNotNull} onChange={this.handleChange} />
       </span>
       <span>
-        <input type="checkbox" className="isUnique" defaultChecked={isUnique}
+        <input type="checkbox" className="isUnique" checked={isUnique ? true : false}
           disabled={isFk} onChange={this.handleChange} />
       </span>
       <span>
-        <button className="delete" disabled={isFk} onClick={this.handleRemove}>Del</button>
+        <button className="delete" disabled={isFk ? true : false} onClick={this.handleRemove}>Del</button>
       </span>
     </div>
     )`
@@ -242,9 +248,10 @@ TypesList = React.createClass
   render: ->
     list = (@createGroup group, types for group, types of @props.types )
     {disabled, selected} = @props
+    selected ?= null
 
-    `( <select className="type" disabled={disabled} defaultValue={selected} 
-        onChange={this.onTypeChange}>{list}</select> )`
+    `( <select className="type" disabled={disabled} value={selected} 
+        onChange={this.props.onTypeChange}>{list}</select> )`
 
 goog.provide 'dm.dialogs.TableDialogBAKUP'
 

@@ -283,17 +283,19 @@ describe.skip 'class model.Table', ->
 
 describe 'class ColumnsChange', ->
 	describe 'constructor', ->
-		it 'should be `column-add` type if passed only column, not index', ->
-			ev = new dm.model.Table.ColumnsChange 'column'
+		it 'should be `column-add` type if passed true as a third param', ->
+			ev = new dm.model.Table.ColumnsChange 'column', 'id1', true
 
 			ev.should.have.property 'type', 'column-add'
 
-		it 'should be `column-change` type if passed column and index', ->
-			ev = new dm.model.Table.ColumnsChange 'column', 3
+		it 'should be `column-change` type if passed false as a third param', ->
+			ev = new dm.model.Table.ColumnsChange 'column', 'id1', false
+			ev.should.have.property 'type', 'column-change'
 
+			ev = new dm.model.Table.ColumnsChange 'column', 'id3'
 			ev.should.have.property 'type', 'column-change'
 			
-		it 'should be `column-delete` type if passed only index, not column', ->
-			ev = new dm.model.Table.ColumnsChange null, 4
+		it 'should be `column-delete` type if column not passed', ->
+			ev = new dm.model.Table.ColumnsChange null, 'id2'
 
 			ev.should.have.property 'type', 'column-delete'

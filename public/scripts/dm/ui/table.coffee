@@ -100,14 +100,14 @@ class dm.ui.Table extends goog.ui.Component
 			@setName ev.target.getName()
 		
 		goog.events.listen model, 'column-change', (ev) =>
-			@updateColumn ev.column.index, ev.column.data
+			@updateColumn ev.column.id, ev.column.data
 		
 		goog.events.listen model, 'column-add', (ev) =>
-			@addColumn ev.column.data
+			@addColumn ev.column.id, ev.column.data
 			@dragger.setLimits @getDragLimits()
 		
 		goog.events.listen model, 'column-delete', (ev) =>
-			@removeColumn ev.column.index
+			@removeColumn ev.column.id
 			@dragger.setLimits @getDragLimits()
 
 	###*
@@ -176,24 +176,27 @@ class dm.ui.Table extends goog.ui.Component
 	###
 
 	###*
+  * @param {string} id
   * @param {dm.model.TableColumn} column
 	###
-	addColumn: (column) ->
-		@body_.innerHTML += tmpls.model.tabColumn col: column
+	addColumn: (id, column) ->
+		@body_.innerHTML += tmpls.model.tabColumn id: id, col: column
 
 	###*
-	* @param {number} index
+	* @param {string} id
 	* @param {dm.model.TableColumn} newColumn
 	###
-	updateColumn: (index, column) ->
-		oldColumn = goog.dom.getElementsByClass('column', @body_)[index]
-		newColumn = goog.soy.renderAsElement tmpls.model.tabColumn, col: column
+	updateColumn: (id, column) ->
+		oldColumn = goog.dom.query("[name=#{id}]", @body_)[0]
+		newColumn = goog.soy.renderAsElement tmpls.model.tabColumn, {
+			id: id, col: column
+		}
 
 		goog.dom.replaceNode newColumn, oldColumn
 
 	###*
-  * @param {number} index
+  * @param {string} id
 	###
-	removeColumn: (index) ->
-		column = goog.dom.getElementsByClass('column', @body_)[index]
+	removeColumn: (id) ->
+		column = goog.dom.query("[name=#{id}]", @body_)[0]
 		goog.dom.removeNode column

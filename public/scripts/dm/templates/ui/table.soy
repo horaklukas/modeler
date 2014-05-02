@@ -22,18 +22,20 @@
  * @param cols
  */
 {template .tabColumns}
-	{foreach $col in $cols}
+	{foreach $colId in keys($cols)}
 		{call .tabColumn}
-			{param col: $col /}
+			{param id: $colId /}
+			{param col: $cols[$colId] /}
 		{/call}
 	{/foreach}
 {/template}
 
 /**
+ * @param id
  * @param col
  */
 {template .tabColumn}
-<div class="column">
+<div class="column" name="{$id}">
 	<span>{$col.name}</span>
 	{if $col.isPk}<span class="idx">PK</span>{/if}
 	{if $col.indexes}

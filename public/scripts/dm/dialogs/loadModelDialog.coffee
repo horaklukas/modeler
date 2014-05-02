@@ -6,7 +6,7 @@ goog.require 'goog.events'
 goog.require 'goog.events.Event'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
-goog.require 'tmpls.dialogs.loadModel'
+#goog.require 'tmpls.dialogs.loadModel'
 
 class dm.dialogs.LoadModelDialog extends goog.ui.Dialog
 	@EventType =

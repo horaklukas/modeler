@@ -20,12 +20,12 @@ goog.require 'goog.dom.classes'
 goog.require 'goog.events'
 
 tableDialog = React.renderComponent(
-  dm.ui.TableDialog types: dmAssets.types
+  dm.ui.TableDialog(types: dmAssets.types)
   goog.dom.getElement 'tableDialog'
 )
 
-relationDialog = new dm.dialogs.RelationDialog()
-loadModelDialog = new dm.dialogs.LoadModelDialog()
+#relationDialog = new dm.dialogs.RelationDialog()
+#loadModelDialog = new dm.dialogs.LoadModelDialog()
 
 actualModel = new dm.model.Model 'Model1' 
 
@@ -110,9 +110,10 @@ columnCoercion = (value) ->
   else if goog.string.isNumeric value then goog.string.toNumber value
   else value
 
-goog.events.listen loadModelDialog, dm.dialogs.LoadModelDialog.EventType.CONFIRM, (ev) ->
-  json = (`/** @type {Object} */`) ev.model
 
+#goog.events.listen loadModelDialog, dm.dialogs.LoadModelDialog.EventType.CONFIRM, (ev) ->
+#  json = (`/** @type {Object} */`) ev.model
+###
   actualModel = new dm.model.Model json.name
 
   for table in json.tables
@@ -139,6 +140,7 @@ goog.events.listen loadModelDialog, dm.dialogs.LoadModelDialog.EventType.CONFIRM
       actualModel.getTableIdByName relation.tables.parent
       actualModel.getTableIdByName relation.tables.child
     )
+###
 
 ###*
 * @param {dm.model.Table} model
@@ -167,6 +169,7 @@ dm.addRelation = (model, parentId, childId) ->
 
 #dm.getActualModel = ->
 # actualModel
+
 #goog.events.listen tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
 #   dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
 

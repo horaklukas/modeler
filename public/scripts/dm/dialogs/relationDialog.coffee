@@ -2,9 +2,9 @@ goog.provide 'dm.dialogs.RelationDialog'
 
 goog.require 'goog.ui.Dialog'
 goog.require 'goog.ui.Dialog.ButtonSet'
-goog.require 'tmpls.dialogs.createRelation'
+#goog.require 'tmpls.dialogs.createRelation'
 goog.require 'goog.dom'
-goog.require 'goog.soy'
+#goog.require 'goog.soy'
 goog.require 'goog.string'
 goog.require 'goog.events'
 

@@ -54,7 +54,7 @@ module.exports = (grunt) ->
           ]
           ext: '.js'
         }]
-
+    
     esteTemplates:
       all:
         src: './public/scripts/dm/templates/**/*.soy'
@@ -67,7 +67,7 @@ module.exports = (grunt) ->
           prefix: '../../../../'
           root: [
             'bower_components/closure-library'
-            'bower_components/closure-templates'
+            'public/scripts/lib/soyutils'
             'bower_components/este-library/este/thirdparty'
             'public/scripts/dm'
           ]
@@ -152,8 +152,6 @@ module.exports = (grunt) ->
           './public/scripts/**/*.coffee'
         ] #'<%= coffee.app.files[0].src %>'
         tasks: ['coffee:app', 'reactjsx:all']
-        options:
-          livereload: true
 
       test:
         files: [
@@ -167,3 +165,6 @@ module.exports = (grunt) ->
           'coffee:test'
           'test', 'mocha_phantomjs', 'mochacli'
         ]
+        
+        options:
+          livereload: true
