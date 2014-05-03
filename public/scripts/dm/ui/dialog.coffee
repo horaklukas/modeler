@@ -3,6 +3,7 @@
 goog.provide 'dm.ui.Dialog'
 
 goog.require 'goog.dom'
+goog.require 'goog.style'
 
 dm.ui.Dialog = React.createClass
   statics:
@@ -46,8 +47,21 @@ dm.ui.Dialog = React.createClass
   componentWillReceiveProps: (props) ->
     if props.visible? then @setState visible: props.visible
 
+  componentDidUpdate: (prevProps, prevState) ->
+    if prevState.visible is true or @state.visible is false then return
+
+    dialogElement = goog.dom.getElementByClass 'dialog', @getDOMNode()
+    dialogSize = goog.style.getSize dialogElement
+    viewSize = goog.dom.getViewportSize()
+
+    @setState 
+      top: (viewSize.height / 2) - (dialogSize.height / 2)
+      left: (viewSize.width / 2) - (dialogSize.width / 2)
+
   getInitialState: ->
     visible: false
+    top: 0
+    left: 0
 
   getDefaultProps: ->
     title: ''
@@ -63,7 +77,9 @@ dm.ui.Dialog = React.createClass
 
     bgStyles = width: w, height: h
 
-    dialogStyles = left: 153, top: 60
+    dialogStyles = 
+      top: @state.top
+      left: @state.left
 
     `(
     <div className="dialog-container" style={containerStyles} >
