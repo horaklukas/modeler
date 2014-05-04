@@ -4,16 +4,18 @@ goog.provide 'dm.ui.TableDialog'
 
 goog.require 'goog.array'
 goog.require 'goog.object'
+goog.require 'goog.dom.classes'
 
+###
 goog.require 'goog.ui.Dialog'
 goog.require 'goog.ui.Dialog.ButtonSet'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
-goog.require 'goog.dom.query'
 goog.require 'goog.soy'
 goog.require 'goog.events'
 goog.require 'goog.string'
 goog.require 'dm.model.Table'
+###
 
 goog.require 'dm.ui.Dialog'
 
@@ -21,8 +23,8 @@ goog.require 'dm.ui.Dialog'
 
 dm.ui.TableDialog = React.createClass
   _originalModel: null
-  removed: []
-  changed: []
+  removed: null
+  changed: null
 
   show: (model) ->
     @_originalModel = model
@@ -252,8 +254,9 @@ TypesList = React.createClass
 
     `( <select className="type" disabled={disabled} value={selected} 
         onChange={this.props.onTypeChange}>{list}</select> )`
-
+`/*
 goog.provide 'dm.dialogs.TableDialogBAKUP'
+
 
 class dm.dialogs.TableDialogBAKUP extends goog.ui.Dialog
   @EventType =
@@ -300,7 +303,7 @@ class dm.dialogs.TableDialogBAKUP extends goog.ui.Dialog
       columnsCount = model.getColumns().length
 
       @columns_ = 
-        # prepared empty row is counted as the first `added`
+        # prepared empty row is counted as the first added
         removed: [], updated: [], added: [columnsCount], count: columnsCount
 
       @setValues model
@@ -381,7 +384,7 @@ class dm.dialogs.TableDialogBAKUP extends goog.ui.Dialog
     }
 
   ###*
-  * Add new empty `column` row to the end of dialog
+  * Add new empty column row to the end of dialog
   *
   * @param {dm.model.TableColumn} column
   ###
@@ -469,3 +472,4 @@ class dm.dialogs.TableDialog.Confirm extends goog.events.Event
 * @type {Array.<Object>}
 ###
 #@tableColumns = columns
+*/`

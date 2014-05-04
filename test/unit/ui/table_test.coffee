@@ -171,7 +171,7 @@ describe 'class Table', ->
 
 			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
 
-	describe.skip 'method updateColumn', ->
+	describe 'method updateColumn', ->
 		before ->
 			tab = new dm.ui.Table fakeModel
 
@@ -195,11 +195,11 @@ describe 'class Table', ->
 			expect(tab).to.have.deep.property 'body_.childNodes[2]'
 			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col4'
 
-			tab.updateColumn 'id1', {name: 'col6', isPk: false}
+			tab.updateColumn 'id2', {name: 'col6', isPk: false}
 
 			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col6'
 
-	describe.skip 'method removeColumn', ->
+	describe 'method removeColumn', ->
 		before ->
 			tab = new dm.ui.Table fakeModel
 
@@ -223,7 +223,6 @@ describe 'class Table', ->
 			# one more node is tabulator before column nodes
 			expect(tab).to.have.deep.property 'body_.childNodes[2]'
 			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col2'
-
 
 			tab.removeColumn 1
 

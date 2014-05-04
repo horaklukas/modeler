@@ -7,7 +7,7 @@ goog.require 'dm.ui.Relation'
 
 goog.require 'dm.ui.SelectDbDialog'
 goog.require 'dm.ui.TableDialog'
-goog.require 'dm.dialogs.RelationDialog'
+goog.require 'dm.ui.RelationDialog'
 goog.require 'dm.dialogs.LoadModelDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.model.Table.index'
@@ -24,7 +24,11 @@ tableDialog = React.renderComponent(
   goog.dom.getElement 'tableDialog'
 )
 
-#relationDialog = new dm.dialogs.RelationDialog()
+relationDialog = React.renderComponent(
+  dm.ui.RelationDialog()
+  goog.dom.getElement 'relationDialog' 
+)
+
 #loadModelDialog = new dm.dialogs.LoadModelDialog()
 
 actualModel = new dm.model.Model 'Model1' 
@@ -60,9 +64,8 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
   object = ev.target
   model = object.getModel()
 
-  if object instanceof dm.ui.Relation then relationDialog.show yes, object
-  else if object instanceof dm.ui.Table
-    tableDialog.show model
+  if object instanceof dm.ui.Relation then relationDialog.show model
+  else if object instanceof dm.ui.Table then tableDialog.show model
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
   switch ev.objType
@@ -72,10 +75,11 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
       canvas.addTable tab
       tableDialog.show model
     when 'relation'
-      rel = new dm.ui.Relation new dm.model.Relation(ev.data.identifying)
+      model = new dm.model.Relation ev.data.identifying
+      rel = new dm.ui.Relation model
       rel.setRelatedTables ev.data.parent, ev.data.child 
       canvas.addRelation rel
-      relationDialog.show true, rel
+      relationDialog.show model
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   generator = new dm.sqlgen.Sql92

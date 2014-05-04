@@ -29,8 +29,8 @@ describe 'class TableDialog', ->
 
   describe 'constructor', ->
     it 'should have private property columns that held columns changes', ->
-      tabd.should.have.property('removed').that.deep.equal []
-      tabd.should.have.property('changed').that.deep.equal []
+      tabd.should.have.property('removed').that.is.null
+      tabd.should.have.property('changed').that.is.null
 
   describe 'method show', ->
     fakeModel = null
@@ -62,6 +62,12 @@ describe 'class TableDialog', ->
       tabd.show fakeModel
 
       expect(dialogRoot.state).to.have.property 'visible', true
+
+    it 'should reset lists of changed and removed columns', ->
+      tabd.show fakeModel
+
+      expect(tabd).to.have.property('changed').that.deep.equal []
+      expect(tabd).to.have.property('removed').that.deep.equal []
 
     it 'should set title of dialog with "unnamed" if name doesnt exist', ->
       fakeModel.getName.returns ''
@@ -235,6 +241,7 @@ describe 'class TableDialog', ->
 
       cols = TestUtils.scryRenderedDOMComponentsWithClass tabd, 'tableColumn'
       nnl = TestUtils.findRenderedDOMComponentWithClass cols[1], 'isNotNull'
+      nnl.getDOMNode().checked = false
 
       TestUtils.Simulate.change nnl
 

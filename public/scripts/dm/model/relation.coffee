@@ -5,10 +5,12 @@ goog.require 'goog.events.EventTarget'
 class dm.model.Relation extends goog.events.EventTarget
 	###*
   * @param {boolean} identify True if relation is identifying
+  * @param {dm.model.Table} parent Relation parent table model
+  * @param {dm.model.Table} child Relation child table model
   * @constructor
   * @extends {goog.events.EventTarget}
 	###
-	constructor: (identify) ->
+	constructor: (identify, parent, child) ->
 		super()
 		#@setRelatedTables startTab, endTab
 		
@@ -24,7 +26,7 @@ class dm.model.Relation extends goog.events.EventTarget
 		@keyColumnsMapping_ = []
 
 		###*
-	  * @type {Object.<string, string>}
+	  * @type {Object.<dm.model.Table, dm.model.Table>}
 		###
 		@tables = 
 			parent: null

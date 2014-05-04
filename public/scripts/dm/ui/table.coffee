@@ -4,6 +4,7 @@ goog.provide 'dm.ui.Table.EventType'
 goog.require 'tmpls.model'
 goog.require 'goog.dom'
 goog.require 'goog.dom.classes'
+goog.require 'goog.dom.query'
 goog.require 'goog.soy'
 goog.require 'goog.style'
 goog.require 'goog.math.Coordinate'
@@ -87,8 +88,6 @@ class dm.ui.Table extends goog.ui.Component
 
 		goog.events.listen @dragger, 'start', dragStartEnd 
 		goog.events.listen @dragger, 'end', dragStartEnd
-
-		#goog.events.listen @element_, goog.events.EventType.MOUSEDOWN, @graspTable
 
 	###*
   * @override

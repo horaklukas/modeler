@@ -94,13 +94,12 @@ class dm.model.Table extends goog.events.EventTarget
 			@columns[id] = column
 			newColumn = true
 
-		# WHAT THE FUCK IS THAT
-		if @indexes[column.name] then column.indexes = @indexes[column.name]
+		# add additional information about column's indexes
+		if @indexes[id] then column.indexes = @indexes[id]
 
-		# When React will be in full production, this will be not necessary anymore
 		@dispatchEvent new dm.model.Table.ColumnsChange column, id, newColumn
 		
-		id
+		return id
 
 	###*
   * @return {Object.<string, dm.model.TableColumn>} table columns
@@ -134,7 +133,7 @@ class dm.model.Table extends goog.events.EventTarget
 		return null
 
 	###*
-  * @param {string} id
+  * @param {string} id Related column id
   * @param {dm.model.Table.index} type
   * @param {boolean} del If true then column will be deleted, else upserted
 	###
@@ -143,10 +142,11 @@ class dm.model.Table extends goog.events.EventTarget
 			if @indexes[id]? then goog.array.remove @indexes[id], type
 		else
 			@indexes[id] ?= []
-			goog.array.insert @indexes[id] , type
+			goog.array.insert @indexes[id], type
 
 		column = @getColumnById id
-				
+		
+		# add additional information about column's indexes
 		if column?
 			column.indexes = @indexes[id]
 			@dispatchEvent new dm.model.Table.ColumnsChange column, id
@@ -164,7 +164,7 @@ class dm.model.Table extends goog.events.EventTarget
 	toJSON: ->
 		fks = @getColumnsIdsByIndex dm.model.Table.index.FK
 		# foreign key columns are created by relation
-		columns =  goog.array.filter @columns, (column, idx) -> idx not in fks
+		columns =  goog.object.filter @columns, (column, idx) -> idx not in fks
 
 		'name': @name
 		'columns': columns
