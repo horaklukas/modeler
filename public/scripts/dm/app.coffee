@@ -8,7 +8,7 @@ goog.require 'dm.ui.Relation'
 goog.require 'dm.ui.SelectDbDialog'
 goog.require 'dm.ui.TableDialog'
 goog.require 'dm.ui.RelationDialog'
-goog.require 'dm.dialogs.LoadModelDialog'
+goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.model.Table.index'
 goog.require 'dm.ui.Canvas'
@@ -29,7 +29,10 @@ relationDialog = React.renderComponent(
   goog.dom.getElement 'relationDialog' 
 )
 
-#loadModelDialog = new dm.dialogs.LoadModelDialog()
+loadModelDialog = React.renderComponent(
+  dm.ui.LoadModelDialog()
+  goog.dom.getElement 'loadModelDialog' 
+)
 
 actualModel = new dm.model.Model 'Model1' 
 
@@ -71,15 +74,14 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
   switch ev.objType
     when 'table'
       model = new dm.model.Table()
-      tab = new dm.ui.Table model, ev.data.x, ev.data.y
-      canvas.addTable tab
+      dm.addTable model, ev.data.x, ev.data.y
       tableDialog.show model
     when 'relation'
-      model = new dm.model.Relation ev.data.identifying
-      rel = new dm.ui.Relation model
-      rel.setRelatedTables ev.data.parent, ev.data.child 
-      canvas.addRelation rel
-      relationDialog.show model
+      {parent, child, identifying} = ev.data
+      #rel.setRelatedTables parent.getModel(), child.getModel() 
+
+      id = dm.addRelation identifying, parent, child
+      relationDialog.show actualModel.getRelationById id
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   generator = new dm.sqlgen.Sql92
@@ -102,7 +104,7 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
   form.submit()
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
-  loadModelDialog.show yes
+  loadModelDialog.show()
 
 ###*
 * @param {string} value
@@ -114,15 +116,15 @@ columnCoercion = (value) ->
   else if goog.string.isNumeric value then goog.string.toNumber value
   else value
 
-
-#goog.events.listen loadModelDialog, dm.dialogs.LoadModelDialog.EventType.CONFIRM, (ev) ->
-#  json = (`/** @type {Object} */`) ev.model
+###*
+* @param {Object} json JSON representation of model
 ###
+loadModelDialog.setProps onModelLoad:  (json) ->
   actualModel = new dm.model.Model json.name
 
   for table in json.tables
-    columns = (for column in table.model.columns 
-      column[name] = columnCoercion(value) for name, value of column
+    columns = (for id, column of table.model.columns 
+      column[colProp] = columnCoercion(value) for colProp, value of column
       column
     )
 
@@ -138,13 +140,11 @@ columnCoercion = (value) ->
     table = dm.addTable tableModel, table.pos.x, table.pos.y
 
   for relation in json.relations
-    relationModel = new dm.model.Relation relation.type 
     dm.addRelation(
-      relationModel
+      relation.type
       actualModel.getTableIdByName relation.tables.parent
       actualModel.getTableIdByName relation.tables.child
     )
-###
 
 ###*
 * @param {dm.model.Table} model
@@ -159,25 +159,57 @@ dm.addTable = (model, x, y) ->
   tab.getId()
 
 ###*
-* @param {dm.model.Relation} model
+* @param {boolean} isIdentifying
 * @param {string} parentId Id of parent table
 * @param {string} childId Id of child table
 * @return {string} id of created relation
 ###
-dm.addRelation = (model, parentId, childId) ->
+dm.addRelation = (identifying, parentId, childId) ->
+  model = new dm.model.Relation(
+    identifying
+    canvas.getChild parentId
+    canvas.getChild childId
+  )
+
   rel = new dm.ui.Relation model
-  rel.setRelatedTables canvas.getChild(parentId), canvas.getChild(childId)
+  #rel.setRelatedTables canvas.getChild(parentId), canvas.getChild(childId)
   canvas.addRelation rel
   actualModel.addRelation rel
   rel.getId()
 
-#dm.getActualModel = ->
-# actualModel
-
-#goog.events.listen tableDialog, dm.dialogs.TableDialog.EventType.CONFIRM, (ev) ->
-#   dm.actualModel.setTable ev.tableId, ev.tableName, ev.tableColumns
-
-#goog.events.listen relationDialog, dm.dialogs.RelationDialog.EventType.CONFIRM, (ev) ->
-#   dm.actualModel.setRelation ev.relationId, ev.identifying, ev.parentTable, ev.childTable
-
+#dm.getActualModel = -> actualModel
 #goog.exportSymbol 'dm.init', dm.init
+
+###
+tab0model = new dm.model.Table 'Person', [
+  { name:'person_id', type:'smallint', isNotNull:false }
+  { name:'name', type:'varchar', isNotNull:false }
+]
+tab0model.setIndex 0, dm.model.Table.index.PK
+tab0 = dm.addTable tab0model, 100, 75
+
+tab1model = new dm.model.Table 'Account', [
+  { name:'account_id', type:'smallint', isNotNull:false }
+  { name:'account_number', type:'numeric', isNotNull:false }
+]
+tab1model.setIndex 0, dm.model.Table.index.PK
+tab1 = dm.addTable tab1model, 500, 280
+
+tab2model = new dm.model.Table 'PersonAccount'
+tab2 = dm.addTable tab2model, 100, 280
+
+tab3model = new dm.model.Table 'AccountType', [
+  { name:'acctype_id', type:'smallint', isNotNull:false }
+  { name:'code', type:'numeric', isNotNull:false }
+  { name:'name', type:'varchar', isNotNull:false }
+  { name:'description', type:'varchar', isNotNull:false }
+]
+tab3model.setIndex 0, dm.model.Table.index.PK
+tab3 = dm.addTable tab3model, 600, 50
+
+dm.addRelation true, tab0, tab2
+
+dm.addRelation true, tab1, tab2
+
+dm.addRelation false, tab1, tab3
+###

@@ -5,8 +5,8 @@ goog.require 'goog.events.EventTarget'
 class dm.model.Relation extends goog.events.EventTarget
 	###*
   * @param {boolean} identify True if relation is identifying
-  * @param {dm.model.Table} parent Relation parent table model
-  * @param {dm.model.Table} child Relation child table model
+  * @param {dm.ui.Table} parent Relation parent table
+  * @param {dm.ui.Table} child Relation child table
   * @constructor
   * @extends {goog.events.EventTarget}
 	###
@@ -26,11 +26,11 @@ class dm.model.Relation extends goog.events.EventTarget
 		@keyColumnsMapping_ = []
 
 		###*
-	  * @type {Object.<dm.model.Table, dm.model.Table>}
+	  * @type {Object.<dm.ui.Table, dm.ui.Table>}
 		###
 		@tables = 
-			parent: null
-			child: null
+			parent: parent
+			child: child
 		
 	###*
 	* @param {boolean} identify True if relation is identyfing
@@ -64,9 +64,11 @@ class dm.model.Relation extends goog.events.EventTarget
   * @param {?string} parent Name of parent table
   * @param {?string=} child Name of child table
 	###
+	###
 	setRelatedTables: (parent, child) =>
 		if parent? then @tables.parent = parent
 		if child? then @tables.child = child
+	###
 
 	###
 	 * @return {Object} table model at JSON representation
@@ -74,4 +76,6 @@ class dm.model.Relation extends goog.events.EventTarget
 	toJSON: ->
 		'type': @identifying_
 		'mapping': @keyColumnsMapping_
-		'tables': @tables
+		'tables': 
+			parent: @tables.parent.getModel().getName()
+			child: @tables.child.getModel().getName()

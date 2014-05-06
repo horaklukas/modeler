@@ -24,12 +24,12 @@ class dm.ui.Relation extends goog.ui.Component
 	###*
   * @type {dm.ui.Table}
 	###
-	parentTab: null 
+	#parentTab: null 
 
 	###*
   * @type {dm.ui.Table}
 	###
-	childTab: null
+	#childTab: null
 
 	###*
 	* @param {dm.model.Relation}
@@ -62,7 +62,13 @@ class dm.ui.Relation extends goog.ui.Component
 		groupElement = @relationGroup_.getElement()
 		groupElement.id = @getId()
 		
-		if @getModel()? then @setRelationType()
+		#if @getModel()? then @setRelationType()
+		model = @getModel()
+		parentModel = model.tables.parent.getModel()
+		childModel = model.tables.child.getModel()
+
+		@setRelationType model.isIdentifying()
+		@setRelatedTablesKeys()
 
 		# highlight background of relation when mouse move over
 		goog.events.listen groupElement, goog.events.EventType.MOUSEOVER, ->
@@ -71,10 +77,18 @@ class dm.ui.Relation extends goog.ui.Component
 			@firstChild.setAttribute 'stroke', 'transparent'
 
 		# move relation endpoints when moved related tables
-		goog.events.listen @parentTab.dragger, 'drag', @recountPosition
-		goog.events.listen @childTab.dragger, 'drag', @recountPosition
+		goog.events.listen model.tables.parent.dragger, 'drag', @recountPosition
+		goog.events.listen model.tables.child.dragger, 'drag', @recountPosition
 		
-		goog.events.listen @model_, 'type-change', @onTypeChange
+		goog.events.listen model, 'type-change', @onTypeChange
+		
+		columnsListChangeEvents = ['column-add', 'column-delete']
+		goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
+		goog.events.listen childModel, columnsListChangeEvents, @recountPosition
+
+		#columnsListChangeEvents.push 'column-change'
+		#goog.events.listen parentModel, columnsListChangeEvents, @setRelatedTablesKeys
+		#goog.events.listen childModel, columnsListChangeEvents, @setRelatedTablesKeys
 
 	###*
   * Recount new position of relation endpoints and set it
@@ -87,12 +101,13 @@ class dm.ui.Relation extends goog.ui.Component
   * Handler for `changed relation type` event
 	###
 	onTypeChange: (ev) =>
-		@setRelationType()
-
 		relationModel = @getModel()
-		childTabModel = @childTab.getModel()
+		childTabModel = relationModel.tables.child.getModel()
+
 		mapping = relationModel.getColumnsMapping()
 		isIdentifying = relationModel.isIdentifying()
+
+		@setRelationType isIdentifying
 
 		for map in mapping
 			childTabModel.setIndex(
@@ -138,8 +153,9 @@ class dm.ui.Relation extends goog.ui.Component
   * @return {Object.<string,goog.math.Coordinate>}
 	###
 	getRelationPoints: =>
-		sTab = @getTableConnectionPoints @parentTab
-		eTab = @getTableConnectionPoints @childTab
+		model = @getModel()
+		sTab = @getTableConnectionPoints model.tables.parent
+		eTab = @getTableConnectionPoints model.tables.child
 		dists = []
 		distsPoint = []
 
@@ -245,9 +261,10 @@ class dm.ui.Relation extends goog.ui.Component
 
 	###*
 	* Changes relation stroke typ by identifying
+	*
+	* @param {boolean} identify
 	###
-	setRelationType: =>
-		identify = @getModel().isIdentifying()
+	setRelationType: (identify) =>
 		relationElement = @relationPath_.getElement()
 		
 		if identify then relationElement.removeAttribute 'stroke-dasharray'
@@ -257,9 +274,8 @@ class dm.ui.Relation extends goog.ui.Component
   * @param {dm.ui.Table} parent
   * @param {dm.ui.Table} child
 	###
+	###
 	setRelatedTables: (parent, child) ->
-		#relationModel = 
-
 		if @childTab?
 			tableModel = @childTab.getModel()
 			# remove columns of old child table created by relation
@@ -280,24 +296,27 @@ class dm.ui.Relation extends goog.ui.Component
 		columnsListChangeEvents = ['column-add', 'column-delete']
 		goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
 		goog.events.listen childModel, columnsListChangeEvents, @recountPosition
+	###
 
 	###*
   * Updates names of relation related tables if tables names change, used at
   * method `setRelatedTables` above
 	###
+	###
 	setTablesNamesToModel: =>
 		@getModel().setRelatedTables(
 			@parentTab.getModel().getName(), @childTab.getModel().getName()
 		)
+	###
 
 	###*
   * Adds foreign keys columns to child table and add primary index to it, if
   * relation is identifying
 	###
-	setRelatedTablesKeys: ->
-		parentModel = @parentTab.getModel()
-		childModel = @childTab.getModel()
+	setRelatedTablesKeys: =>
 		relationModel = @getModel()
+		parentModel = relationModel.tables.parent.getModel()
+		childModel = relationModel.tables.child.getModel()
 		keysMapping = []
 
 		parentCols = parentModel.getColumns()
@@ -315,3 +334,17 @@ class dm.ui.Relation extends goog.ui.Component
 			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
 
 		relationModel.setColumnsMapping keysMapping
+
+	dispose: ->
+		model = @getModel()
+		parentModel = model.tables.parent.getModel()
+		childModel = model.tables.child.getModel()
+
+		goog.events.unlisten model.tables.parent.dragger, 'drag', @recountPosition
+		goog.events.unlisten model.tables.child.dragger, 'drag', @recountPosition
+		
+		goog.events.unlisten model, 'type-change', @onTypeChange
+
+		columnsListChangeEvents = ['column-add', 'column-delete']
+		goog.events.unlisten parentModel, columnsListChangeEvents, @recountPosition
+		goog.events.unlisten childModel, columnsListChangeEvents, @recountPosition

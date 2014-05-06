@@ -38,11 +38,13 @@ class dm.sqlgen.Sql92
 			sql += @createTable table 
 
 		for id, rel of model.relations
-			{parent, child} = rel.tables
-			parentColumns = model.tables[parent].getColumns()
-			childColumns = model.tables[child].getColumns()
+			parentModel = rel.tables.parent.getModel()
+			childModel = rel.tables.child.getModel()
+
+			parentColumns = model.tables[parentModel.getName()].getColumns()
+			childColumns = model.tables[childModel.getName()].getColumns()
 			
-			sql += "/* Relation between tables #{parent} and #{child} */\n"
+			sql += "/* Relation between tables #{parentModel} and #{childModel} */\n"
 			sql += @createRelationConstraint rel, childColumns, parentColumns
 
 		@showDialog sql
@@ -60,7 +62,9 @@ class dm.sqlgen.Sql92
 		pks = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.PK), mapName 
 		uniques = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.UNIQUE), mapName
 
-		colsSql = goog.array.map columns, (column) => "\t#{@createColumn column}"
+		colsSql = []
+		goog.object.forEach columns, (column) => 
+			colsSql.push "\t#{@createColumn column}"
 
 		if uniques.length then colsSql.push "\tUNIQUE (#{uniques.join ', '})"
 		if pks.length then colsSql.push "\tPRIMARY KEY (#{pks.join ', '})"
@@ -71,19 +75,19 @@ class dm.sqlgen.Sql92
   * Generates sql for creating foreign key constraints belongs to relation
   * 
   * @param {dm.model.Relation} rel Model of related relation
-  * @param {Array.<dm.model.TableColumn>} childColumns List of columns of child
-  *  table related with the relation
-  * @param {Array.<dm.model.TableColumn>} parentColumns List of columns of 
-  *  parent table related with the relation
+  * @param {Object.<string, dm.model.TableColumn>} childColumns List of 
+  *  columns of child table related with the relation
+  * @param {Object.<string, dm.model.TableColumn>} parentColumns List of 
+  *  columns of parent table related with the relation
   * @return {string} generated sql
 	###
 	createRelationConstraint: (rel, childColumns, parentColumns) ->
-		{parent, child} = rel.tables
+		parent = rel.tables.parent.getModel().getName()
+		child = rel.tables.child.getModel().getName()
 		columnsMapping = rel.getColumnsMapping()
 
 		childColumnsNames = []
 		parentColumnsNames = []
-
 
 		# name of constraint, unique in scope of table
 		name = @getUniqueConstraintName child, parent

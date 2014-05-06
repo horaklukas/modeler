@@ -66,7 +66,9 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		
 		@dispatchEvent new dm.ui.tools.ObjectCreateEvent(
 			'relation', {
-				parent: @parentTable, child: @childTable, identifying: @ident
+				parent: @parentTable.getId()
+				child: @childTable.getId()
+				identifying: @ident
 			}
 		)
 

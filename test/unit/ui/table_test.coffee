@@ -167,7 +167,7 @@ describe 'class Table', ->
 			# one more node is tabulator before column nodes
 			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
-			tab.addColumn 'id1', {name: 'col3', isPk: true}
+			tab.addColumn 'id3', {name: 'col3', isPk: true}
 
 			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
 

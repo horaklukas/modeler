@@ -3,6 +3,8 @@ goog.provide 'dm.model.Model'
 goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
 goog.require 'goog.string'
+goog.require 'goog.object'
+goog.require 'goog.array'
 goog.require 'goog.ui.IdGenerator'
 
 class dm.model.Model
@@ -15,19 +17,35 @@ class dm.model.Model
 		@tables_ = {}
 		@relations_ = {}
 
+		@relationsByTable = {}
+
 	###*
 	* Add model of the table to model's list of tables
 	*
 	* @param {dm.ui.Table} table
 	###
 	addTable: (table) =>
-		@tables_[table.getId()] = table#.getModel()
+		@tables_[table.getId()] = table #.getModel()
 
 	###*
 	* @param {dm.ui.Relation} relation
 	###
 	addRelation: (relation) ->
-		@relations_[relation.getId()] = relation#.getModel()
+		id = relation.getId()
+		@relations_[id] = relation #.getModel()
+
+		model = relation.getModel()
+		parentId = model.tables.parent.getId()
+		childId = model.tables.child.getId()
+
+		unless goog.object.containsKey @relationsByTable, parentId
+			goog.object.add @relationsByTable, parentId, []
+
+		unless goog.object.containsKey @relationsByTable, childId
+			goog.object.add @relationsByTable, childId, []
+
+		goog.array.insert @relationsByTable[parentId], id
+		goog.array.insert @relationsByTable[childId], id
 
 	###*
 	* Returns table model by table id

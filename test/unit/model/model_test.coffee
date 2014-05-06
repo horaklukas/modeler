@@ -17,6 +17,9 @@ describe 'class model.Model', ->
 			model.should.have.property('tables_').that.is.an('object').and.empty
 			model.should.have.property('relations_').that.is.an('object').and.empty
 
+		it 'should create empty map of related relations and tables', ->
+			model.should.have.property('relationsByTable').that.is.empty
+
 	describe 'method addTable', ->
 		beforeEach ->
 			model.tables_ = {}
@@ -60,19 +63,57 @@ describe 'class model.Model', ->
 			expect(model.getRelationById 'tab4').to.be.null
 
 	describe 'method addRelation', ->
+		relation = null
+		relmodel = null
+
 		beforeEach ->
 			model.relations_ = {}
+			model.relationsByTable = {}
+
+			relmodel =
+				tables:
+					parent: getId: sinon.stub().returns 'p1'
+					child: getId: sinon.stub().returns 'ch1'
+
+			relation =
+				getId: sinon.stub().returns 'rel3'
+				getModel: sinon.stub().returns relmodel
 
 		it 'should save relation by relation id', ->
-			relation =
-				getId: sinon.stub().returns 'rel1'
-				getModel: sinon.stub().returns 'model2'
+			model.addRelation relation
+
+			expect(model).to.have.deep.property 'relations_.rel3'
+			expect(model.relations_.rel3).to.deep.equal relation
+
+		it 'should assign id of relation to related tables lists', ->
+			model.relationsByTable = 
+				'tab1': ['rel1', 'rel2']
+				'tab2': ['rel5']
+				'tab3': ['rel4']
+
+			relmodel.tables.parent.getId.returns 'tab1'
+			relmodel.tables.child.getId.returns 'tab3'
 
 			model.addRelation relation
 
-			expect(model).to.have.deep.property 'relations_.rel1'
-			expect(model.relations_.rel1).to.deep.equal relation
+			expect(model.relationsByTable.tab1).to.contain 'rel3' 
+			expect(model.relationsByTable.tab3).to.contain 'rel3' 
 
+		it 'should create new list of relation if not exist for related tables', ->
+			model.relationsByTable = 
+				't1': ['rel1', 'rel2']
+				't3': ['rel4']
+
+			relmodel.tables.parent.getId.returns 't2'
+			relmodel.tables.child.getId.returns 't5'
+
+			model.addRelation relation
+
+			expect(model.relationsByTable).to.have.property 't2'
+			expect(model.relationsByTable.t2).to.deep.equal ['rel3'] 
+			expect(model.relationsByTable).to.have.property 't5'
+			expect(model.relationsByTable.t5).to.deep.equal ['rel3'] 
+ 
 	describe 'method getTables', ->
 		before ->
 			model.tables_ =
