@@ -16,7 +16,6 @@ goog.require 'dm.ui.Toolbar'
 goog.require 'dm.ui.Toolbar.EventType'
 goog.require 'dm.sqlgen.Sql92'
 goog.require 'goog.dom'
-goog.require 'goog.dom.classes'
 goog.require 'goog.events'
 
 tableDialog = React.renderComponent(
@@ -63,6 +62,19 @@ if dmAssets.dbs?
 else
   mainToolbar.setStatus "#{dmAssets.name} #{dmAssets.version}"
 
+goog.events.listen canvas, dm.ui.Table.EventType.MOVE, (e) ->
+  #console.log 'moving', actualModel.getRelationsByTable(e.target.getId())
+  relationsIds = actualModel.getRelationsByTable(e.target.getId())
+
+  for relId in relationsIds
+    relation = actualModel.getRelationUiById relId 
+    {parent, child} = relation.getModel().tables
+
+    relation.recountPosition(
+      canvas.getChild(parent)
+      canvas.getChild(child)
+    )
+
 goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) -> 
   object = ev.target
   model = object.getModel()
@@ -80,14 +92,16 @@ goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
       {parent, child, identifying} = ev.data
       #rel.setRelatedTables parent.getModel(), child.getModel() 
 
-      id = dm.addRelation identifying, parent, child
-      relationDialog.show actualModel.getRelationById id
+      model = new dm.model.Relation identifying, parent, child
+      
+      dm.addRelation model
+      relationDialog.show model
 
 goog.events.listen mainToolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   generator = new dm.sqlgen.Sql92
 
   generator.generate(
-    tables: actualModel.getTablesByName()
+    tables: actualModel.getTables()
     relations: actualModel.getRelations()
   )
 
@@ -140,10 +154,11 @@ loadModelDialog.setProps onModelLoad:  (json) ->
     table = dm.addTable tableModel, table.pos.x, table.pos.y
 
   for relation in json.relations
-    dm.addRelation(
-      relation.type
-      actualModel.getTableIdByName relation.tables.parent
-      actualModel.getTableIdByName relation.tables.child
+    dm.addRelation(new dm.model.Relation(
+        relation.type
+        actualModel.getTableIdByName relation.tables.parent
+        actualModel.getTableIdByName relation.tables.child
+      )
     )
 
 ###*
@@ -159,19 +174,24 @@ dm.addTable = (model, x, y) ->
   tab.getId()
 
 ###*
-* @param {boolean} isIdentifying
-* @param {string} parentId Id of parent table
-* @param {string} childId Id of child table
+* @param {dm.model.Relation} model
 * @return {string} id of created relation
 ###
-dm.addRelation = (identifying, parentId, childId) ->
-  model = new dm.model.Relation(
-    identifying
-    canvas.getChild parentId
-    canvas.getChild childId
-  )
-
+dm.addRelation = (model) ->
   rel = new dm.ui.Relation model
+  parentTable = actualModel.getTableUiById model.tables.parent
+  childTable = actualModel.getTableUiById model.tables.child
+
+  goog.events.listen model, 'type-change', -> rel.onTypeChange childModel
+
+  columnsListChangeEvents = ['column-add', 'column-change' ,'column-delete']
+  
+  goog.events.listen parentTable.getModel(), columnsListChangeEvents, ->
+    rel.recountPosition parentTable, childTable
+
+  goog.events.listen childTable.getModel(), columnsListChangeEvents, ->
+    rel.recountPosition parentTable, childTable
+  
   #rel.setRelatedTables canvas.getChild(parentId), canvas.getChild(childId)
   canvas.addRelation rel
   actualModel.addRelation rel
@@ -180,7 +200,6 @@ dm.addRelation = (identifying, parentId, childId) ->
 #dm.getActualModel = -> actualModel
 #goog.exportSymbol 'dm.init', dm.init
 
-###
 tab0model = new dm.model.Table 'Person', [
   { name:'person_id', type:'smallint', isNotNull:false }
   { name:'name', type:'varchar', isNotNull:false }
@@ -207,9 +226,11 @@ tab3model = new dm.model.Table 'AccountType', [
 tab3model.setIndex 0, dm.model.Table.index.PK
 tab3 = dm.addTable tab3model, 600, 50
 
-dm.addRelation true, tab0, tab2
+rel1 = new dm.model.Relation true, tab0, tab2
+dm.addRelation rel1
 
-dm.addRelation true, tab1, tab2
+rel2 = new dm.model.Relation true, tab1, tab2
+dm.addRelation rel2
 
-dm.addRelation false, tab1, tab3
-###
+rel3 = new dm.model.Relation false, tab1, tab3
+dm.addRelation rel3

@@ -26,7 +26,8 @@ class dm.model.Relation extends goog.events.EventTarget
 		@keyColumnsMapping_ = []
 
 		###*
-	  * @type {Object.<dm.ui.Table, dm.ui.Table>}
+		* Id of parent and child table
+	  * @type {Object.<string, string>}
 		###
 		@tables = 
 			parent: parent
@@ -71,11 +72,16 @@ class dm.model.Relation extends goog.events.EventTarget
 	###
 
 	###
-	 * @return {Object} table model at JSON representation
+	* Since relation model contains "only" ids of tables, its names have to be
+	*  passed
+	*
+	* @param {string} parentName
+	* @param {string} childName
+	* @return {Object} table model at JSON representation
 	###
-	toJSON: ->
+	toJSON: (parentName, childName) ->
 		'type': @identifying_
 		'mapping': @keyColumnsMapping_
 		'tables': 
-			parent: @tables.parent.getModel().getName()
-			child: @tables.child.getModel().getName()
+			parent: parentName
+			child: childName

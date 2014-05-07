@@ -38,14 +38,12 @@ class dm.sqlgen.Sql92
 			sql += @createTable table 
 
 		for id, rel of model.relations
-			parentModel = rel.tables.parent.getModel()
-			childModel = rel.tables.child.getModel()
-
-			parentColumns = model.tables[parentModel.getName()].getColumns()
-			childColumns = model.tables[childModel.getName()].getColumns()
+			parentModel = model.tables[rel.tables.parent]
+			childModel = model.tables[rel.tables.child]
 			
-			sql += "/* Relation between tables #{parentModel} and #{childModel} */\n"
-			sql += @createRelationConstraint rel, childColumns, parentColumns
+			sql += "/* Relation between tables #{parentModel.getName()} " +
+				"and #{childModel.getName()} */\n"
+			sql += @createRelationConstraint rel, parentModel, childModel
 
 		@showDialog sql
 
@@ -75,15 +73,15 @@ class dm.sqlgen.Sql92
   * Generates sql for creating foreign key constraints belongs to relation
   * 
   * @param {dm.model.Relation} rel Model of related relation
-  * @param {Object.<string, dm.model.TableColumn>} childColumns List of 
-  *  columns of child table related with the relation
-  * @param {Object.<string, dm.model.TableColumn>} parentColumns List of 
-  *  columns of parent table related with the relation
+  * @param {dm.model.Table} childModel 
+  * @param {dm.model.Table} parentModel
   * @return {string} generated sql
 	###
-	createRelationConstraint: (rel, childColumns, parentColumns) ->
-		parent = rel.tables.parent.getModel().getName()
-		child = rel.tables.child.getModel().getName()
+	createRelationConstraint: (rel, parentModel, childModel) ->
+		parent = parentModel.getName()
+		child = childModel.getName()
+		parentColumns = parentModel.getColumns()
+		childColumns = childModel.getColumns()
 		columnsMapping = rel.getColumnsMapping()
 
 		childColumnsNames = []

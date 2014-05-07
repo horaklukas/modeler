@@ -55,7 +55,7 @@ describe 'class model.Relation', ->
 			rel.tables.child = getModel: -> getName: -> 'child2'
 
 		it 'should return JSON like representation of model', ->
-			json = rel.toJSON()
+			json = rel.toJSON 'parent1', 'child2'
 
 			expect(json).to.have.property 'type', true
 			expect(json).to.have.deep.property 'mapping[0].parent', 1

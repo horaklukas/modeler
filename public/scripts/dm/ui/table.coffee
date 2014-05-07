@@ -86,7 +86,11 @@ class dm.ui.Table extends goog.ui.Component
 			@target.style.cursor = if e.type is 'start' then 'move' else 'default'
 			goog.style.setOpacity @target, if e.type is 'start' then 0.7 else 1
 
-		goog.events.listen @dragger, 'start', dragStartEnd 
+		goog.events.listen @dragger, 'start', dragStartEnd
+		
+		goog.events.listen @dragger, 'drag', => 
+			@dispatchEvent dm.ui.Table.EventType.MOVE
+		
 		goog.events.listen @dragger, 'end', dragStartEnd
 
 	###*

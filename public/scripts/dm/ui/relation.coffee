@@ -49,7 +49,14 @@ class dm.ui.Relation extends goog.ui.Component
   * @param {dm.ui.Canvas} canvas
 	###
 	draw: (canvas) ->
-		path = @getRelationPath(new goog.graphics.Path)
+		model = @getModel()
+		parentTable = canvas.getChild model.tables.parent
+		childTable = canvas.getChild model.tables.child
+
+		parentModel = parentTable.getModel()
+		childModel = childTable.getModel()
+		
+		path = @getRelationPath new goog.graphics.Path, parentTable, childTable
 		
 		@relationGroup_ = canvas.createGroup()
 		@relationBg_ = canvas.drawPath(
@@ -63,12 +70,9 @@ class dm.ui.Relation extends goog.ui.Component
 		groupElement.id = @getId()
 		
 		#if @getModel()? then @setRelationType()
-		model = @getModel()
-		parentModel = model.tables.parent.getModel()
-		childModel = model.tables.child.getModel()
 
 		@setRelationType model.isIdentifying()
-		@setRelatedTablesKeys()
+		@setRelatedTablesKeys parentModel, childModel
 
 		# highlight background of relation when mouse move over
 		goog.events.listen groupElement, goog.events.EventType.MOUSEOVER, ->
@@ -77,14 +81,14 @@ class dm.ui.Relation extends goog.ui.Component
 			@firstChild.setAttribute 'stroke', 'transparent'
 
 		# move relation endpoints when moved related tables
-		goog.events.listen model.tables.parent.dragger, 'drag', @recountPosition
-		goog.events.listen model.tables.child.dragger, 'drag', @recountPosition
+		#goog.events.listen model.tables.parent.dragger, 'drag', @recountPosition
+		#goog.events.listen model.tables.child.dragger, 'drag', @recountPosition
 		
-		goog.events.listen model, 'type-change', @onTypeChange
+		#goog.events.listen model, 'type-change', @onTypeChange
 		
-		columnsListChangeEvents = ['column-add', 'column-delete']
-		goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
-		goog.events.listen childModel, columnsListChangeEvents, @recountPosition
+		#columnsListChangeEvents = ['column-add', 'column-delete']
+		#goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
+		#goog.events.listen childModel, columnsListChangeEvents, @recountPosition
 
 		#columnsListChangeEvents.push 'column-change'
 		#goog.events.listen parentModel, columnsListChangeEvents, @setRelatedTablesKeys
@@ -92,17 +96,23 @@ class dm.ui.Relation extends goog.ui.Component
 
 	###*
   * Recount new position of relation endpoints and set it
+  *
+  * @param {Element} parentTable
+  * @param {Element} childTable
 	###
-	recountPosition: =>
-		@relationPath_.setPath @getRelationPath(new goog.graphics.Path)
-		@relationBg_.setPath @getRelationPath(new goog.graphics.Path)
+	recountPosition: (parentTable, childTable) =>
+		newPath = @getRelationPath new goog.graphics.Path, parentTable, childTable
+
+		@relationPath_.setPath newPath
+		@relationBg_.setPath newPath
 
 	###*
   * Handler for `changed relation type` event
+  *
+  * @param {!dm.model.Table} childTabModel
 	###
-	onTypeChange: (ev) =>
+	onTypeChange: (childTabModel) =>
 		relationModel = @getModel()
-		childTabModel = relationModel.tables.child.getModel()
 
 		mapping = relationModel.getColumnsMapping()
 		isIdentifying = relationModel.isIdentifying()
@@ -115,14 +125,15 @@ class dm.ui.Relation extends goog.ui.Component
 			)
 
 	###*
-	* @param {goog.graphics.Path} path Path object to set points on
+  * @param {goog.graphics.Path} path Path object to set points on
+  * @param {Element} parentTable
+  * @param {Element} childTable
   * @return {goog.graphics.Path} new relation path
 	###
-	getRelationPath: (path) =>
-		points = @getRelationPoints()
+	getRelationPath: (path, parentTable, childTable) =>
+		points = @getRelationPoints parentTable, childTable
 		
 		#path.lineTo points.break1.x, points.break1.y
-		
 		#unless goog.math.Coordinate.equals points.break2, points.break1
 		#	path.lineTo points.break2.x, points.break2.y
 		
@@ -150,12 +161,14 @@ class dm.ui.Relation extends goog.ui.Component
 		path.lineTo points.stop.coords.x, points.stop.coords.y
 
 	###*
+  * @param {Element} parentTable
+  * @param {Element} childTable
   * @return {Object.<string,goog.math.Coordinate>}
 	###
-	getRelationPoints: =>
+	getRelationPoints: (parentTable, childTable) =>
 		model = @getModel()
-		sTab = @getTableConnectionPoints model.tables.parent
-		eTab = @getTableConnectionPoints model.tables.child
+		sTab = @getTableConnectionPoints parentTable
+		eTab = @getTableConnectionPoints childTable
 		dists = []
 		distsPoint = []
 
@@ -312,11 +325,12 @@ class dm.ui.Relation extends goog.ui.Component
 	###*
   * Adds foreign keys columns to child table and add primary index to it, if
   * relation is identifying
+  *
+  * @param {dm.model.Table} parentModel
+  * @param {dm.model.Table} childModel
 	###
-	setRelatedTablesKeys: =>
+	setRelatedTablesKeys: (parentModel, childModel) =>
 		relationModel = @getModel()
-		parentModel = relationModel.tables.parent.getModel()
-		childModel = relationModel.tables.child.getModel()
 		keysMapping = []
 
 		parentCols = parentModel.getColumns()
