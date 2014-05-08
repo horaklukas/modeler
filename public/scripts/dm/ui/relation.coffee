@@ -20,16 +20,6 @@ class dm.ui.Relation extends goog.ui.Component
   * @static
 	###
 	@strokeBg: new goog.graphics.Stroke 10, 'transparent'
-	
-	###*
-  * @type {dm.ui.Table}
-	###
-	#parentTab: null 
-
-	###*
-  * @type {dm.ui.Table}
-	###
-	#childTab: null
 
 	###*
 	* @param {dm.model.Relation}
@@ -56,7 +46,11 @@ class dm.ui.Relation extends goog.ui.Component
 		parentModel = parentTable.getModel()
 		childModel = childTable.getModel()
 		
-		path = @getRelationPath new goog.graphics.Path, parentTable, childTable
+		path = @getRelationPath(
+			new goog.graphics.Path
+			parentTable.getElement()
+			childTable.getElement()
+		)
 		
 		@relationGroup_ = canvas.createGroup()
 		@relationBg_ = canvas.drawPath(
@@ -79,20 +73,6 @@ class dm.ui.Relation extends goog.ui.Component
 			@firstChild.setAttribute 'stroke', '#ccc'
 		goog.events.listen groupElement, goog.events.EventType.MOUSEOUT, ->
 			@firstChild.setAttribute 'stroke', 'transparent'
-
-		# move relation endpoints when moved related tables
-		#goog.events.listen model.tables.parent.dragger, 'drag', @recountPosition
-		#goog.events.listen model.tables.child.dragger, 'drag', @recountPosition
-		
-		#goog.events.listen model, 'type-change', @onTypeChange
-		
-		#columnsListChangeEvents = ['column-add', 'column-delete']
-		#goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
-		#goog.events.listen childModel, columnsListChangeEvents, @recountPosition
-
-		#columnsListChangeEvents.push 'column-change'
-		#goog.events.listen parentModel, columnsListChangeEvents, @setRelatedTablesKeys
-		#goog.events.listen childModel, columnsListChangeEvents, @setRelatedTablesKeys
 
 	###*
   * Recount new position of relation endpoints and set it
@@ -216,11 +196,10 @@ class dm.ui.Relation extends goog.ui.Component
 			false
 
 	###*
-  * @param {dm.ui.Table} table
+  * @param {Element} tableElement
   * @relation {Object.<string, goog.math.Coordinate>}
 	###
-	getTableConnectionPoints: (table) ->
-		tableElement =  table.getElement()
+	getTableConnectionPoints: (tableElement) ->
 		bounds = goog.style.getBounds tableElement
 		bounds.top -= 31 # 29 size of toolbar 1 * 2 is border of table for both 
 		bounds.left -= 2 # 1 * 2 is border of table for both 
@@ -348,17 +327,3 @@ class dm.ui.Relation extends goog.ui.Component
 			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
 
 		relationModel.setColumnsMapping keysMapping
-
-	dispose: ->
-		model = @getModel()
-		parentModel = model.tables.parent.getModel()
-		childModel = model.tables.child.getModel()
-
-		goog.events.unlisten model.tables.parent.dragger, 'drag', @recountPosition
-		goog.events.unlisten model.tables.child.dragger, 'drag', @recountPosition
-		
-		goog.events.unlisten model, 'type-change', @onTypeChange
-
-		columnsListChangeEvents = ['column-add', 'column-delete']
-		goog.events.unlisten parentModel, columnsListChangeEvents, @recountPosition
-		goog.events.unlisten childModel, columnsListChangeEvents, @recountPosition

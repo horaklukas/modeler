@@ -133,28 +133,6 @@ describe 'class Table', ->
 			obj2 = tab2.getConnPoints()
 			expect(obj).to.not.deep.equal obj2
 
-	describe.skip 'method addRelation', ->
-		it 'should add relations to table', ->
-			tab = new Table canvas, 'i', 10, 10
-			
-			expect(tab.relations).to.be.empty
-
-			tab.addRelation 'rel1'
-			tab.addRelation 'rel2'
-			tab.addRelation 'rel3'
-
-			expect(tab.relations).to.have.length(3).and.deep.equal ['rel1','rel2','rel3']
-
-		it 'should set clear list of table\'s relations for each new table', ->
-			tab1 = new Table canvas, 'i', 20, 30
-			
-			tab1.addRelation 'rel2'
-			tab1.addRelation 'rel5'
-			expect(tab1.relations).to.have.length(2).and.deep.equal ['rel2','rel5']
-
-			tab3 = new Table canvas, 'd', 40, 50
-			expect(tab3.relations).to.be.an('array').and.be.empty
-
 	describe 'method addColumn', ->
 		before ->
 			tab = new dm.ui.Table fakeModel

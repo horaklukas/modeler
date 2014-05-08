@@ -20,17 +20,21 @@ goog.require 'dm.ui.Dialog'
 dm.ui.RelationDialog = React.createClass
   _originalModel: null
 
-  show: (model) ->
+  ###*
+  * @param {dm.model.Relation} model
+  * @param {Object.<string, object>} tables Info about relation related tables
+  ###
+  show: (model, tables) ->
     @_originalModel = model
 
     #@tablesSwaped = false
     #parentName = relation.parentTab.getModel().getName()
     #childName = relation.childTab.getModel().getName()
     
-    #@setProps {
-    #  parentName: model.tables.parent.getName()
-    #  childName: model.tables.child.getName()
-    #}
+    @setProps {
+      parentName: tables.parent.name
+      childName: tables.child.name
+    }
 
     @setState 
       visible: true

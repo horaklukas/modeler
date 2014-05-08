@@ -60,22 +60,18 @@ describe 'component RelationDialog', ->
 
 	describe 'method show', ->
 		isIdent = sinon.stub()
-		getParentName = sinon.stub()
-		getChildName = sinon.stub()
-		relModel = 
-			isIdentifying: isIdent
-			#parentTab: getModel: -> getName: getParentName 
-			#childTab: getModel: -> getName: getChildName 
+		relModel = isIdentifying: isIdent
+		tables = 
+			'parent': id: 't1', name: 'parentTab1'	
+			'child': id: 't2', name: 'parentTab1'	
 
 		beforeEach ->
 			isIdent.reset()
-			getParentName.reset()
-			getChildName.reset()
 
 		it 'should showdialog', ->
 			reld.setState visible: false
 			
-			reld.show relModel
+			reld.show relModel, tables
 
 			expect(reld.state).to.have.property 'visible', true
 
@@ -83,22 +79,30 @@ describe 'component RelationDialog', ->
 			inputs = TestUtils.scryRenderedDOMComponentsWithClass reld, 'type'
 
 			isIdent.returns true
-			reld.show relModel
+			
+			reld.show relModel, tables
+			
 			expect(reld.state).to.have.property 'identifying', true
 			expect(inputs[0].props).to.have.property 'checked', false
 			expect(inputs[1].props).to.have.property 'checked', true
 
 			isIdent.returns false
-			reld.show relModel
+			
+			reld.show relModel, tables
+			
 			expect(reld.state).to.have.property 'identifying', false
 			expect(inputs[0].props).to.have.property 'checked', true
 			expect(inputs[1].props).to.have.property 'checked', false
 
-		it.skip 'should set values from passed relation to dialog', ->
-			getParentName.returns 'table1'
-			getChildName.returns 'table2'
+		it 'should fill dialog title with tabels names', ->
+			tables['parent']['name'] = 'table1'
+			tables['child']['name'] = 'table2'
 			isIdent.returns true
 
-			reld.show true, rel
+			reld.show relModel, tables
 
-			setval.should.been.calledOnce.and.calledWithExactly 'table1', 'table2', true
+			dialog = TestUtils.findRenderedComponentWithType reld, dm.ui.Dialog
+
+			expect(dialog.props).to.have.property(
+				'title', 'Relation between tables "table1" and "table2"'
+			)

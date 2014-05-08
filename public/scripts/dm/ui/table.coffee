@@ -29,12 +29,6 @@ class dm.ui.Table extends goog.ui.Component
 	constructor: (tableModel, x = 0, y = 0) ->
 		super()
 
-		###* 
-    * table's list of related relations
-    * @type {Array.<dm.model.Relation>}
-    ###
-		#@relations_ = []
-
 		#@size_ = new goog.math.Size w, h
 		###*
     * @type {goog.math.Coordinate}
@@ -155,13 +149,6 @@ class dm.ui.Table extends goog.ui.Component
 	getSize: ->
 		goog.style.getSize @element_
 
-	###*
-	* @param {dm.model.Relation}
-	###
-	###
-	addRelation: (rel, child = false) ->
-		@relations_.push rel
-	###
 	###*
   * @param {string} name Name of table
 	###

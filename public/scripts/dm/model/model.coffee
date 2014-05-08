@@ -46,7 +46,7 @@ class dm.model.Model
 		goog.array.insert @relationsByTable[child], id
 
 	###*
-	* Returns table model by table id
+	* Returns table ui by table id
   * @param {string} id
   * @return {dm.ui.Table=}
 	###
@@ -54,12 +54,28 @@ class dm.model.Model
 		@tables_[id] ? null
 
 	###*
-  * Returns relation model relation id
+  * Returns relation ui by relation id
   * @param {string} id
   * @return {dm.ui.Relation=}
 	###
 	getRelationUiById: (id) ->
 		@relations_[id] ? null
+
+	###*
+	* Returns table model by table id
+  * @param {string} id
+  * @return {dm.ui.Table=}
+	###
+	getTableById: (id) ->
+		@tables_[id].getModel() ? null
+
+	###*
+  * Returns relation model by relation id
+  * @param {string} id
+  * @return {dm.ui.Relation=}
+	###
+	getRelationById: (id) ->
+		@relations_[id].getModel() ? null
 
 	###*
   * @return {Object.<string, dm.model.Table>}
