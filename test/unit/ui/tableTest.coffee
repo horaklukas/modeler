@@ -142,12 +142,11 @@ describe 'class Table', ->
 				'id1': {name: 'col1', isPk: false}, 'id2': {name: 'col2', isPk: true}
 			}
 			tab.createDom()
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 2
 
 			tab.addColumn 'id3', {name: 'col3', isPk: true}
 
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
 	describe 'method updateColumn', ->
 		before ->
@@ -161,21 +160,19 @@ describe 'class Table', ->
 			tab.createDom()
 
 		it 'should left count of columns same as it was', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
 			tab.updateColumn 'id1', {name: 'col3', isPk: true}
 
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
 		it 'should replace old column element with new column element', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes[2]'
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col4'
+			expect(tab).to.have.deep.property 'body_.childNodes[1]'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col4'
 
 			tab.updateColumn 'id2', {name: 'col6', isPk: false}
 
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col6'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col6'
 
 	describe 'method removeColumn', ->
 		before ->
@@ -190,18 +187,16 @@ describe 'class Table', ->
 			tab.createDom()
 
 		it 'should remove one column element', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 5
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
 
 			tab.removeColumn 2
 
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
 		it 'should remove column with passed index', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes[2]'
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col2'
+			expect(tab).to.have.deep.property 'body_.childNodes[1]'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col2'
 
 			tab.removeColumn 1
 
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col3'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col3'

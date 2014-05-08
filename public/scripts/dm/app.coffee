@@ -63,7 +63,7 @@ else
   mainToolbar.setStatus "#{dmAssets.name} #{dmAssets.version}"
 
 goog.events.listen canvas, dm.ui.Table.EventType.MOVE, (e) ->
-  relationsIds = actualModel.getRelationsByTable(e.target.getId())
+  relationsIds = actualModel.getRelationsByTable(e.target.getId()) ? []
 
   for relId in relationsIds
     relation = actualModel.getRelationUiById relId 
@@ -210,7 +210,6 @@ dm.createModelFromJSON = (json) ->
 #dm.getActualModel = -> actualModel
 #goog.exportSymbol 'dm.init', dm.init
 
-###
 tab0model = new dm.model.Table 'Person', [
   { name:'person_id', type:'smallint', isNotNull:false }
   { name:'name', type:'varchar', isNotNull:false }
@@ -218,6 +217,7 @@ tab0model = new dm.model.Table 'Person', [
 tab0model.setIndex 0, dm.model.Table.index.PK
 tab0 = dm.addTable tab0model, 100, 75
 
+###
 tab1model = new dm.model.Table 'Account', [
   { name:'account_id', type:'smallint', isNotNull:false }
   { name:'account_number', type:'numeric', isNotNull:false }

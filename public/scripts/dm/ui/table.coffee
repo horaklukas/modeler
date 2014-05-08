@@ -1,11 +1,11 @@
+`/** @jsx React.DOM */`
+
 goog.provide 'dm.ui.Table'
 goog.provide 'dm.ui.Table.EventType'
+goog.provide 'dm.ui.tmpls'
 
-goog.require 'tmpls.model'
 goog.require 'goog.dom'
-goog.require 'goog.dom.classes'
 goog.require 'goog.dom.query'
-goog.require 'goog.soy'
 goog.require 'goog.style'
 goog.require 'goog.math.Coordinate'
 goog.require 'goog.math.Size'
@@ -57,9 +57,9 @@ class dm.ui.Table extends goog.ui.Component
 	###
 	createDom: =>
 		model = @getModel()
-		element = goog.soy.renderAsElement tmpls.model.table, {
-			'id': @getId(), 'name': model.getName(), 'columns': model.getColumns()
-		}
+		element = dm.ui.tmpls.createElementFromReactComponent dm.ui.tmpls.Table(
+			{id: @getId(), name: model.getName(), columns: model.getColumns()}
+		)
 		
 		@head_ = goog.dom.getElementByClass 'head', element
 		@body_ = goog.dom.getElementByClass 'body', element
@@ -170,7 +170,9 @@ class dm.ui.Table extends goog.ui.Component
   * @param {dm.model.TableColumn} column
 	###
 	addColumn: (id, column) ->
-		@body_.innerHTML += tmpls.model.tabColumn id: id, col: column
+		@body_.innerHTML += React.renderComponentToStaticMarkup(
+			dm.ui.tmpls.Column {id: id, data: column}
+		)
 
 	###*
 	* @param {string} id
@@ -178,9 +180,9 @@ class dm.ui.Table extends goog.ui.Component
 	###
 	updateColumn: (id, column) ->
 		oldColumn = goog.dom.query("[name=#{id}]", @body_)[0]
-		newColumn = goog.soy.renderAsElement tmpls.model.tabColumn, {
-			id: id, col: column
-		}
+		newColumn = dm.ui.tmpls.createElementFromReactComponent(
+			dm.ui.tmpls.Column {id: id, data: column}
+		)
 
 		goog.dom.replaceNode newColumn, oldColumn
 
@@ -190,3 +192,52 @@ class dm.ui.Table extends goog.ui.Component
 	removeColumn: (id) ->
 		column = goog.dom.query("[name=#{id}]", @body_)[0]
 		goog.dom.removeNode column
+
+
+dm.ui.tmpls.createElementFromReactComponent = (reactComponent) ->
+	componentHtml = React.renderComponentToStaticMarkup reactComponent
+	wrapper = goog.dom.createElement 'div'
+
+	wrapper.innerHTML = componentHtml
+
+	goog.dom.getFirstElementChild wrapper
+
+
+# Table templates
+dm.ui.tmpls.Table = React.createClass
+	render: ->
+		{TableColumns} = dm.ui.tmpls
+
+		`(
+		<div className="table" id={this.props.id}>
+			<span className="head">{this.props.name}</span>
+			<TableColumns cols={this.props.columns} />
+		</div>
+		)`
+
+dm.ui.tmpls.TableColumns = React.createClass
+	render: ->
+		{Column} = dm.ui.tmpls
+		columns = []
+		
+		goog.object.forEach @props.cols, (data, id) ->
+			columns.push `( <Column id={id} data={data} key={id} /> )`
+
+		`( <div className="body">{columns}</div> )`
+
+dm.ui.tmpls.Column = React.createClass
+	createIndex: (index) ->
+		`( <span className="idx" key={index} >{index}</span> )`
+
+
+	render: ->
+		{id, data} = @props
+		indexes = goog.array.map (data.indexes ? []), @createIndex
+
+		`(
+		<div className="column" name={id}>
+			<span>{data.name}</span>
+			{indexes}				
+		</div>
+		)`
+

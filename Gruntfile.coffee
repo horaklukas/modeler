@@ -14,13 +14,12 @@ module.exports = (grunt) ->
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
-  grunt.registerTask 'soy', ['esteTemplates']
   grunt.registerTask 'build', ['closureBuilder']
 
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']
 
   # task for heroku deployment
-  grunt.registerTask 'heroku:development', ['coffee:app', 'soy', 'deps']
+  grunt.registerTask 'heroku:development', ['coffee:app', 'deps']
 
   grunt.initConfig
     coffee:
@@ -54,11 +53,6 @@ module.exports = (grunt) ->
           ]
           ext: '.js'
         }]
-    
-    esteTemplates:
-      all:
-        src: './public/scripts/dm/templates/**/*.soy'
-        outputPathFormat: '{INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js'
 
     esteDeps:
       all:
@@ -67,7 +61,6 @@ module.exports = (grunt) ->
           prefix: '../../../../'
           root: [
             'bower_components/closure-library'
-            'public/scripts/lib/soyutils'
             'bower_components/este-library/este/thirdparty'
             'public/scripts/dm'
           ]
