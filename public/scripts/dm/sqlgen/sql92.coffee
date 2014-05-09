@@ -8,8 +8,7 @@ goog.provide 'dm.sqlgen.Sql92'
 
 goog.require 'dm.model.Table.index'
 goog.require 'goog.array'
-goog.require 'goog.ui.Dialog'
-goog.require 'goog.ui.Dialog.ButtonSet'
+goog.require 'dm.ui.SqlCodeDialog'
 
 class dm.sqlgen.Sql92
 	###*
@@ -19,8 +18,10 @@ class dm.sqlgen.Sql92
 		###*
     * @type {goog.ui.Dialog}
 		###
-		@dialog = new goog.ui.Dialog()
-		@dialog.setButtonSet goog.ui.Dialog.ButtonSet.OK
+		@dialog = React.renderComponent(
+			dm.ui.SqlCodeDialog()
+			goog.dom.getElement 'sqlCodeDialog'
+		)
 
 		###*
 		* List of names of already created foreign key constraints, used to ensure
@@ -45,7 +46,7 @@ class dm.sqlgen.Sql92
 				"and #{childModel.getName()} */\n"
 			sql += @createRelationConstraint rel, parentModel, childModel
 
-		@showDialog sql
+		@dialog.show sql
 
 	###*
   * @param {dm.model.Table} table
@@ -128,11 +129,3 @@ class dm.sqlgen.Sql92
 		notNull = if column.isNotNull then ' NOT NULL' else ''
 		
 		"#{column.name} #{column.type}#{notNull}"
-
-	###*
-  * @param {string} sql
-	###
-	showDialog: (sql) -> 
-		@dialog.setTitle 'SQL'
-		@dialog.setContent "<textarea cols='100' rows='20'>#{sql}</textarea>"
-		@dialog.setVisible true

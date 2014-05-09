@@ -1,10 +1,18 @@
 goog.require 'dm.sqlgen.Sql92'
 
+
 describe 'class SQL92 generator', ->
 	gen = null
 
 	before ->
-		gen = new dm.sqlgen.Sql92()
+		# temporary mock
+		global.React = renderComponent: ->
+
+		sinon.stub dm.ui, 'SqlCodeDialog'
+		gen = new dm.sqlgen.Sql92()		
+
+	after ->
+		dm.ui.SqlCodeDialog.restore()
 
 	describe 'method getUniqueConstraintName', ->
 		beforeEach ->

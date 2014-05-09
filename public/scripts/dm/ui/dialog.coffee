@@ -9,6 +9,7 @@ dm.ui.Dialog = React.createClass
   statics:
     buttonSet:
       OK: 'ok'
+      CANCEL: 'cancel'
       OK_CANCEL: 'okcancel'
       SELECT: 'select'
 
@@ -16,7 +17,7 @@ dm.ui.Dialog = React.createClass
     @setState visible: false
 
   confirmDialog: ->
-    hide = @props.onConfirm()
+    hide = if @props.onConfirm? then @props.onConfirm() else true
     
     # dont hide dialog when confirm callback return false, it lets option for
     # deffer hide of dialog
@@ -29,6 +30,11 @@ dm.ui.Dialog = React.createClass
       when dm.ui.Dialog.buttonSet.OK
         buttons = `( 
           <button type="button" onClick={this.confirmDialog}>Ok</button> 
+        )`
+
+      when dm.ui.Dialog.buttonSet.CANCEL
+        buttons = `( 
+          <button type="button" onClick={this.cancelDialog}>Cancel</button> 
         )`
             
       when dm.ui.Dialog.buttonSet.OK_CANCEL

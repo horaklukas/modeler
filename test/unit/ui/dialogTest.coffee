@@ -55,6 +55,15 @@ describe 'component Dialog', ->
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'none'
 		cb.should.been.calledOnce
 
+	it 'should hide dialog when clicked ok and confirm callback not exists', ->
+		dlg.setProps onConfirm: undefined, visible: true
+		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'
+		expect(dlgRoot).to.have.deep.property 'props.style.display', 'block'
+
+		TestUtils.Simulate.click btns[0] 
+
+		expect(dlgRoot).to.have.deep.property 'props.style.display', 'none'
+
 	it 'should not hide dialog when confirm callback return false', ->
 		cb = sinon.stub().returns false
 		dlg.setProps onConfirm: cb, visible: true

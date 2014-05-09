@@ -43,17 +43,23 @@ dm.ui.LoadModelDialog = React.createClass
 		iFrameIo.removeAllListeners()
 		iFrameIo.dispose()
 
+	onFileChange: ->
+		@setState loadDisabled: false
+
 	getInitialState: ->
     visible: false
     info: text: '', type: null
+    loadDisabled: true
 
   render: ->
-    {visible, info} = @state
+    {visible, info, loadDisabled} = @state
     title = 'Load model from file'
     infoClasses = 'info' + (if info.type? then " #{info.type}" else '')
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={visible}>
+    <Dialog title={title} onConfirm={this.onConfirm} visible={visible} 
+    	buttons={dm.ui.Dialog.buttonSet.CANCEL} >
+
       <form method="POST" action="/load" encType="multipart/form-data"
       	onSubmit={this.onUploadRequest}>
 				<p className={infoClasses}>{this.state.info.text}</p>
@@ -61,8 +67,9 @@ dm.ui.LoadModelDialog = React.createClass
 				<p>Select JSON that contains model:</p>
 
 				<p>
-					<input type="file" name="modelfile" />
-					<input type="submit" name="load" value="Load model" />
+					<input type="file" name="modelfile" onChange={this.onFileChange} />
+					<input type="submit" name="load" value="Load model" 
+						disabled={loadDisabled} />
 				</p>
 			</form>
     </Dialog>
