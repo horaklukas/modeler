@@ -30,6 +30,12 @@ class dm.ui.tools.CreateToggleButton extends goog.ui.ToolbarToggleButton
 		@actionEvent = ev
 		return true
 
+	###*
+  * This method should be owerwritten. It's used to cancel action of selected
+  * button
+	###
+	cancel: goog.abstractMethod
+
 class dm.ui.tools.ObjectCreateEvent extends goog.events.Event
 	###*
   * @param {(goog.math.Coordinate|*)} data Position in canvas where to create

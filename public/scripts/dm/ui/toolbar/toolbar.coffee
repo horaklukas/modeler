@@ -71,11 +71,16 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		@selectionModel_.addItem @getChildAt 2
 
 		goog.events.listen this, goog.ui.Component.EventType.ACTION, (e) =>
-			if @selectionModel_.indexOfItem(e.target) > -1
-				@selectionModel_.setSelectedItem e.target
+			tool = e.target
+
+			if @selectionModel_.indexOfItem(tool) > -1
+				if @selectionModel_.getSelectedItem() is tool
+					@selectionModel_.setSelectedItem()
+					tool.cancel()
+				else 
+					@selectionModel_.setSelectedItem tool
 			else
-				@selectionModel_.setSelectedItem()
-				e.target.startAction()
+				tool.startAction()
 
 		goog.events.listen canvas, dm.ui.Canvas.EventType.CLICK, (ev) =>
 			selectedButton = @selectionModel_.getSelectedItem()

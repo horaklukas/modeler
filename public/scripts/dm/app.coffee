@@ -217,7 +217,6 @@ tab0model = new dm.model.Table 'Person', [
 tab0model.setIndex 0, dm.model.Table.index.PK
 tab0 = dm.addTable tab0model, 100, 75
 
-###
 tab1model = new dm.model.Table 'Account', [
   { name:'account_id', type:'smallint', isNotNull:false }
   { name:'account_number', type:'numeric', isNotNull:false }
@@ -225,6 +224,7 @@ tab1model = new dm.model.Table 'Account', [
 tab1model.setIndex 0, dm.model.Table.index.PK
 tab1 = dm.addTable tab1model, 500, 280
 
+###
 tab2model = new dm.model.Table 'PersonAccount'
 tab2 = dm.addTable tab2model, 100, 280
 
