@@ -1,13 +1,23 @@
 mocks = 
 	fs: readdir: sinon.stub()
+	path: join: sinon.stub()
 
-mockery.enable()
+mockery.enable useCleanCache: true
+
+path = require 'path'
+defsDir = path.resolve __dirname, '../../../lib', 'defs'
+
 mockery.registerMock 'fs', mocks.fs
+mockery.registerAllowables ['util', 'path']
 
 databases = require '../../../lib/dbs'
 
 describe 'Module dbs', ->
 	cb = sinon.spy()
+
+	after ->
+		mockery.deregisterAll()
+		mockery.disable()
 
 	describe 'method getList', ->
 		before ->
@@ -20,8 +30,6 @@ describe 'Module dbs', ->
 
 		after ->
 			databases.loadAllDefinitions.restore()
-			mockery.deregisterAll()
-			mockery.disable()
 
 		it 'should pass error to calback if loading definitions failed', ->
 			databases.getList cb
@@ -54,6 +62,36 @@ describe 'Module dbs', ->
 				{ id: 'mysql8', title: 'MYSQL 8'}
 				{ id: 'sql92', title: 'SQL 92'}
 			]
+
+	describe 'method loadDefinition', ->
+		before ->
+			sinon.stub databases, 'setDb' 
+
+		beforeEach ->
+			databases.setDb.reset()
+
+		after ->
+			databases.setDb.restore()
+
+		it 'should set loaded definition with name of file as an id', ->
+			mockery.registerMock "#{defsDir}/sqldef", {'one': 'def'}
+
+			databases.loadDefinition 'sqldef'
+
+			databases.setDb.should.been.calledOnce
+			databases.setDb.should.been.calledWithExactly 'sqldef', {'one': 'def'}
+
+		it 'should set all definitions if loaded file is array of definitions', ->
+			mockery.registerMock "#{defsDir}/sql", [
+				{'one': 'def1'}, {'two': 'def2'}, {'three': 'def3'}
+			]
+
+			databases.loadDefinition 'sql'
+
+			databases.setDb.should.been.calledThrice
+			databases.setDb.should.been.calledWithExactly 'sql-0', {'one': 'def1'}
+			databases.setDb.should.been.calledWithExactly 'sql-1', {'two': 'def2'}
+			databases.setDb.should.been.calledWithExactly 'sql-2', {'three': 'def3'}
 
 	describe 'method loadAllDefinitions', ->
 		before ->

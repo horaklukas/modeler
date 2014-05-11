@@ -25,6 +25,8 @@ app.configure ->
 	app.use '/bower_components', express.static(__dirname + '/bower_components')
 	app.use '/public', express.static __dirname + '/public'
 	app.use app.router
+	app.use (err, req, res, next) ->
+	  res.render '500', error: err
 	app.use express.errorHandler()
 	
 app.get '/', routes.app
