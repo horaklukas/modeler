@@ -56,5 +56,4 @@ module.exports = databases =
 				try databases.loadDefinition dbName
 				catch err then return cb err.message
 
-			console.log 'DBS', dbs
-			cb()
+			cb null, dbs

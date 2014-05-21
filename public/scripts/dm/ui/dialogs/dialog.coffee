@@ -12,6 +12,7 @@ dm.ui.Dialog = React.createClass
       CANCEL: 'cancel'
       OK_CANCEL: 'okcancel'
       SELECT: 'select'
+      NONE: 'none'
 
   cancelDialog: ->
     @setState visible: false
@@ -47,6 +48,9 @@ dm.ui.Dialog = React.createClass
         buttons = `( 
           <button type="button" onClick={this.confirmDialog}>Select</button> 
         )`
+
+      when dm.ui.Dialog.buttonSet.NONE
+        return ''
     
     `( <div className="buttons">{buttons}</div> )`
 

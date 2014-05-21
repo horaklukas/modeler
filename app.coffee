@@ -31,7 +31,7 @@ app.configure ->
 	
 app.get '/', routes.app
 app.post '/', routes.app
-app.post '/list', routes.getList
+#app.post '/list', routes.getList
 app.post '/save', routes.saveModel
 app.post '/load', multipartMiddleware, routes.loadModel
 

@@ -38,5 +38,6 @@
   "scripts": {
     "start": "PORT=3000 node app.js"
   },
-  "private": true
+  "private": true,
+  "repository": "https://github.com/horaklukas/modeler.git"
 }

@@ -48,8 +48,7 @@ module.exports = (grunt) ->
         files: [{
           expand: true,
           src: [
-            './public/scripts/dm/dialogs/*.js'
-            './public/scripts/dm/ui/*.js'
+            './public/scripts/dm/ui/**/*.js'
           ]
           ext: '.js'
         }]

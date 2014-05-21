@@ -11,7 +11,6 @@ goog.require 'goog.math.Coordinate'
 goog.require 'goog.math.Size'
 goog.require 'goog.ui.Component'
 goog.require 'goog.events'
-goog.require 'goog.events.Event'
 goog.require 'goog.fx.Dragger'
 
 class dm.ui.Table extends goog.ui.Component

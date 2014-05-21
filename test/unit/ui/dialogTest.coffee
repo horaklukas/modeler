@@ -35,6 +35,13 @@ describe 'component Dialog', ->
 
 		expect(btn).to.have.deep.property 'props.children', 'Select'
 
+	it 'should render without buttons if passed NONE as a button set type', ->
+		dlg.setProps buttons: dm.ui.Dialog.buttonSet.NONE
+		btns = TestUtils.scryRenderedDOMComponentsWithClass dlg, 'buttons'
+
+		expect(btns).to.be.empty
+
+
 	it 'should hide dialog when clicked cancel', ->
 		dlg.setProps visible: true, buttons: dm.ui.Dialog.buttonSet.OK_CANCEL
 		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'

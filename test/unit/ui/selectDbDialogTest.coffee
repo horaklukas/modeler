@@ -6,22 +6,23 @@ describe 'component SelectDbDialog', ->
 	props = null
 	dlg = null
 	dbSelect = null
+	cb = sinon.spy()
 
 	before ->
 		props =
-			dbs: [
-				{id: 'db1', title: 'Database 1'}
-				{id: 'db2', title: 'Database 2'}
-				{id: 'db3', title: 'Database 3'}
-			]
+			dbs:
+				'db1': {name: 'Database', version: '1'}
+				'db2': {name: 'Database', version: '2'}
+				'db3': {name: 'Database', version: '3'}
+			onSelect: cb
+
 		dlg = TestUtils.renderIntoDocument dm.ui.SelectDbDialog props
 		dbSelect = TestUtils.findRenderedDOMComponentWithTag dlg, 'select'
 
-	it 'should set first db as a selected in default', ->
-		expect(dlg).to.have.deep.property 'state.selectedDb', 'db1'
+	beforeEach ->
+		cb.reset()
 
-	it 'should set new selected db when option changed', ->
-		TestUtils.Simulate.change dbSelect, target: {value: 'db3'}
+	it 'should supply id of selected db when dialog confirmed', ->
+		dlg.handleDbSelect()
 
-		expect(dlg.state).to.have.property 'selectedDb', 'db3'		
-
+		cb.should.been.calledOnce.and.calledWithExactly 'db1'
