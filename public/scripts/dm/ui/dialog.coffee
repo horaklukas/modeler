@@ -77,11 +77,12 @@ dm.ui.Dialog = React.createClass
     containerStyles =
       display: if @state.visible then 'block' else 'none'
 
-    viewSize = goog.dom.getViewportSize()
-    w = Math.max(viewSize.width, document.body.scrollWidth)
-    h = Math.max(viewSize.height, document.body.scrollHeight)
-
-    bgStyles = width: w, height: h
+    bgStyles =
+      position: 'absolute'
+      top: 0
+      right: 0
+      bottom: 0
+      left: 0
 
     dialogStyles = 
       top: @state.top
