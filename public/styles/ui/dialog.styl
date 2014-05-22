@@ -11,28 +11,30 @@
  * @author ssaviano@google.com (Steven Saviano)
  * @author attila@google.com (Attila Bodis)
  */
-.modal-dialog
+.dialog
 	background: #c1d9ff
 	border: 1px solid #3a5774
 	color: #000
 	padding: 4px
 	position: absolute
+	text-select: none
 	a
-	a:link,
+	a:link
 	a:visited
 		color: #06c
 		cursor: pointer
 
-.modal-dialog-bg
+.dialog-container .bg
 	background: #666
-	left: 0
 	position: absolute
+	left: 0
 	top: 0
+	opacity: 0.5
 
-.modal-dialog-title
+.dialog .title
 	background: #e0edfe
 	color: #000
-	cursor: pointer
+	//cursor: pointer
 	font-size: 120%
 	font-weight: bold
 	/* Add padding on the right to ensure the close button has room. */
@@ -52,24 +54,15 @@
 	width: 15px
 	vertical-align: middle
 
-.modal-dialog-buttons
-.modal-dialog-content
+.dialog .buttons
+.dialog .content
 	background-color: #fff
 	padding: 8px
 
-.modal-dialog-content
-	.row
-		display: table-row
-		&.head
-			background-color: #ccc
-		& > span
-			display: table-cell
-			text-align: center
-
-.goog-buttonset-default
+.dialog .buttons
 	font-weight: bold
 
-.modal-dialog
+.dialog
 	.info
 		&.error
 			color: red

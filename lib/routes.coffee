@@ -1,12 +1,18 @@
 fs = require 'fs'
 databases = require './dbs'
 
+###*
+* POST request by ajax from select database dialog
+###
 exports.getList = (req, res) ->	
 	databases.getList (err, list) ->
 		if err? then res.send 500, err
 		else res.json dbs: list
 
-exports.app = (req, res) ->
+###*
+* GET or POST request
+###
+exports.app = (req, res, next) ->
 	switch req.method
 		# ajax request, setting of selected db
 		when 'POST'
@@ -19,18 +25,22 @@ exports.app = (req, res) ->
 
 		# browser request, usually page refresh
 		when 'GET'
+			exposeData = {}
+			###
 			selectedId = databases.getSelected()
 			if selectedId then selectedDb = databases.getDb selectedId
 	
 			if selectedDb
-				res.expose {
-					name: selectedDb.name, version: selectedDb.version
-					types: selectedDb.types, dbs: null
-				}, 'dmAssets'
-				return res.render 'main', title: selectedDb?.name
-			
-			databases.getList (err, list) ->
-				res.expose {dbs: list}, 'dmAssets'
+				exposeData.name = selectedDb.name
+				exposeData.version = selectedDb.version
+				exposeData.types = selectedDb.types
+			###
+			databases.loadAllDefinitions (err, defs) ->
+				if err then return next "Error at loading definitions #{err}"
+
+				exposeData.dbs = defs
+
+				res.expose exposeData, 'dmAssets'
 				res.render 'main', title: 'Database not selected'
 
 exports.saveModel = (req, res) ->

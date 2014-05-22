@@ -5,10 +5,12 @@ goog.require 'goog.events.EventTarget'
 class dm.model.Relation extends goog.events.EventTarget
 	###*
   * @param {boolean} identify True if relation is identifying
+  * @param {dm.ui.Table} parent Relation parent table
+  * @param {dm.ui.Table} child Relation child table
   * @constructor
   * @extends {goog.events.EventTarget}
 	###
-	constructor: (identify) ->
+	constructor: (identify, parent, child) ->
 		super()
 		#@setRelatedTables startTab, endTab
 		
@@ -24,11 +26,12 @@ class dm.model.Relation extends goog.events.EventTarget
 		@keyColumnsMapping_ = []
 
 		###*
+		* Id of parent and child table
 	  * @type {Object.<string, string>}
 		###
 		@tables = 
-			parent: null
-			child: null
+			parent: parent
+			child: child
 		
 	###*
 	* @param {boolean} identify True if relation is identyfing
@@ -62,14 +65,23 @@ class dm.model.Relation extends goog.events.EventTarget
   * @param {?string} parent Name of parent table
   * @param {?string=} child Name of child table
 	###
+	###
 	setRelatedTables: (parent, child) =>
 		if parent? then @tables.parent = parent
 		if child? then @tables.child = child
+	###
 
 	###
-	 * @return {Object} table model at JSON representation
+	* Since relation model contains "only" ids of tables, its names have to be
+	*  passed
+	*
+	* @param {string} parentName
+	* @param {string} childName
+	* @return {Object} table model at JSON representation
 	###
-	toJSON: ->
+	toJSON: (parentName, childName) ->
 		'type': @identifying_
 		'mapping': @keyColumnsMapping_
-		'tables': @tables
+		'tables': 
+			parent: parentName
+			child: childName

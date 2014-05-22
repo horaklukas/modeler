@@ -3,6 +3,8 @@ goog.provide 'dm.model.Model'
 goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
 goog.require 'goog.string'
+goog.require 'goog.object'
+goog.require 'goog.array'
 goog.require 'goog.ui.IdGenerator'
 
 class dm.model.Model
@@ -15,47 +17,79 @@ class dm.model.Model
 		@tables_ = {}
 		@relations_ = {}
 
+		@relationsByTable = {}
+
 	###*
 	* Add model of the table to model's list of tables
 	*
 	* @param {dm.ui.Table} table
 	###
 	addTable: (table) =>
-		@tables_[table.getId()] = table#.getModel()
+		@tables_[table.getId()] = table #.getModel()
 
 	###*
 	* @param {dm.ui.Relation} relation
 	###
 	addRelation: (relation) ->
-		@relations_[relation.getId()] = relation#.getModel()
+		id = relation.getId()
+		@relations_[id] = relation #.getModel()
+
+		{parent, child} = relation.getModel().tables
+
+		unless goog.object.containsKey @relationsByTable, parent
+			goog.object.add @relationsByTable, parent, []
+
+		unless goog.object.containsKey @relationsByTable, child
+			goog.object.add @relationsByTable, child, []
+
+		goog.array.insert @relationsByTable[parent], id
+		goog.array.insert @relationsByTable[child], id
+
+	###*
+	* Returns table ui by table id
+  * @param {string} id
+  * @return {dm.ui.Table=}
+	###
+	getTableUiById: (id) ->
+		@tables_[id] ? null
+
+	###*
+  * Returns relation ui by relation id
+  * @param {string} id
+  * @return {dm.ui.Relation=}
+	###
+	getRelationUiById: (id) ->
+		@relations_[id] ? null
 
 	###*
 	* Returns table model by table id
   * @param {string} id
-  * @return {dm.model.Table=}
+  * @return {dm.ui.Table=}
 	###
 	getTableById: (id) ->
-		@tables_[id]?.getModel() ? null
+		@tables_[id].getModel() ? null
 
 	###*
-  * Returns relation model relation id
+  * Returns relation model by relation id
   * @param {string} id
-  * @return {dm.model.Relation=}
+  * @return {dm.ui.Relation=}
 	###
 	getRelationById: (id) ->
-		@relations_[id]?.getModel() ? null
+		@relations_[id].getModel() ? null
 
 	###*
-  * @return {Array.<dm.model.Table>}
+  * @return {Object.<string, dm.model.Table>}
 	###
 	getTables: ->
-		(table.getModel() for id, table of @tables_)
+		goog.object.map @tables_, (table) -> table.getModel()
+		#(table.getModel() for id, table of @tables_)
 
 	###*
-  * @return {Array.<dm.model.Table>}
+  * @return {Object.<string, dm.model.Table>}
 	###
 	getRelations: ->
-		(relation.getModel() for id, relation of @relations_)
+		goog.object.map @relations_, (relation) -> relation.getModel()
+		#(relation.getModel() for id, relation of @relations_)
 
 	###*
   * Maps tables by its names
@@ -81,6 +115,13 @@ class dm.model.Model
 			return table.getId(); break
 
 	###*
+	* @param {string} tableId
+  * @return {Object} List of table related relations
+	###
+	getRelationsByTable: (tableId) ->
+		@relationsByTable[tableId] ? null
+
+	###*
   * @return {Object} JSON representation of all data about model
 	###
 	toJSON: ->
@@ -91,6 +132,15 @@ class dm.model.Model
 			pos: x: x, y: y
 		)
 
+		tableModels = @getTables()
+		relationsData = []
+
+		goog.object.forEach @getRelations(), (relModel) ->
+			parent = tableModels[relModel.tables.parent].getName()
+			child = tableModels[relModel.tables.child].getName()
+
+			goog.array.insert relationsData, relModel.toJSON(parent, child)
+
 		name: @name
 		tables: tablesData
-		relations: @getRelations().map (relModel) -> relModel.toJSON()
+		relations: relationsData

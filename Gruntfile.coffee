@@ -9,16 +9,17 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-closure-tools'
   grunt.loadNpmTasks 'grunt-este'
   grunt.loadNpmTasks 'grunt-mocha-cli'
+  grunt.loadNpmTasks 'grunt-reactjsx'
+  grunt.loadNpmTasks 'grunt-mocha-phantomjs'
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
-  grunt.registerTask 'soy', ['esteTemplates']
   grunt.registerTask 'build', ['closureBuilder']
 
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']
 
   # task for heroku deployment
-  grunt.registerTask 'heroku:development', ['coffee:app', 'soy', 'deps']
+  grunt.registerTask 'heroku:development', ['coffee:app', 'deps']
 
   grunt.initConfig
     coffee:
@@ -42,10 +43,15 @@ module.exports = (grunt) ->
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
 
-    esteTemplates:
+    reactjsx:
       all:
-        src: './public/scripts/dm/templates/**/*.soy'
-        outputPathFormat: '{INPUT_DIRECTORY}/{INPUT_FILE_NAME_NO_EXT}.js'
+        files: [{
+          expand: true,
+          src: [
+            './public/scripts/dm/ui/**/*.js'
+          ]
+          ext: '.js'
+        }]
 
     esteDeps:
       all:
@@ -54,7 +60,6 @@ module.exports = (grunt) ->
           prefix: '../../../../'
           root: [
             'bower_components/closure-library'
-            'bower_components/closure-templates'
             'bower_components/este-library/este/thirdparty'
             'public/scripts/dm'
           ]
@@ -115,7 +120,12 @@ module.exports = (grunt) ->
         colors: true
         require: ['./test/common.js']
       
-      src: 'test/unit/**/*Test.coffee'
+      src: 'test/unit/lib/**/*Test.coffee'
+
+    mocha_phantomjs:
+      options:
+        'reporter': 'spec',
+      all: ['test/**/*Test.html']
 
     stylus:
       options:
@@ -133,14 +143,20 @@ module.exports = (grunt) ->
           './lib/**/*.coffee'
           './public/scripts/**/*.coffee'
         ] #'<%= coffee.app.files[0].src %>'
-        tasks: ['coffee:app']
-        options:
-          livereload: true
+        tasks: ['coffee:app', 'reactjsx:all']
 
       test:
         files: [
           'lib/**/*.coffee'
           'public/scripts/**/*.coffee'
           'test/unit/**/*.coffee'
+          'test/unit/**/*Test.html'
         ]
-        tasks: ['coffee:app','test', 'mochacli']
+        tasks: [
+          'coffee:app', 'reactjsx'
+          'coffee:test'
+          'test', 'mocha_phantomjs', 'mochacli'
+        ]
+        
+        options:
+          livereload: true

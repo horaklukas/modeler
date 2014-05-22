@@ -17,6 +17,9 @@ describe 'class model.Model', ->
 			model.should.have.property('tables_').that.is.an('object').and.empty
 			model.should.have.property('relations_').that.is.an('object').and.empty
 
+		it 'should create empty map of related relations and tables', ->
+			model.should.have.property('relationsByTable').that.is.empty
+
 	describe 'method addTable', ->
 		beforeEach ->
 			model.tables_ = {}
@@ -31,48 +34,80 @@ describe 'class model.Model', ->
 			expect(model).to.have.deep.property 'tables_.id1'
 			expect(model.tables_.id1).to.deep.equal table
 
-	describe 'method getTableById', ->
+	describe 'method getTableUiById', ->
 		before ->
 			model.tables_ =
-				'tab1': getModel: -> 'model1'
-				'tab2': getModel: -> 'model2'
-				'tab3': getModel: -> 'model3'
+				'tab1': 'model1'
+				'tab2': 'model2'
+				'tab3': 'model3'
 
-		it 'should return model of passed table', ->
-			expect(model.getTableById 'tab3').to.equal 'model3'
-			expect(model.getTableById 'tab1').to.equal 'model1'			
+		it 'should return passed table', ->
+			expect(model.getTableUiById 'tab3').to.equal 'model3'
+			expect(model.getTableUiById 'tab1').to.equal 'model1'			
 
 		it 'should return null if table with passed id doesnt exist', ->
-			expect(model.getTableById 'tab4').to.be.null
+			expect(model.getTableUiById 'tab4').to.be.null
 
-	describe 'method getRelationById', ->
+	describe 'method getRelationUiById', ->
 		before ->
 			model.relations_ =
-				'rel1': getModel: -> 'model1'
-				'rel2': getModel: -> 'model2'
-				'rel3': getModel: -> 'model3'
+				'rel1': 'model1'
+				'rel2': 'model2'
+				'rel3': 'model3'
 
 		it 'should return model of passed relation', ->
-			expect(model.getRelationById 'rel3').to.equal 'model3'
-			expect(model.getRelationById 'rel1').to.equal 'model1'			
+			expect(model.getRelationUiById 'rel3').to.equal 'model3'
+			expect(model.getRelationUiById 'rel1').to.equal 'model1'			
 
 		it 'should return null if table with passed id doesnt exist', ->
-			expect(model.getRelationById 'tab4').to.be.null
+			expect(model.getRelationUiById 'tab4').to.be.null
 
 	describe 'method addRelation', ->
+		relation = null
+		relmodel = null
+
 		beforeEach ->
 			model.relations_ = {}
+			model.relationsByTable = {}
+
+			relmodel =
+				tables:
+					parent: 'par1'
+					child: 'chi3'
+
+			relation =
+				getId: sinon.stub().returns 'rel3'
+				getModel: sinon.stub().returns relmodel
 
 		it 'should save relation by relation id', ->
-			relation =
-				getId: sinon.stub().returns 'rel1'
-				getModel: sinon.stub().returns 'model2'
+			model.addRelation relation
+
+			expect(model).to.have.deep.property 'relations_.rel3'
+			expect(model.relations_.rel3).to.deep.equal relation
+
+		it 'should assign id of relation to related tables lists', ->
+			model.relationsByTable = 
+				'par1': ['rel1', 'rel2']
+				'tab2': ['rel5']
+				'chi3': ['rel4']
 
 			model.addRelation relation
 
-			expect(model).to.have.deep.property 'relations_.rel1'
-			expect(model.relations_.rel1).to.deep.equal relation
+			expect(model.relationsByTable.par1).to.contain 'rel3' 
+			expect(model.relationsByTable.chi3).to.contain 'rel3' 
 
+		it 'should create new list of relation if not exist for related tables', ->
+			model.relationsByTable = 
+				't1': ['rel1', 'rel2']
+				't3': ['rel4']
+
+			model.addRelation relation
+
+			expect(model.relationsByTable).to.have.property 'par1'
+			expect(model.relationsByTable.par1).to.deep.equal ['rel3'] 
+			expect(model.relationsByTable).to.have.property 'chi3'
+			expect(model.relationsByTable.chi3).to.deep.equal ['rel3'] 
+ 
 	describe 'method getTables', ->
 		before ->
 			model.tables_ =
@@ -80,8 +115,12 @@ describe 'class model.Model', ->
 				'tab2': getModel: -> 'tmdl2'
 				'tab3': getModel: -> 'tmdl3'
 
-		it 'should return list of tables models', ->
-			expect(model.getTables()).to.deep.equal ['tmdl1', 'tmdl2', 'tmdl3']
+		it 'should return list of tables models by keys', ->
+			expect(model.getTables()).to.deep.equal {
+				'tab1': 'tmdl1'
+				'tab2': 'tmdl2'
+				'tab3': 'tmdl3'
+			}
 
 	describe 'method getRelations', ->
 		before ->
@@ -90,8 +129,12 @@ describe 'class model.Model', ->
 				'rel2': getModel: -> 'rmdl2'
 				'rel3': getModel: -> 'rmdl3'
 
-		it 'should return list of realations models', ->
-			expect(model.getRelations()).to.deep.equal ['rmdl1', 'rmdl2', 'rmdl3']
+		it 'should return list of realations models by keys', ->
+			expect(model.getRelations()).to.deep.equal {
+				'rel1': 'rmdl1'
+				'rel2': 'rmdl2'
+				'rel3': 'rmdl3'
+			}
 
 	describe 'method getTablesByName', ->
 		model1 = getName: (-> 'table1'), id: 'tb1'
@@ -137,20 +180,36 @@ describe 'class model.Model', ->
 
 	describe 'method toJSON', ->
 		before ->
+			sinon.stub model, 'getTables'
+			sinon.stub model, 'getRelations'
+
 			model.name = 'model1'
 			model.tables_ = 
-				'tab1': 
-					getModel: -> toJSON: -> {name: 't1', columns: ['c1', 'c2']}
+				't1': 
+					getModel: -> toJSON: -> {name: 'tab1', columns: ['c1', 'c2']}
 					getPosition: -> new goog.math.Coordinate 45, 180 
-				'tab2': 
-					getModel: -> toJSON: -> {name: 't2', columns: ['c3', 'c5']}
+				't2': 
+					getModel: -> toJSON: -> {name: 'tab2', columns: ['c3', 'c5']}
 					getPosition: -> new goog.math.Coordinate 354, 20 
-				'tab3': 
-					getModel: -> toJSON: -> {name: 't3', columns: ['c4', 'c7']}
-					getPosition: -> new goog.math.Coordinate 480, 335 
-			model.relations_ =
-				'rel1': getModel: -> toJSON: -> {par: 't1', chld: 't2', ident: true}
-				'rel2': getModel: -> toJSON: -> {par: 't2', chld: 't3', ident: false}
+				't3': 
+					getModel: -> toJSON: -> {name: 'tab3', columns: ['c4', 'c7']}
+					getPosition: -> new goog.math.Coordinate 480, 335
+
+
+			model.getTables.returns {
+				't1': getName: -> 'tab1'
+				't2': getName: -> 'tab2'
+				't3': getName: -> 'tab3'
+			}
+
+			model.getRelations.returns {
+				'rel1': tables: {parent: 't1', child: 't2'}, toJSON: -> {ident: true}
+				'rel2': tables: {parent: 't2', child: 't3'}, toJSON: -> {ident: false}
+			}
+
+		after ->
+			model.getTables.restore()
+			model.getRelations.restore()
 
 		it 'should return JSON representation of complete model data', ->
 			json = model.toJSON()
@@ -159,20 +218,20 @@ describe 'class model.Model', ->
 				'name': 'model1'
 				'tables': [
 					{	
-						'model': {name: 't1', columns: ['c1', 'c2']}
+						'model': {name: 'tab1', columns: ['c1', 'c2']}
 						'pos': {'x': 45, 'y': 180}
 					}
 					{	
-						'model': {name: 't2', columns: ['c3', 'c5']}
+						'model': {name: 'tab2', columns: ['c3', 'c5']}
 						'pos': {'x': 354, 'y': 20}
 					}
 					{
-						'model': {name: 't3', columns: ['c4', 'c7']}
+						'model': {name: 'tab3', columns: ['c4', 'c7']}
 						'pos': {'x': 480, 'y': 335}
 					}
 				]
 				'relations': [
-					{ par: 't1', chld: 't2', ident: true }
-					{ par: 't2', chld: 't3', ident: false }
+					{ ident: true }
+					{ ident: false }
 				]
 			}

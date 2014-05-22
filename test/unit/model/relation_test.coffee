@@ -27,7 +27,7 @@ describe 'class model.Relation', ->
 
 			spy.should.been.calledOnce
 
-	describe 'method setRelatedTables', ->
+	describe.skip 'method setRelatedTables', ->
 		beforeEach ->
 			rel.tables = parent: '', child: ''
 
@@ -51,10 +51,11 @@ describe 'class model.Relation', ->
 				{ 'parent': 2, 'child': 4 }
 				{ 'parent': 3, 'child': 5 }
 			]
-			rel.setRelatedTables 'parent1', 'child2'
+			rel.tables.parent = getModel: -> getName: -> 'parent1'
+			rel.tables.child = getModel: -> getName: -> 'child2'
 
 		it 'should return JSON like representation of model', ->
-			json = rel.toJSON()
+			json = rel.toJSON 'parent1', 'child2'
 
 			expect(json).to.have.property 'type', true
 			expect(json).to.have.deep.property 'mapping[0].parent', 1

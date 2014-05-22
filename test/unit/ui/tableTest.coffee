@@ -133,71 +133,46 @@ describe 'class Table', ->
 			obj2 = tab2.getConnPoints()
 			expect(obj).to.not.deep.equal obj2
 
-	describe.skip 'method addRelation', ->
-		it 'should add relations to table', ->
-			tab = new Table canvas, 'i', 10, 10
-			
-			expect(tab.relations).to.be.empty
-
-			tab.addRelation 'rel1'
-			tab.addRelation 'rel2'
-			tab.addRelation 'rel3'
-
-			expect(tab.relations).to.have.length(3).and.deep.equal ['rel1','rel2','rel3']
-
-		it 'should set clear list of table\'s relations for each new table', ->
-			tab1 = new Table canvas, 'i', 20, 30
-			
-			tab1.addRelation 'rel2'
-			tab1.addRelation 'rel5'
-			expect(tab1.relations).to.have.length(2).and.deep.equal ['rel2','rel5']
-
-			tab3 = new Table canvas, 'd', 40, 50
-			expect(tab3.relations).to.be.an('array').and.be.empty
-
 	describe 'method addColumn', ->
 		before ->
 			tab = new dm.ui.Table fakeModel
 
 		it 'should add column to the end of columns', ->
-			fakeModel.getColumns.returns [
-				{name: 'col1', isPk: false}, {name: 'col2', isPk: true}
-			]
+			fakeModel.getColumns.returns {
+				'id1': {name: 'col1', isPk: false}, 'id2': {name: 'col2', isPk: true}
+			}
 			tab.createDom()
-			# one more node is tabulator before column nodes
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 2
+
+			tab.addColumn 'id3', {name: 'col3', isPk: true}
+
 			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
-
-			tab.addColumn {name: 'col3', isPk: true}
-
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
 
 	describe 'method updateColumn', ->
 		before ->
 			tab = new dm.ui.Table fakeModel
 
 		beforeEach ->
-			fakeModel.getColumns.returns [
-				{name: 'col3', isPk: false}, {name: 'col4', isPk: false}
-				{name: 'col5', isPk: true}
-			]
+			fakeModel.getColumns.returns {
+				'id1': {name: 'col3', isPk: false}, 'id2': {name: 'col4', isPk: false}
+				'id3': {name: 'col5', isPk: true}
+			}
 			tab.createDom()
 
 		it 'should left count of columns same as it was', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
-			tab.updateColumn 1, {name: 'col3', isPk: true}
+			tab.updateColumn 'id1', {name: 'col3', isPk: true}
 
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
 		it 'should replace old column element with new column element', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes[2]'
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col4'
+			expect(tab).to.have.deep.property 'body_.childNodes[1]'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col4'
 
-			tab.updateColumn 1, {name: 'col6', isPk: false}
+			tab.updateColumn 'id2', {name: 'col6', isPk: false}
 
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col6'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col6'
 
 	describe 'method removeColumn', ->
 		before ->
@@ -212,19 +187,16 @@ describe 'class Table', ->
 			tab.createDom()
 
 		it 'should remove one column element', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 5
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
 
 			tab.removeColumn 2
 
-			expect(tab).to.have.deep.property 'body_.childNodes.length', 4
+			expect(tab).to.have.deep.property 'body_.childNodes.length', 3
 
 		it 'should remove column with passed index', ->
-			# one more node is tabulator before column nodes
-			expect(tab).to.have.deep.property 'body_.childNodes[2]'
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col2'
-
+			expect(tab).to.have.deep.property 'body_.childNodes[1]'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col2'
 
 			tab.removeColumn 1
 
-			expect(goog.dom.getTextContent tab.body_.childNodes[2]).to.equal 'col3'
+			expect(goog.dom.getTextContent tab.body_.childNodes[1]).to.equal 'col3'

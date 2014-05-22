@@ -1,5 +1,6 @@
 path = require 'path'
 fs = require 'fs'
+util = require 'util'
 
 dbs = null
 selected = null
@@ -21,6 +22,9 @@ module.exports = databases =
 	getDb: (name) ->
 		dbs[name]
 	
+	setDb: (name, db) ->
+		dbs[name] = db
+
 	setDbs: (newDbs) -> 
 		dbs = newDbs
 
@@ -31,9 +35,14 @@ module.exports = databases =
 		selected = name
 
 	loadDefinition: (name) ->
-		# we can load it synchronously with require, because definitio should be 
-		# small and simple script
-			dbs[name] = require path.join defsDir, name
+			# we can load it synchronously with require, because definition should 
+			# be small and simple script
+			def = require path.join defsDir, name
+
+			if util.isArray def
+				databases.setDb "#{name}-#{idx}", d for d, idx in def
+			else 
+				databases.setDb name, def
 
 	loadAllDefinitions: (cb) ->
 		fs.readdir defsDir, (err, files) ->
@@ -47,4 +56,4 @@ module.exports = databases =
 				try databases.loadDefinition dbName
 				catch err then return cb err.message
 
-			cb()
+			cb null, dbs

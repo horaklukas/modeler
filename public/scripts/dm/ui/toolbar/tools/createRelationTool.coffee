@@ -66,7 +66,9 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		
 		@dispatchEvent new dm.ui.tools.ObjectCreateEvent(
 			'relation', {
-				parent: @parentTable, child: @childTable, identifying: @ident
+				parent: @parentTable.getId()
+				child: @childTable.getId()
+				identifying: @ident
 			}
 		)
 
@@ -93,3 +95,10 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 			canvas.html.style.cursor = 'default'
 			return true
 		###
+
+	cancel: ->
+		if @parentTable?
+			goog.dom.classes.remove @parentTable.getElement(), 'active'
+
+		@parentTable = null
+		@childTable = null

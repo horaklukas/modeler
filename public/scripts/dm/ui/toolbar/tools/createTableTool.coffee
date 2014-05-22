@@ -64,3 +64,6 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 			)
 			
 		@actionEvent = null
+
+	cancel: ->
+		@actionEvent = null
