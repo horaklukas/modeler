@@ -2,97 +2,142 @@ mocks =
 	databases: 
 		getDb: sinon.stub(), getList: sinon.stub(), getSelected: sinon.stub()
 		setList: sinon.spy(), setDbs: sinon.spy(), setSelected: sinon.spy()
+		loadAllDefinitions: sinon.stub()
 
-mockery.enable()
-mockery.registerAllowables ['../../../lib/routes', './dbs']
-mockery.registerMock './dbs', mocks.databases
-
-routes = require '../../../lib/routes'
 
 describe 'app routes', ->
-	req = {}
-	res = 
-		render: sinon.spy(), send: sinon.spy()
-		redirect: sinon.spy(), expose: sinon.spy()
+	app = null
+		
+	before ->
+		mockery.enable warnOnUnregistered: false
+		mockery.registerMock './dbs', mocks.databases
+
+		app = require '../../../app'
 
 	after ->
+		mockery.disable()
 		mockery.deregisterAll()
 
-	describe 'route intro', ->
+	describe.skip 'route list', ->
 		beforeEach ->
-			mocks.databases.getList.returns []
+			#mocks.databases.getList.yields []
 			mocks.databases.getList.reset()
-			res.render.reset()
-			res.send.reset()
 
-		it 'should response server error if reading databases failed', ->
-			routes.intro req, res
-			mocks.databases.getList.yield 'Reading failed'
+		it 'should response server error if reading databases failed', (done) ->
+			mocks.databases.getList.yields 'Reading failed'
+			
+			request(app)
+				.post('/list')
+				.expect('Content-Type', /text\/html/)
+				.expect(500)
+				.end (err, res) ->
+					if err then return done err
 
-			res.send.should.been.calledOnce
-			res.send.should.been.calledWithExactly 500, {error: 'Reading failed'}
+					expect(res.text).to.equal 'Reading failed'
+					done()
 
-		it 'should pass database list to intro page', ->
-			routes.intro req, res
-			mocks.databases.getList.yield null, [
+		it 'should pass database list to intro page', (done) ->
+			mocks.databases.getList.yields null, [
 				{'postgre': 'PostgreSQL 9.3'}, {'mysql': 'MYSQL 3'}
 			]
 
-			res.render.should.been.calledOnce
-			res.render.should.been.calledWithExactly 'intro', {dbs: [
-				{'postgre': 'PostgreSQL 9.3'}, {'mysql': 'MYSQL 3'}
-			]}
+			request(app)
+				.post('/list')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.end (err, res) ->
+					if err then return done err
+
+					expect(res.body).to.have.property 'dbs'
+					expect(res.body.dbs).to.be.an('array').and.deep.equal [
+						{'postgre': 'PostgreSQL 9.3'}, {'mysql': 'MYSQL 3'}
+					]
+					done()
 			
 	describe 'route app', ->
 		beforeEach ->
-			res.render.reset()
-			res.redirect.reset()
-			res.expose.reset()
-			req.body = {}
-			req.method = 'GET'
+			mocks.databases.getSelected.reset()
+			mocks.databases.getDb.reset()
 
-		it 'should immediatly render workspace if database already selected', ->
+		it.skip 'should render pass info about db if method is get and db selected', (done) ->
 			mocks.databases.getSelected.returns 'mysql'
 			mocks.databases.getDb.withArgs('mysql').returns types: [], name: 'MYSQL'
 
-			routes.app req, res
+			request(app)
+				.get('/')
+				.expect('Content-Type', /text\/html/)
+				.expect(200)
+				.expect(/\<title\>MYSQL\<\/title\>/, done)
 
-			res.redirect.should.not.been.called
-			res.expose.should.been.calledOnce
-			res.render.should.been.calledOnce
-			res.render.should.been.calledWithExactly 'main', {title: 'MYSQL'}
+		it 'should render workspace with exposed list of dbs if method is get and db not selected', (done) ->
+			mocks.databases.getSelected.returns 'bla'
+			mocks.databases.getDb.withArgs('bla').returns null
+			mocks.databases.loadAllDefinitions.yields null, [ 
+				'mysql': { name: 'MySQL'}, 
+				'sqlite': { name: 'SQLite'} 
+			]
 
-		it 'should redirect to intro if selected db not exists and method POST', ->
+			request(app)
+				.get('/')
+				.expect('Content-Type', /text\/html/)
+				.expect(200)
+				.expect(/\"mysql\"\:\{\"name\"\:\"MySQL\"\}/)
+				.expect(/\"sqlite\"\:\{\"name\"\:\"SQLite\"\}/, done)
+
+		it 'should response bad request if method is POST and db doesnt exist', (done) ->
 			mocks.databases.getSelected.returns null
-			req.method = 'POST'
-			req.body.dbs = undefined
+			
+			request(app)
+				.post('/')
+				.expect('Content-Type', /text/)
+				.expect(400)
+				.end (err, res) ->
+					if err then return done err
 
-			routes.app req, res
+					expect(res.text).to.equal 'Id of db doesnt exist'
+					done()				
 
-			res.render.should.not.been.called
-			res.expose.should.not.been.called
-			res.redirect.should.been.calledOnce.and.calledWithExactly '/'			
-
-		it 'should set selected db and render if req has db to select', ->
+		it 'should set selected db if method is POST and passed db id', (done) ->
 			mocks.databases.getSelected.returns null
-			mocks.databases.getDb.returns types: [], name: 'PostgreSQL'
-			req.method = 'POST'
-			req.body.dbs = 'postgres'
+			
+			request(app)
+				.post('/')
+				.send( {db: 'postgres'} )
+				.expect(200)
+				.end (err, res) ->
+					if err then return done err
+			
+					mocks.databases.setSelected.should.been.calledOnce
+					mocks.databases.setSelected.should.been.calledWithExactly 'postgres'
+					done()
 
-			routes.app req, res
+		it 'should return db info if method is POST and passed db id', (done) ->
+			mocks.databases.getDb.withArgs('postgres').returns {
+				types: ['char', 'integer', 'boolean'], name: 'PostgreSQL'
+			}
 
-			res.redirect.should.not.been.called
-			res.expose.should.been.calledOnce
-			res.render.should.been.calledOnce
-			res.render.should.been.calledWithExactly 'main', {title: 'PostgreSQL'}
-			mocks.databases.setSelected.should.been.calledOnce
-			mocks.databases.setSelected.should.been.calledWithExactly 'postgres'
+			request(app)
+				.post('/')
+				.send( {db: 'postgres'} )
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.end (err, res) ->
+					if err then return done err
 
-		it 'should redirect to intro if db name not and method is GET', ->
-			mocks.databases.getSelected.returns null
+					expect(res.body).to.have.property 'name', 'PostgreSQL'
+					expect(res.body).to.have.property('types').that.deep.equal ['char', 'integer', 'boolean']
+					done()
 
-			routes.app req, res
+	describe 'method saveModel', ->
+		it 'should response attachment with name of file if passed', (done) ->
+			request(app)
+				.post('/save')
+				.send({'name': 'model1'})
+				.expect('Content-Disposition', 'attachment; filename="model1.json"')
+				.expect(200, done)
 
-			res.render.should.not.been.called
-			res.expose.should.not.been.called
-			res.redirect.should.been.calledOnce.and.calledWithExactly '/'
+		it 'should response attachment with `unknown` name of file if not passed', (done)->
+			request(app)
+				.post('/save')
+				.expect('Content-Disposition', 'attachment; filename="unknown.json"')
+				.expect(200, done)

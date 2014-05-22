@@ -8,8 +8,7 @@ goog.provide 'dm.sqlgen.Sql92'
 
 goog.require 'dm.model.Table.index'
 goog.require 'goog.array'
-goog.require 'goog.ui.Dialog'
-goog.require 'goog.ui.Dialog.ButtonSet'
+goog.require 'dm.ui.SqlCodeDialog'
 
 class dm.sqlgen.Sql92
 	###*
@@ -19,8 +18,10 @@ class dm.sqlgen.Sql92
 		###*
     * @type {goog.ui.Dialog}
 		###
-		@dialog = new goog.ui.Dialog()
-		@dialog.setButtonSet goog.ui.Dialog.ButtonSet.OK
+		@dialog = React.renderComponent(
+			dm.ui.SqlCodeDialog()
+			goog.dom.getElement 'sqlCodeDialog'
+		)
 
 		###*
 		* List of names of already created foreign key constraints, used to ensure
@@ -33,20 +34,19 @@ class dm.sqlgen.Sql92
 	generate: (model) ->
 		sql = ''
 		@relConstraintNames = []
-		tablesByName = @getTablesByName_ model.tables
 
-		for table in model.tables
+		for name, table of model.tables
 			sql += @createTable table 
 
-		for rel in model.relations
-			{parent, child} = rel.tables
-			parentColumns = tablesByName[parent].getColumns()
-			childColumns = tablesByName[child].getColumns()
+		for id, rel of model.relations
+			parentModel = model.tables[rel.tables.parent]
+			childModel = model.tables[rel.tables.child]
 			
-			sql += "/* Relation between tables #{parent} and #{child} */\n"
-			sql += @createRelationConstraint rel, childColumns, parentColumns
+			sql += "/* Relation between tables #{parentModel.getName()} " +
+				"and #{childModel.getName()} */\n"
+			sql += @createRelationConstraint rel, parentModel, childModel
 
-		@showDialog sql
+		@dialog.show sql
 
 	###*
   * @param {dm.model.Table} table
@@ -61,7 +61,9 @@ class dm.sqlgen.Sql92
 		pks = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.PK), mapName 
 		uniques = goog.array.map table.getColumnsIdsByIndex(dm.model.Table.index.UNIQUE), mapName
 
-		colsSql = goog.array.map columns, (column) => "\t#{@createColumn column}"
+		colsSql = []
+		goog.object.forEach columns, (column) => 
+			colsSql.push "\t#{@createColumn column}"
 
 		if uniques.length then colsSql.push "\tUNIQUE (#{uniques.join ', '})"
 		if pks.length then colsSql.push "\tPRIMARY KEY (#{pks.join ', '})"
@@ -72,19 +74,19 @@ class dm.sqlgen.Sql92
   * Generates sql for creating foreign key constraints belongs to relation
   * 
   * @param {dm.model.Relation} rel Model of related relation
-  * @param {Array.<dm.model.TableColumn>} childColumns List of columns of child
-  *  table related with the relation
-  * @param {Array.<dm.model.TableColumn>} parentColumns List of columns of 
-  *  parent table related with the relation
+  * @param {dm.model.Table} childModel 
+  * @param {dm.model.Table} parentModel
   * @return {string} generated sql
 	###
-	createRelationConstraint: (rel, childColumns, parentColumns) ->
-		{parent, child} = rel.tables
+	createRelationConstraint: (rel, parentModel, childModel) ->
+		parent = parentModel.getName()
+		child = childModel.getName()
+		parentColumns = parentModel.getColumns()
+		childColumns = childModel.getColumns()
 		columnsMapping = rel.getColumnsMapping()
 
 		childColumnsNames = []
 		parentColumnsNames = []
-
 
 		# name of constraint, unique in scope of table
 		name = @getUniqueConstraintName child, parent
@@ -127,25 +129,3 @@ class dm.sqlgen.Sql92
 		notNull = if column.isNotNull then ' NOT NULL' else ''
 		
 		"#{column.name} #{column.type}#{notNull}"
-
-	###*
-  * Maps tables by its names
-  *
-  * @param {Array.<dm.model.Table>} tables
-  * @return {Object.<string, dm.model.Table>}
-  * @private
-	###
-	getTablesByName_: (tables) ->
-		mappedTables = {}
-		
-		mappedTables[table.getName()] = table for table in tables
-
-		mappedTables
-
-	###*
-  * @param {string} sql
-	###
-	showDialog: (sql) -> 
-		@dialog.setTitle 'SQL'
-		@dialog.setContent "<textarea cols='100' rows='20'>#{sql}</textarea>"
-		@dialog.setVisible true

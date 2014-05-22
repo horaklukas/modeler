@@ -9,11 +9,17 @@ goog.require 'goog.dom.classes'
 
 class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 	###*
+	* @param {boolean} ident If button creates identifying relation or not
   * @constructor
   * @extends {dm.ui.tools.CreateToggleButton}
 	###
-	constructor: ->
-		super 'relation'
+	constructor: (ident = true) ->
+		###*
+    * @type {boolean}
+		###
+		@ident = ident
+
+		super "rel-#{if ident then '' else 'no'}ident"
 
 		###*
     * @type {dm.ui.Table}
@@ -47,7 +53,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
   * @param {goog.math.Coordinate=} position
   * @param {?HTMLElement} object
 	###
-	finishAction: (position, object) ->
+	finishAction: (position, object) =>
 		# if creating relation canceled with other action before select both tables
 		# do not dispatch event, only unmark `active`
 
@@ -59,7 +65,11 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		goog.dom.classes.remove @childTable.getElement(), 'active'
 		
 		@dispatchEvent new dm.ui.tools.ObjectCreateEvent(
-			'relation', {parent: @parentTable, child: @childTable}
+			'relation', {
+				parent: @parentTable.getId()
+				child: @childTable.getId()
+				identifying: @ident
+			}
 		)
 
 		@parentTable = null
@@ -85,3 +95,10 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 			canvas.html.style.cursor = 'default'
 			return true
 		###
+
+	cancel: ->
+		if @parentTable?
+			goog.dom.classes.remove @parentTable.getElement(), 'active'
+
+		@parentTable = null
+		@childTable = null

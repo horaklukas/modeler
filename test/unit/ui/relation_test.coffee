@@ -159,7 +159,7 @@ describe 'class Relation', ->
 			fakepath.lineTo.should.been.calledWithExactly 21, 98
 			fakepath.lineTo.should.been.calledWithExactly 89, 44
 
-	describe 'method setRelatedTables', ->
+	describe.skip 'method setRelatedTables', ->
 		srtk = null
 		model = null
 		gfci = sinon.stub()
@@ -170,25 +170,27 @@ describe 'class Relation', ->
 			sinon.stub(rel, 'getModel').returns {
 				getFkColumnsIds: gfci, setRelatedTables: sinon.spy()
 			}
+			sinon.stub rel, 'setTablesNamesToModel'
+			sinon.stub goog.events, 'listen'
 
 		beforeEach ->
 			rel.childTab = null
 			rel.parentTab = null
 			gfci.reset()
 			model.removeColumn.reset()
+			goog.events.listen.reset()
 
 		after ->
 			srtk.restore()
 			rel.getModel.restore()
+			rel.setTablesNamesToModel.restore()
+			goog.events.listen.restore()
 
 		it 'should delete fk columns of previous child table if exists', ->
 			rel.childTab = getModel: -> model
 			gfci.returns [4, 5]
 
-			rel.setRelatedTables(
-				{getModel: -> {getName: -> 'parentTableName'}},
-				{getModel: -> {getName: -> 'childTableName'}}
-			)
+			rel.setRelatedTables {getModel: -> 'parent'}, {getModel: -> 'child'}
 
 			model.removeColumn.should.been.calledTwice
 			model.removeColumn.should.been.calledWithExactly 4
@@ -201,25 +203,25 @@ describe 'class Relation', ->
 			rm4 = model.removeColumn.withArgs(4)
 			gfci.returns [4, 5, 6]
 
-			rel.setRelatedTables(
-				{getModel: -> {getName: -> 'parent'}},
-				{getModel: -> {getName: -> 'child'}}
-			)
+			rel.setRelatedTables {getModel: -> 'parent'}, {getModel: -> 'child'}
 
 			model.removeColumn.should.been.calledThrice
 			rm6.should.been.calledBefore rm5
 			rm5.should.been.calledBefore rm4
 
-		it 'should save child and parent table', ->
+		it 'should listen for recount position if tables columns change', ->
+			events = ['column-add', 'column-delete']
+
 			rel.setRelatedTables(
-				{getModel: -> {getName: -> 'parentTableName'}},
-				{getModel: -> {getName: -> 'childTableName'}}
+				{getModel: -> 'parentModel'}, {getModel: -> 'childModel'}
 			)
 
-			rel.should.have.deep.property 'childTab.getModel'
-			rel.childTab.getModel().getName().should.equal 'childTableName'
-			rel.should.have.deep.property 'parentTab.getModel'
-			rel.parentTab.getModel().getName().should.equal 'parentTableName'
+			goog.events.listen.should.been.calledWithExactly(
+				'parentModel', events, rel.recountPosition
+			)
+			goog.events.listen.should.been.calledWithExactly(
+				'childModel', events, rel.recountPosition
+			)
 
 	describe 'method setRelatedTableKeys', ->
 		gcols = sinon.stub()
@@ -228,12 +230,13 @@ describe 'class Relation', ->
 		sindex = sinon.spy()
 		iident = sinon.stub()
 		scm = sinon.spy()
+		parentModel = null
+		childModel = null
 
 		before ->
-			rel.parentTab = getModel: -> {
-				getColumns: gcols, getColumnsIdsByIndex: gcolid
-			}
-			rel.childTab = getModel: -> { setColumn: scol, setIndex: sindex	}
+			parentModel = getColumns: gcols, getColumnsIdsByIndex: gcolid
+			childModel = setColumn: scol, setIndex: sindex	
+
 			sinon.stub(rel, 'getModel').returns {
 				isIdentifying: iident, setColumnsMapping: scm
 			}
@@ -255,7 +258,7 @@ describe 'class Relation', ->
 			gcolid.returns [1]
 			scol.withArgs({name:'Pk1'}).returns 1
 
-			rel.setRelatedTablesKeys()
+			rel.setRelatedTablesKeys parentModel, childModel
 
 			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk1'
 			sindex.should.been.calledTwice
@@ -268,7 +271,7 @@ describe 'class Relation', ->
 			gcolid.returns [2]
 			scol.withArgs({name:'Pk11'}).returns 2
 
-			rel.setRelatedTablesKeys()
+			rel.setRelatedTablesKeys parentModel, childModel
 
 			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk11'
 			sindex.should.been.calledOnce
@@ -281,7 +284,7 @@ describe 'class Relation', ->
 			iident.returns false
 			gcols.returns parentColumns
 
-			rel.setRelatedTablesKeys()
+			rel.setRelatedTablesKeys parentModel, childModel
 
 			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk2'
 			parentColumns[1].should.deep.equal name: 'Pk2'
@@ -293,7 +296,7 @@ describe 'class Relation', ->
 			scol.withArgs({name:'Pk3'}).returns 5
 			gcols.returns parentColumns
 
-			rel.setRelatedTablesKeys()
+			rel.setRelatedTablesKeys parentModel, childModel
 
 			scm.should.been.calledOnce.and.calledWithExactly [
 				{ parent: 2, child: 4 }, { parent: 3, child: 5 }

@@ -9,11 +9,20 @@ html
 		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/button.css")
 		script(src="http://localhost:35729/livereload.js")
 		//script(src="/socket.io/socket.io.js")
+		script(src="/bower_components/react/react.js")
 		script(src="/bower_components/closure-library/closure/goog/base.js")
 		script(src="/public/scripts/dm/deps.js")
 	body
 		div#app
 			div#modelerCanvas
+
+			// dialog placeholder elements
+			div#introDialog
+			div#selectDbDialog
+			div#tableDialog
+			div#relationDialog
+			div#loadModelDialog
+			div#sqlCodeDialog
 
 		script!= javascript
 		script.

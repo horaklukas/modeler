@@ -3,95 +3,144 @@ goog.provide 'dm.model.Model'
 goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
 goog.require 'goog.string'
+goog.require 'goog.object'
+goog.require 'goog.array'
 goog.require 'goog.ui.IdGenerator'
 
 class dm.model.Model
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
 
-		@idgen_ = new goog.ui.IdGenerator()
+		#@idgen_ = new goog.ui.IdGenerator()
 
+		@name = name
 		@tables_ = {}
 		@relations_ = {}
 
+		@relationsByTable = {}
+
 	###*
-	* Add table to canvas and to model's list of tables
+	* Add model of the table to model's list of tables
 	*
-	* @param {Canvas} canvas Place where to create table
-	* @param {number} x Horizontal position of table on canvas
-	* @param {number} y Vertical position of table on canvas
-  * @return {string} id of new table
+	* @param {dm.ui.Table} table
 	###
-	addTable: (canvas, x, y, name) =>
-		id = @idgen_.getNextUniqueId()
-		table = new dm.model.Table canvas, id, x, y
-		
-		@tables_[id] = table
-		
-		return id
+	addTable: (table) =>
+		@tables_[table.getId()] = table #.getModel()
 
 	###*
-  * Pass new values from table dialog to table
-  *
-  * @param {string} id Identificator of table to edit
-  * @param {string} name Name of table to set
-  * @param {Array.<Object.<string,*>>=} columns
+	* @param {dm.ui.Relation} relation
 	###
-	setTable: (id, name, columns) =>
-		table = @getTableById id
+	addRelation: (relation) ->
+		id = relation.getId()
+		@relations_[id] = relation #.getModel()
 
-		table.setName name
+		{parent, child} = relation.getModel().tables
 
-		if columns?
-			table.setColumns columns
-			table.render()
+		unless goog.object.containsKey @relationsByTable, parent
+			goog.object.add @relationsByTable, parent, []
+
+		unless goog.object.containsKey @relationsByTable, child
+			goog.object.add @relationsByTable, child, []
+
+		goog.array.insert @relationsByTable[parent], id
+		goog.array.insert @relationsByTable[child], id
 
 	###*
-  * Add relation to canvas, the add relation to list of model's relations and
-  * to both table list of related relations
-	###
-	addRelation: (canvas, startTabId, endTabId, ident) =>
-		id = @idgen_.getNextUniqueId()
-
-		startTab = @getTableById startTabId
-		endTab = @getTableById endTabId
-
-		if startTab? and endTab?
-			newRelation = new dm.model.Relation canvas, id, startTab, endTab, ident
-			@relations_[id] = newRelation
-			
-			startTab.addRelation newRelation
-			endTab.addRelation newRelation
-			
-			return id
-		else 
-			return false
-
-	setRelation: (id, ident, parentTab, childTab) ->
-		rel = @getRelationById id
-
-		rel.setIdentifying ident
-		rel.setRelatedTables parentTab, childTab
-
-		for column in parentTab.getColumns() when column.isPrimary() is true
-			childTab.setColumn column.clone()
-
-		childTab.render()
-
-	###*
-	* Returns table object by table id
+	* Returns table ui by table id
   * @param {string} id
-  * @return {dm.model.Table=}
+  * @return {dm.ui.Table=}
 	###
-	getTableById: (id) ->
+	getTableUiById: (id) ->
 		@tables_[id] ? null
 
 	###*
-  * Returns relation object by relation id
+  * Returns relation ui by relation id
   * @param {string} id
-  * @return {dm.model.Relation=}
+  * @return {dm.ui.Relation=}
 	###
-	getRelationById: (id) ->
+	getRelationUiById: (id) ->
 		@relations_[id] ? null
 
-if not window? then module.exports = Model
+	###*
+	* Returns table model by table id
+  * @param {string} id
+  * @return {dm.ui.Table=}
+	###
+	getTableById: (id) ->
+		@tables_[id].getModel() ? null
+
+	###*
+  * Returns relation model by relation id
+  * @param {string} id
+  * @return {dm.ui.Relation=}
+	###
+	getRelationById: (id) ->
+		@relations_[id].getModel() ? null
+
+	###*
+  * @return {Object.<string, dm.model.Table>}
+	###
+	getTables: ->
+		goog.object.map @tables_, (table) -> table.getModel()
+		#(table.getModel() for id, table of @tables_)
+
+	###*
+  * @return {Object.<string, dm.model.Table>}
+	###
+	getRelations: ->
+		goog.object.map @relations_, (relation) -> relation.getModel()
+		#(relation.getModel() for id, relation of @relations_)
+
+	###*
+  * Maps tables by its names
+  *
+  * @return {Object.<string, dm.model.Table>}
+	###
+	getTablesByName: ->
+		mappedTables = {}
+		
+		for id, table of @tables_
+			model = table.getModel()
+			mappedTables[model.getName()] = model 
+
+		mappedTables
+
+	###*
+  * @param {string} name
+  * @param {string} id
+	###
+	getTableIdByName: (name) ->
+		for id, table of @tables_ when table.getModel().getName() is name
+			#console.log '' table.getModel().getName(), name
+			return table.getId(); break
+
+	###*
+	* @param {string} tableId
+  * @return {Object} List of table related relations
+	###
+	getRelationsByTable: (tableId) ->
+		@relationsByTable[tableId] ? null
+
+	###*
+  * @return {Object} JSON representation of all data about model
+	###
+	toJSON: ->
+		tablesData = (for id, table of @tables_
+			{x, y} = table.getPosition()
+
+			model: table.getModel().toJSON()
+			pos: x: x, y: y
+		)
+
+		tableModels = @getTables()
+		relationsData = []
+
+		goog.object.forEach @getRelations(), (relModel) ->
+			parent = tableModels[relModel.tables.parent].getName()
+			child = tableModels[relModel.tables.child].getName()
+
+			goog.array.insert relationsData, relModel.toJSON(parent, child)
+
+		name: @name
+		tables: tablesData
+		relations: relationsData
