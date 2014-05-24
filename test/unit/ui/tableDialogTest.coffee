@@ -98,7 +98,7 @@ describe 'class TableDialog', ->
 
       expect(tabd.state.columns).to.have.length 1
       expect(tabd.state.columns[0]).to.deep.equal {
-        name: null, type: null, isNotNull: null
+        name: null, type: 'type1g1', isNotNull: null
       }
 
     it 'should show all columns and set its values', ->
@@ -123,7 +123,7 @@ describe 'class TableDialog', ->
       expect(nameInput.props).to.have.property 'value', 'New table name'
 
   describe 'method addColumn', ->
-    it 'should add new empty column to list of columns', ->
+    it 'should add new empty column with default type to list of columns', ->
       tabd.setState columns: [
         {name: 'Julius', type: 'type1g1', isNotNull: false}
       ]
@@ -132,7 +132,7 @@ describe 'class TableDialog', ->
       
       expect(tabd.state.columns).to.have.length 2
       expect(tabd.state.columns[1]).to.deep.equal {
-        name: null, type: null, isNotNull: null
+        name: null, type: 'type1g1', isNotNull: null
       }
 
     it 'should render empty row to the end', ->
@@ -289,6 +289,7 @@ describe 'class TableDialog', ->
       fakeModel.setColumn.reset()
       fakeModel.removeColumn.reset()
       fakeModel.setIndex.reset()
+      tabd.setState columns: []
 
     it 'should set error and reject dialog hide when name is empty', ->
       infobar = TestUtils.findRenderedDOMComponentWithClass tabd, 'error'

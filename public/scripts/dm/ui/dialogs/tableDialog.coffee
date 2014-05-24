@@ -72,7 +72,7 @@ dm.ui.TableDialog = React.createClass
       {id} = col
       
       # new or updated columns
-      model = {name: col.name, type: col.type, isNotNull: !!col.isNotNull}
+      model = name: col.name, type: col.type, isNotNull: !!col.isNotNull
 
       # new column has not id and column name is filled
       isNewColumn = not id? and col.name
@@ -102,8 +102,12 @@ dm.ui.TableDialog = React.createClass
     @setState name: e.target.value
 
   addColumn: ->
+    for name, group of @props.types
+      defaultType = group[0]
+      break # we need only first type at first group
+
     columns = @state.columns
-    columns.push {name: null, type: null, isNotNull: null}
+    columns.push {name: null, type: defaultType, isNotNull: null}
     
     @setState columns: columns
 
