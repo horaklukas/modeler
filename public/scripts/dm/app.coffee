@@ -10,6 +10,7 @@ goog.require 'dm.ui.TableDialog'
 goog.require 'dm.ui.RelationDialog'
 goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
+goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.model.Model'
 goog.require 'dm.model.Table.index'
 goog.require 'dm.ui.Canvas'
@@ -30,6 +31,14 @@ dm.actualModel = null
 dm.actualRdbs = null
 
 ###*
+* @type {Socket}
+###
+dm.socket = io.connect 'http://localhost'
+
+dm.socket.on 'disconnect', ->
+  console.log 'Server disconnected at socket.io channel'
+
+###*
 * @param {string} action Id of action selected at intro dialog
 ###
 dm.handleIntroAction = (action) ->
@@ -37,7 +46,7 @@ dm.handleIntroAction = (action) ->
     when 'new' then selectDbDialog.show()
     when 'load' then loadModelDialog.show()
     #when 'byversion' then ''
-    #when 'fromdb' then ''
+    when 'fromdb' then reengDialog.show()
     else return
 
   introDialog.hide()
@@ -46,6 +55,17 @@ introDialog = React.renderComponent(
   dm.ui.IntroDialog(onSelect: dm.handleIntroAction)
   goog.dom.getElement 'introDialog'
 ) 
+
+dm.handleReeng = (tables, relations) ->
+  console.log tables
+  console.log relations
+
+reengDialog = React.renderComponent(
+  dm.ui.ReEngineeringDialog(
+    connection: dm.socket, dbs: dmAssets.dbs, onDataReceive: dm.handleReeng
+  )
+  goog.dom.getElement 'reengDialog'
+)
 
 ###*
 * @param {string} db Id of db to set as actual

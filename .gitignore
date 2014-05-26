@@ -4,5 +4,6 @@ bower_components
 
 public/scripts/lib
 *.bak
+*.log
 
 *.js

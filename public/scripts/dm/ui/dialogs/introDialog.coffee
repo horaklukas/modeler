@@ -12,7 +12,7 @@ dm.ui.IntroDialog = React.createClass
       'new': 'NEW MODEL'
       'load': 'LOAD MODEL'
       'byversion': 'SELECT VERSIONED MODEL - BLIND NOW'
-      'fromdb': 'CREATE MODEL FROM DB - BLIND NOW'
+      'fromdb': 'CREATE MODEL FROM DB'
 
   show: ->
     @setState visible: true
