@@ -82,7 +82,7 @@ dm.ui.Dialog = React.createClass
       display: if @state.visible then 'block' else 'none'
 
     bgStyles =
-      position: 'absolute'
+      position: 'fixed'
       top: 0
       right: 0
       bottom: 0
