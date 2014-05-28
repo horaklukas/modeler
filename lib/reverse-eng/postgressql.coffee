@@ -15,27 +15,6 @@ exports.getClient = (connOptions) ->
 		ssl: connOptions.ssl ? false
 	})
 
-###
-client.connect (err) ->
-	if err then console.error "Error at connecting do database #{err}"
-
-	
-	client.query queries.getTableColumns('public'), (err, result) ->
-		if err
-			return console.error "Error at getting tables and columns: #{err}" 
-
-		console.log 'Results'
-		console.log result.rows
-	
-
-	client.query queries.getRelations('public'), (err, result) ->
-		if err
-			return console.error "Error at getting relations: #{err}" 
-
-		console.log 'Results'
-		console.log result.rows
-###
-
 query.getSchemata = ->
 	# get all user schemata
 	"""
@@ -107,7 +86,7 @@ query.getTableColumns = (schema, tables) ->
   ON cols.column_name = fkcols.column AND cols.table_name = fkcols.table
   
   WHERE cols.table_schema = '#{schema}'
-  AND cols.table_name IN ('#{tables.join(',')}')
+  AND cols.table_name IN ('#{tables.join("','")}')
   ORDER BY cols.table_name
   """
 
@@ -151,6 +130,6 @@ query.getRelations = (schema, tables) ->
   ) parentcols
 
   ON refs.unique_constraint_name = parentcols.constraint_name
-  WHERE parentcols.table in ('#{tables.join(',')}')
-  AND childcols.table in ('#{tables.join(',')}')
+  WHERE parentcols.table in ('#{tables.join("','")}')
+  AND childcols.table in ('#{tables.join("','")}')
   """

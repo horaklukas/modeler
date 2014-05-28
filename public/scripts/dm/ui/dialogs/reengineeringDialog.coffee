@@ -55,6 +55,7 @@ dm.ui.ReEngineeringDialog = React.createClass
       when 'dbconnect'
         dbTypes = []
         addedTypes = []
+        fieldStyle = float: 'right'
 
         goog.object.forEach @props.dbs, (db, id) ->
           # id of db has format dbtype-dbversion so first part is only what we
@@ -69,12 +70,30 @@ dm.ui.ReEngineeringDialog = React.createClass
 
         `(
           <form>
-            <p><select ref="dbtype">{dbTypes}</select></p>
-            <p>Hostname <input type="text" ref="host" /></p>
-            <p>Database<input type="text" ref="db" /></p>
-            <p>Username<input type="text" ref="user" /></p>
-            <p>Password<input type="text" ref="pass" /></p>
-            <p>Port<input type="text" ref="port" /></p>
+            <p>
+              Database type
+              <select ref="dbtype" style={fieldStyle}>{dbTypes}</select>
+            </p>
+            <p>
+              Hostname or Ip address
+              <input ref="host" style={fieldStyle} />
+            </p>
+            <p>
+              Database name
+              <input ref="db" style={fieldStyle} />
+            </p>
+            <p>
+              Name of database user
+              <input ref="user" style={fieldStyle} />
+            </p>
+            <p>
+              User password
+              <input type="password" ref="pass" style={fieldStyle} />
+            </p>
+            <p>
+              Connection port
+              <input ref="port" style={fieldStyle} maxLength="5" size="10" />
+            </p>
           </form>
         )`
       when 'selectschema'
