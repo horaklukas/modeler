@@ -55,6 +55,10 @@ _The uploaded application needn't corespond to latest state_
   be required
 
 ### Dialogs
+* Create "input model name" dialog
+
+#### Reeng dialog
+* add "check all" option
 
 #### Table dialog
 * <s>fix lost of unsaved columns change when new column row is added</s>

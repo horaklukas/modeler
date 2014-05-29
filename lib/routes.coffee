@@ -133,9 +133,13 @@ exports.getReengData = (tables, mainCb) ->
 			dbClient.query reverseEng[dbType].query.getRelations(dbSchema, tables), (err, result) ->
 				if err then return cb "Error at getting relations data: #{err}"
 				cb null, tablesData, result.rows
+		(tablesData, relationsData, cb) ->
+			dbClient.query reverseEng[dbType].query.getDbServerVersion(), (err, result) ->
+				if err then return cb "Error at getting server version: #{err}"
+				cb null, tablesData, relationsData, result.rows[0].version
 	]
 
-	async.waterfall actions, (err, tablesData, relationsData) =>
+	async.waterfall actions, (err, tablesData, relationsData, dbVersion) =>
 		@set 'actualClient', null
 		@set 'dbType', null
 		@set 'actualSchema', null
@@ -143,4 +147,8 @@ exports.getReengData = (tables, mainCb) ->
 		
 		if err then return mainCb err
 		
-		mainCb null, { tables: tablesData, relations: relationsData }
+		mainCb null, { 
+			columns: tablesData
+			relations: relationsData
+			db: "#{dbType}-#{dbVersion}" 
+		}

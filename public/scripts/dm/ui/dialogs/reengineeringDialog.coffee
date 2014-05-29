@@ -47,7 +47,7 @@ dm.ui.ReEngineeringDialog = React.createClass
     @props.connection.emit 'get-reeng-data', selectedTables, (err, data) =>
       if err then return @setState info: {text: err, err: true}
 
-      @props.onDataReceive data.tables, data.relations
+      @props.onDataReceive data
       @hide()
 
   createContent: (type) ->

@@ -56,9 +56,59 @@ introDialog = React.renderComponent(
   goog.dom.getElement 'introDialog'
 ) 
 
-dm.handleReeng = (tables, relations) ->
-  console.log tables
-  console.log relations
+###*
+* @param {Object.<string, object>} object containing keys `tables` and 
+*  `relations`
+###
+dm.handleReeng = (data) ->
+  name = 'Reengineered model'
+  actualTableName = null
+  canvasSize = canvas.getSize()
+
+  dm.actualModel = new dm.model.Model name
+
+  # first create tables
+  for column, i in data.columns
+
+    unless actualModel?
+      actualTableName = column.table_name
+      actualModel = new dm.model.Table actualTableName
+
+    # dont create foreign key columns, they are created by relation
+    unless column.isfk
+      colId = actualModel.setColumn { 
+        name: column.column_name
+        type: column.data_type
+        isNotNull: column.isnotnull 
+      }
+
+      actualModel.setIndex colId, dm.model.Table.index.PK if column.ispk
+      actualModel.setIndex colId, dm.model.Table.index.UNIQUE if column.isunique
+      actualModel.setIndex colId, dm.model.Table.index.FK if column.isfk
+
+    # last column in list = next doesnt exists or next column from different 
+    # table means that model is completed
+    if not (data.columns[i + 1]?.table_name is actualTableName)
+      dm.addTable(
+        actualModel
+        Math.round(Math.random() * canvasSize.width)
+        Math.round(Math.random() * canvasSize.height)
+      )
+      actualModel = null  
+
+  # then create relations
+  for relation in data.relations
+    dm.addRelation(new dm.model.Relation(
+        relation.is_identifying
+        dm.actualModel.getTableIdByName relation.parent_table
+        dm.actualModel.getTableIdByName relation.child_table
+      )
+    )
+
+  # set model's db as a actual with replaced dots at version string
+  dm.setActualRdbs data.db.replace '.', '-'
+
+  #dm.createModelFromJSON data
 
 reengDialog = React.renderComponent(
   dm.ui.ReEngineeringDialog(

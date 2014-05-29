@@ -15,6 +15,13 @@ exports.getClient = (connOptions) ->
 		ssl: connOptions.ssl ? false
 	})
 
+query.getDbServerVersion = ->
+  """
+  SELECT substring(version FROM '^PostgreSQL (\\d+\.\\d+)') AS version
+  FROM version()
+  """
+
+
 query.getSchemata = ->
 	# get all user schemata
 	"""
