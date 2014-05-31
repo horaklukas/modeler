@@ -39,16 +39,31 @@ dm.ui.ReEngineeringDialog = React.createClass
   handleTablesSelected: ->
     selectedTables = []
 
-    goog.object.forEach @refs, ((ref, name) ->
-      if ref.getDOMNode().checked
-        selectedTables.push @state.data.tables[name.substr(5)]
-    ), this
+    @forEachTable (table, name) ->
+      if table.checked then selectedTables.push @state.data.tables[name]
 
     @props.connection.emit 'get-reeng-data', selectedTables, (err, data) =>
       if err then return @setState info: {text: err, err: true}
 
       @props.onDataReceive data
       @hide()
+
+  handleCheckAll: (e) ->
+    {checked} = e.target
+
+    @forEachTable (table) -> table.checked = checked
+
+  ###*
+  * Step over each table in list of table to select and do action defined by
+  *  passed function
+  *
+  * @param {function(Element, string)} fn Function to call with table and its 
+  *  name
+  ###
+  forEachTable: (fn) ->
+    goog.object.forEach @refs, ((ref, name) -> 
+      fn.call this, ref.getDOMNode(), name.substr(5)
+    ), this
 
   createContent: (type) ->
     switch type
@@ -107,7 +122,15 @@ dm.ui.ReEngineeringDialog = React.createClass
         tables = goog.array.map @state.data.tables, (table, idx) ->
           `( <p><input type="checkbox" ref={ 'table' + idx } />{table}</p> )` 
         
-        `( <form>{tables}</form> )`
+        `( 
+          <form>
+            <p>
+              <input type="checkbox" onClick={this.handleCheckAll} />
+              Check all tables
+            </p>
+            <hr />
+            {tables}
+          </form> )`
 
   getInitialState: ->
     visible: false
