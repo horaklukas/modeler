@@ -81,20 +81,13 @@ dm.ui.Dialog = React.createClass
     containerStyles =
       display: if @state.visible then 'block' else 'none'
 
-    bgStyles =
-      position: 'fixed'
-      top: 0
-      right: 0
-      bottom: 0
-      left: 0
-
     dialogStyles = 
       top: @state.top
       left: @state.left
 
     `(
     <div className="dialog-container" style={containerStyles} >
-      <div className="bg" style={bgStyles} />
+      <div className="bg" />
       <div className="dialog" style={dialogStyles}>
         <div className="title">{this.props.title}</div>
         <div className="content">

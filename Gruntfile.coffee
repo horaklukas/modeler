@@ -144,6 +144,8 @@ module.exports = (grunt) ->
           './public/scripts/**/*.coffee'
         ] #'<%= coffee.app.files[0].src %>'
         tasks: ['coffee:app', 'reactjsx:all']
+        options:
+          livereload: true
 
       test:
         files: [
@@ -156,7 +158,7 @@ module.exports = (grunt) ->
           'coffee:app', 'reactjsx'
           'coffee:test'
           'test', 'mocha_phantomjs', 'mochacli'
-        ]
-        
+        ]        
         options:
           livereload: true
+          
