@@ -10,7 +10,8 @@ goog.require 'goog.object'
 {Dialog} = dm.ui
 
 dm.ui.SelectDbDialog = React.createClass
-  show: ->
+  show: (cb) ->
+    if cb? then @setProps onSelect: cb
     @setState visible: true
 
   handleDbSelect: ->

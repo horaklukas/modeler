@@ -56,8 +56,13 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		), true
 		@addChild new goog.ui.ToolbarSeparator(), true
 
-		@statusBar_ = @getDomHelper().createDom(
-			'div', 'statusbar goog-inline-block'
+		domHelper = @getDomHelper()
+
+		@statusBar_ = domHelper.createDom(
+			'div', 'statusbar goog-inline-block', [
+				domHelper.createDom('span', 'model-name') 
+				domHelper.createDom('span', 'db-version') 
+			]
 		)
 		goog.dom.appendChild @getContentElement(), @statusBar_
 
@@ -100,7 +105,16 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		else if select is false then button.finishAction()
 
 	###*
-  * @param {string} status
+  * @param {?string} model Name of actual model
+  * @param {?string=} db Name of actual database
 	###
-	setStatus: (status) =>
-		goog.dom.setTextContent @statusBar_, status
+	setStatus: (model, db) =>
+		if model? 
+			goog.dom.setTextContent(
+				goog.dom.getElementByClass('model-name', @statusBar_), model
+			)
+
+		if db?
+			goog.dom.setTextContent(
+				goog.dom.getElementByClass('db-version', @statusBar_), db
+			)

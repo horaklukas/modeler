@@ -9,9 +9,19 @@ goog.require 'dm.ui.Relation'
 
 goog.require 'goog.events'
 goog.require 'goog.string'
+goog.require 'goog.events.EventTarget'
 
-class dm.model.ModelManager
+class dm.model.ModelManager extends goog.events.EventTarget
+  @EventType:
+    CHANGE: 'model-change'
+
+  ###*
+  * @constructor
+  * @extends {goog.events.EventTarget}
+  ###
   constructor: (canvas) ->
+    super()
+
     @canvas = canvas
 
     ###*
@@ -154,10 +164,12 @@ class dm.model.ModelManager
   ###*
   * @param {string} name Name of new model
   ###
-  bakupOldCreateNewActual: (name) ->
+  bakupOldCreateNewActual: (name) =>
     if @actualModel? then @oldModels[@actualModel.name] = @actualModel
     
     @actualModel = new dm.model.Model name
+
+    @dispatchEvent dm.model.ModelManager.EventType.CHANGE
 
   ###*
   * @param {string} value

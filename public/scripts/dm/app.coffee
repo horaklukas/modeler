@@ -14,6 +14,7 @@ goog.require 'dm.ui.RelationDialog'
 goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
+goog.require 'dm.ui.SimpleInputDialog'
 goog.require 'dm.sqlgen.Sql92'
 
 goog.require 'goog.dom'
@@ -41,12 +42,18 @@ toolbar.renderBefore canvasElement
 
 modelManager = new dm.model.ModelManager(canvas)
 
+dm.handleNewModel = (db) ->
+  dm.setActualRdbs db
+  inputDialog.show(
+    'NewModel', 'Type name of new model', modelManager.bakupOldCreateNewActual
+  )
+
 ###*
 * @param {string} action Id of action selected at intro dialog
 ###
 dm.handleIntroAction = (action) ->
   switch action
-    when 'new' then selectDbDialog.show()
+    when 'new' then selectDbDialog.show(dm.handleNewModel)
     when 'load' then loadModelDialog.show()
     #when 'byversion' then ''
     when 'fromdb' then reengDialog.show()
@@ -93,7 +100,7 @@ dm.setActualRdbs = (db) ->
   goog.dom.setTextContent(
     goog.dom.getElementsByTagNameAndClass('title')[0], dbDef.name
   )
-  toolbar.setStatus "#{dbDef.name} #{dbDef.version}"
+  toolbar.setStatus null, "#{dbDef.name} #{dbDef.version}"
 
 selectDbDialog = React.renderComponent(
   dm.ui.SelectDbDialog(dbs: dmAssets.dbs, onSelect: dm.setActualRdbs)
@@ -122,6 +129,11 @@ dm.handleModelLoad = (json) ->
 loadModelDialog = React.renderComponent(
   dm.ui.LoadModelDialog(onModelLoad: dm.handleModelLoad)
   goog.dom.getElement 'loadModelDialog' 
+)
+
+inputDialog = React.renderComponent(
+  dm.ui.SimpleInputDialog()
+  goog.dom.getElement 'inputDialog' 
 )
 
 # handling events on components
@@ -201,5 +213,8 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
   form.submit()
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, loadModelDialog.show
+
+goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
+    toolbar.setStatus modelManager.actualModel.name
 
 #goog.exportSymbol 'dm.init', dm.init
