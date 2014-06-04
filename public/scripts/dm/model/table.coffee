@@ -79,16 +79,12 @@ class dm.model.Table extends goog.events.EventTarget
 	setColumn: (column, id) ->
 		# before add (or update) column check if its name is unique and add suffix
 		# in case that not
-		if id?
-			columnByName = @getColumnByName column.name
-			if columnByName? and columnByName isnt @columns[id]
-				column.name += '_0'
+		column.name = @getUniqueColumnName column.name
 
+		if id?
 			@columns[id] = column
 			newColumn = false
 		else
-			if @getColumnByName(column.name)? then column.name += '_0'  
-
 			# generate unique id for a new column
 			id = goog.ui.IdGenerator.getInstance().getNextUniqueId()
 			@columns[id] = column
@@ -100,6 +96,30 @@ class dm.model.Table extends goog.events.EventTarget
 		@dispatchEvent new dm.model.Table.ColumnsChange column, id, newColumn
 		
 		return id
+
+	###*
+  * @param {string} name Name of column to check if it is unique
+	* @param {number=} id Optional id of existing column which is updating and
+	*  its name should been unified
+  * @return {string}
+	###
+	getUniqueColumnName: (name, id) ->
+		columnName = name
+		numberSuffix = 0
+
+		###
+		columnByName = @getColumnByName column.name
+		if columnByName? and columnByName isnt @columns[id]
+			column.name += '_0'
+		###
+
+		while (column = @getColumnByName(columnName))?
+			# if found column with same name is column itself dont add suffix
+			if id? and column is @columns[id] then break
+
+			columnName = "#{name}_#{numberSuffix++}"
+
+		columnName
 
 	###*
   * @return {Object.<string, dm.model.TableColumn>} table columns

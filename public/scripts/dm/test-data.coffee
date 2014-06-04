@@ -1,10 +1,12 @@
+modelManager.bakupOldCreateNewActual 'testDataModel'
+
 # Some test tables and relations
 tab0model = new dm.model.Table 'Person', [
 	{ name:'person_id', type:'smallint', isNotNull:false }
 	{ name:'name', type:'varchar', isNotNull:false }
 ]
 tab0model.setIndex 0, dm.model.Table.index.PK
-tab0modelManager tab0model, 100, 75
+tab0 = modelManager.addTable tab0model, 100, 75
 
 tab1model = new dm.model.Table 'Account', [
 	{ name:'account_id', type:'smallint', isNotNull:false }
@@ -77,23 +79,23 @@ tab9model.setIndex 0, dm.model.Table.index.PK
 tab9model.setIndex 1, dm.model.Table.index.PK
 tab9 = modelManager.addTable tab9model, 50, 600
 
-rel1model = new dm.model.Relation true 
-modelManager.addRelation rel1model, tab0, tab2
+rel1model = new dm.model.Relation true , tab0, tab2
+modelManager.addRelation rel1model
 
-rel2model = new dm.model.Relation true
-modelManager.addRelation rel2model, tab1, tab2
+rel2model = new dm.model.Relation true, tab1, tab2
+modelManager.addRelation rel2model
 
-rel3model = new dm.model.Relation false
-modelManager.addRelation rel3model, tab1, tab3
+rel3model = new dm.model.Relation false, tab1, tab3
+modelManager.addRelation rel3model
 
-rel4model = new dm.model.Relation false
-modelManager.addRelation rel4model, tab4, tab5
+rel4model = new dm.model.Relation false, tab4, tab5
+modelManager.addRelation rel4model
 
-rel5model = new dm.model.Relation false
-modelManager.addRelation rel5model, tab6, tab7
+rel5model = new dm.model.Relation false, tab6, tab7
+modelManager.addRelation rel5model
 
-rel6model = new dm.model.Relation false
-modelManager.addRelation rel6model, tab8, tab6
+rel6model = new dm.model.Relation false, tab8, tab6
+modelManager.addRelation rel6model
 
-rel7model = new dm.model.Relation false
-modelManager.addRelation rel7model, tab9, tab6
+rel7model = new dm.model.Relation false, tab9, tab6
+modelManager.addRelation rel7model
