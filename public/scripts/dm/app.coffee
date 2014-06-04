@@ -27,8 +27,15 @@ goog.require 'goog.userAgent.product'
 dm.actualRdbs = null
 
 ###*
+* If last version of actual model is saved
+* @type {boolean}
 ###
 dm.saved = true
+
+###*
+* @type {string}
+###
+dm.state = ''
 
 ###*
 * @type {Socket}
@@ -225,6 +232,7 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
     goog.dom.createDom 'input', {type: 'hidden', name: 'model', value: model }
   )
 
+  dm.state = 'saving'
   form.submit()
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, loadModelDialog.show
@@ -236,9 +244,14 @@ goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
     dm.setModelSaveStatus false
 
 goog.dom.getWindow().onbeforeunload = (ev) ->
-  unless @dm.saved
-    "Model #{modelManager.actualModel.name} isnt saved, really exit?"
-    
+  # when saving model dont show dialog
+  if dm.state is 'saving'
+    dm.state = ''
+    return 
+
+  if not dm.saved
+    return "Model #{modelManager.actualModel.name} isnt saved, really exit?"
+
   ###
   msg = 'Really unload?'
   {IE, FIREFOX} = goog.userAgent.product
