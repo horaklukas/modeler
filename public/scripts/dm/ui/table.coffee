@@ -17,6 +17,7 @@ class dm.ui.Table extends goog.ui.Component
 	@EventType =
 		CATCH: goog.events.getUniqueId 'table-catch'	
 		MOVE: goog.events.getUniqueId 'table-move'
+		MOVED: goog.events.getUniqueId 'table-move-end'
 
 	###*
   * @param {dm.model.Table} tableModel
@@ -74,17 +75,20 @@ class dm.ui.Table extends goog.ui.Component
 		
 		@dragger = new goog.fx.Dragger @element_, @element_, @getDragLimits()
 
-		dragStartEnd = (e) ->
-			#@target.style.zIndex = if e.type is 'start' then 99 else 1
-			@target.style.cursor = if e.type is 'start' then 'move' else 'default'
-			goog.style.setOpacity @target, if e.type is 'start' then 0.7 else 1
 
-		goog.events.listen @dragger, 'start', dragStartEnd
+		goog.events.listen @dragger, 'start', @dragStartEnd
 		
 		goog.events.listen @dragger, 'drag', => 
 			@dispatchEvent dm.ui.Table.EventType.MOVE
 		
-		goog.events.listen @dragger, 'end', dragStartEnd
+		goog.events.listen @dragger, 'end', @dragStartEnd
+		goog.events.listen @dragger, 'end', => 
+			@dispatchEvent dm.ui.Table.EventType.MOVED
+	
+	dragStartEnd: (e) ->
+		#@target.style.zIndex = if e.type is 'start' then 99 else 1
+		@target.style.cursor = if e.type is 'start' then 'move' else 'default'
+		goog.style.setOpacity @target, if e.type is 'start' then 0.7 else 1
 
 	###*
   * @override

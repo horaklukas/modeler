@@ -51,6 +51,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
     tableEvents = ['name-change','column-add','column-change','column-delete']
     
     goog.events.listen model, tableEvents, @onModelEdit
+    goog.events.listen tab, dm.ui.Table.EventType.MOVED, @onModelEdit
 
     tab.getId()
 
@@ -176,6 +177,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
   bakupOldCreateNewActual: (name) =>
     if @actualModel? then @oldModels[@actualModel.name] = @actualModel
     
+    @canvas.clear()
     @actualModel = new dm.model.Model name
 
     @dispatchEvent dm.model.ModelManager.EventType.CHANGE
