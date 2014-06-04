@@ -13,7 +13,7 @@ goog.require 'goog.ui.Toolbar'
 goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.ui.SelectionModel'
 goog.require 'goog.dom'
-
+goog.require 'goog.style'
 
 class dm.ui.Toolbar extends goog.ui.Toolbar
 	@EventType =
@@ -60,6 +60,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 
 		@statusBar_ = domHelper.createDom(
 			'div', 'statusbar goog-inline-block', [
+				domHelper.createDom('span', 'model-saved')
 				domHelper.createDom('span', 'model-name') 
 				domHelper.createDom('span', 'db-version') 
 			]
@@ -107,8 +108,9 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 	###*
   * @param {?string} model Name of actual model
   * @param {?string=} db Name of actual database
+  * @param {?boolean=} saved Determine saved/unsaved status
 	###
-	setStatus: (model, db) =>
+	setStatus: (model, db, saved) =>
 		if model? 
 			goog.dom.setTextContent(
 				goog.dom.getElementByClass('model-name', @statusBar_), model
@@ -118,3 +120,12 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			goog.dom.setTextContent(
 				goog.dom.getElementByClass('db-version', @statusBar_), db
 			)
+
+		if saved?
+			statusSaved = goog.dom.getElementByClass 'model-saved', @statusBar_
+
+			if saved is true then mark = '✓'; color = 'green'
+			else mark = '✗'; color = 'red'
+
+			goog.dom.setTextContent statusSaved, mark
+			goog.style.setStyle statusSaved, 'color', color

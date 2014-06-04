@@ -14,6 +14,7 @@ goog.require 'goog.events.EventTarget'
 class dm.model.ModelManager extends goog.events.EventTarget
   @EventType:
     CHANGE: 'model-change'
+    EDITED: 'model-edited'
 
   ###*
   * @constructor
@@ -47,6 +48,10 @@ class dm.model.ModelManager extends goog.events.EventTarget
     @canvas.addTable tab
     @actualModel.addTable tab
 
+    tableEvents = ['name-change','column-add','column-change','column-delete']
+    
+    goog.events.listen model, tableEvents, @onModelEdit
+
     tab.getId()
 
   ###*
@@ -60,8 +65,9 @@ class dm.model.ModelManager extends goog.events.EventTarget
     parentTable = @actualModel.getTableUiById model.tables.parent
     childTable = @actualModel.getTableUiById model.tables.child
 
-    goog.events.listen model, 'type-change', -> 
+    goog.events.listen model, 'type-change', => 
       rel.onTypeChange childTable.getModel()
+      @onModelEdit()
 
     columnsListChangeEvents = ['column-add', 'column-change' ,'column-delete']
     
@@ -160,6 +166,9 @@ class dm.model.ModelManager extends goog.events.EventTarget
           @actualModel.getTableIdByName relation.child_table
         )
       )
+
+  onModelEdit: =>
+    @dispatchEvent dm.model.ModelManager.EventType.EDITED
 
   ###*
   * @param {string} name Name of new model

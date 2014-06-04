@@ -19,11 +19,16 @@ goog.require 'dm.sqlgen.Sql92'
 
 goog.require 'goog.dom'
 goog.require 'goog.events'
+goog.require 'goog.userAgent.product'
 
 ###*
 * @type {string}
 ###
 dm.actualRdbs = null
+
+###*
+###
+dm.saved = true
 
 ###*
 * @type {Socket}
@@ -42,11 +47,19 @@ toolbar.renderBefore canvasElement
 
 modelManager = new dm.model.ModelManager(canvas)
 
+###*
+* @param {boolean} saved
+###
+dm.setModelSaveStatus = (saved) ->
+  dm.saved = saved
+  toolbar.setStatus null, null, saved
+
 dm.handleNewModel = (db) ->
   dm.setActualRdbs db
   inputDialog.show(
     'NewModel', 'Type name of new model', modelManager.bakupOldCreateNewActual
   )
+  dm.setModelSaveStatus true
 
 ###*
 * @param {string} action Id of action selected at intro dialog
@@ -78,6 +91,7 @@ dm.handleReeng = (data) ->
 
   # set model's db as a actual with replaced dots at version string
   dm.setActualRdbs data.db.replace '.', '-'
+  dm.setModelSaveStatus true
 
 reengDialog = React.renderComponent(
   dm.ui.ReEngineeringDialog(
@@ -125,6 +139,7 @@ dm.handleModelLoad = (json) ->
   
   # set model's db as a actual
   dm.setActualRdbs json.db
+  dm.setModelSaveStatus true
 
 loadModelDialog = React.renderComponent(
   dm.ui.LoadModelDialog(onModelLoad: dm.handleModelLoad)
@@ -216,5 +231,20 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, loadModelDialog.
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name
+
+goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
+    dm.setModelSaveStatus false
+
+goog.dom.getWindow().onbeforeunload = (ev) ->
+  unless @dm.saved
+    "Model #{modelManager.actualModel.name} isnt saved, really exit?"
+    
+  ###
+  msg = 'Really unload?'
+  {IE, FIREFOX} = goog.userAgent.product
+
+  if IE or FIREFOX then ev.getBrowserEvent().returnValue = msg
+  else msg
+  ###
 
 #goog.exportSymbol 'dm.init', dm.init
