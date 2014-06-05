@@ -8,6 +8,7 @@ goog.require 'dm.ui.Table'
 goog.require 'dm.ui.Relation'
 
 goog.require 'goog.events'
+goog.require 'goog.object'
 goog.require 'goog.string'
 goog.require 'goog.events.EventTarget'
 
@@ -93,19 +94,18 @@ class dm.model.ModelManager extends goog.events.EventTarget
     @bakupOldCreateNewActual name
 
     for table in tables
-      columns = (for id, column of table.model.columns 
+      columns = goog.object.map table.model.columns, (column, id) => 
+        if column.indexes? then goog.object.remove column, 'indexes'
         column[colProp] = @columnCoercion(value) for colProp, value of column
+        
         column
-      )
 
       tableModel = new dm.model.Table table.model.name, columns
       
       for columnId, columnIndexes of table.model.indexes
-        column = goog.string.toNumber(columnId)
-
         # foreign key indexes are created by relation
         for index in columnIndexes when index isnt dm.model.Table.index.FK
-          tableModel.setIndex column, index 
+          tableModel.setIndex columnId, index 
         
       @addTable tableModel, table.pos.x, table.pos.y
 
