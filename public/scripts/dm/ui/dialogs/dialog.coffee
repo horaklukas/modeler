@@ -15,6 +15,7 @@ dm.ui.Dialog = React.createClass
       NONE: 'none'
 
   cancelDialog: ->
+    @props.onCancel?()
     @setState visible: false
 
   confirmDialog: ->

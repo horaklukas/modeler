@@ -96,6 +96,7 @@ dm.ui.TableDialog = React.createClass
           isChangedColumn and not col.isPk
         )
 
+    @hide()
     #@_originalModel = null
 
   nameChange: (e) ->
@@ -151,7 +152,7 @@ dm.ui.TableDialog = React.createClass
     show = @state.visible
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={show}>
+    <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide} visible={show}>
       <div className="row">
         <span><label>Table name</label></span>
         <span>

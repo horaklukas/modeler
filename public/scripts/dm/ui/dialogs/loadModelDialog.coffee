@@ -16,6 +16,9 @@ dm.ui.LoadModelDialog = React.createClass
 			visible: true
 			info: text: '', type: null 
 
+	hide: ->
+		@setState visible: false
+
 	onUploadRequest: (e) ->
 		e.preventDefault()
 		form = (`/** @type {HTMLFormElement} */`) e.target
@@ -36,7 +39,7 @@ dm.ui.LoadModelDialog = React.createClass
 				throw new Error iFrameIo.getLastError()
 
 			@props.onModelLoad iFrameIo.getResponseJson()
-			@setState visible: false
+			@hide()
 		catch e
 			@setState info: {text: e.message, type: 'error'} 
 
@@ -57,7 +60,7 @@ dm.ui.LoadModelDialog = React.createClass
     infoClasses = 'info' + (if info.type? then " #{info.type}" else '')
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={visible} 
+    <Dialog title={title} onCancel={this.hide} visible={visible} 
     	buttons={dm.ui.Dialog.buttonSet.CANCEL} >
 
       <form method="POST" action="/load" encType="multipart/form-data"

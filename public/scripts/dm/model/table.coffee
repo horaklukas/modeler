@@ -182,9 +182,12 @@ class dm.model.Table extends goog.events.EventTarget
   * @return {Object} table model at JSON representation
 	###
 	toJSON: ->
-		fks = @getColumnsIdsByIndex dm.model.Table.index.FK
+		#fks = @getColumnsIdsByIndex dm.model.Table.index.FK
 		# foreign key columns are created by relation
-		columns =  goog.object.filter @columns, (column, idx) -> idx not in fks
+		#columns =  goog.object.filter @columns, (column, idx) -> idx not in fks
+		columns = goog.object.map @columns, (column, id) =>
+			goog.object.remove column, 'indexes'
+			return column
 
 		'name': @name
 		'columns': columns

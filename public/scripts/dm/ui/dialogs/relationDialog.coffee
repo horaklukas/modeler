@@ -42,10 +42,10 @@ dm.ui.RelationDialog = React.createClass
 
   onConfirm: ->
     @_originalModel.setType @state.identifying
+    @hide()
 
   hide: ->
-    @setState 
-      visible: false
+    @setState visible: false
 
   handleTypeChange: (isIdentifying) ->
     @setState identifying: isIdentifying
@@ -59,7 +59,8 @@ dm.ui.RelationDialog = React.createClass
     show = @state.visible
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={show}>
+    <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide}
+      visible={show}>
       <RelationTypeSelect identifying={this.state.identifying} 
         onChange={this.handleTypeChange} />
     </Dialog>
