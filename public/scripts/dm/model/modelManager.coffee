@@ -93,16 +93,25 @@ class dm.model.ModelManager extends goog.events.EventTarget
   createActualFromLoaded: (name, tables, relations) ->
     @bakupOldCreateNewActual name
 
-    for table in tables
-      columns = goog.object.map table.model.columns, (column, id) => 
-        if column.indexes? then goog.object.remove column, 'indexes'
-        column[colProp] = @columnCoercion(value) for colProp, value of column
+    tableIdxsByName = {}
+
+    for table, idx in tables
+      columns = {}
+      {indexes} = table.model
+
+      goog.object.forEach table.model.columns, (column, id) => 
+        if indexes?[id]? and dm.model.Table.index.FK in indexes[id]
+          return 
         
-        column
+        columns[id] = {}
+        columns[id][prop] = @columnCoercion(value) for prop, value of column
 
       tableModel = new dm.model.Table table.model.name, columns
-      
-      for columnId, columnIndexes of table.model.indexes
+  
+      # this is useful when creating relations
+      tableIdxsByName[table.model.name] = idx 
+
+      for columnId, columnIndexes of indexes
         # foreign key indexes are created by relation
         for index in columnIndexes when index isnt dm.model.Table.index.FK
           tableModel.setIndex columnId, index 
@@ -110,13 +119,26 @@ class dm.model.ModelManager extends goog.events.EventTarget
       @addTable tableModel, table.pos.x, table.pos.y
 
     for relation in relations
-      @addRelation(
-        new dm.model.Relation(
-          relation.type
-          @actualModel.getTableIdByName relation.tables.parent
-          @actualModel.getTableIdByName relation.tables.child
+      {parent, child} = relation.tables
+      parentId = @actualModel.getTableIdByName parent
+      childId = @actualModel.getTableIdByName child
+
+      @addRelation new dm.model.Relation(relation.type, parentId, childId)
+
+      childTable = @actualModel.getTableById childId
+
+      for mapping in relation.mapping
+        # since column was created by relation, it hasnt id saved at json, but
+        # has any newly created, so we must get it and the best solution is
+        # by name, because name of column and corresponding parent table column
+        # should equal
+        columnId = childTable.getColumnIdByName(
+          tables[tableIdxsByName[parent]].model.columns[mapping.parent].name
         )
-      )
+
+        childTable.setColumn(
+          tables[tableIdxsByName[child]].model.columns[mapping.child], columnId
+        )
    
   ###*
   * @param {string} name Name of new actual model

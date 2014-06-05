@@ -79,7 +79,7 @@ class dm.model.Table extends goog.events.EventTarget
 	setColumn: (column, id) ->
 		# before add (or update) column check if its name is unique and add suffix
 		# in case that not
-		column.name = @getUniqueColumnName column.name
+		column.name = @getUniqueColumnName column.name, id
 
 		if id?
 			@columns[id] = column
@@ -151,6 +151,14 @@ class dm.model.Table extends goog.events.EventTarget
 	getColumnByName: (name) ->
 		return col for id, col of @columns when col.name is name
 		return null
+
+	###*
+	* @param {string} name
+  * @return {(string|null)}
+	###
+	getColumnIdByName: (name) ->
+		return id for id, col of @columns when col.name is name
+		return null		
 
 	###*
   * @param {string} id Related column id
