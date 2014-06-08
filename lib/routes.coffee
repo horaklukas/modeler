@@ -1,4 +1,5 @@
 fs = require 'fs'
+fspath = require 'path'
 async = require 'async'
 databases = require './dbs'
 reverseEng = require './reverse-eng'
@@ -152,3 +153,45 @@ exports.getReengData = (tables, mainCb) ->
 			relations: relationsData
 			db: "#{dbType}-#{dbVersion}" 
 		}
+
+###*
+* @type {string}
+###
+connsFilePath = fspath.join	__dirname, '../data/connections.json'
+
+###*
+* `get-connections` Websocket event
+*
+* @param {function(?string, Array.<string>=)} cb
+###
+exports.getConnections = getConnections = (cb) ->
+	options = 
+		encoding: 'utf8'
+		flag: 'a+' # new connections file is created if it doesnt exist
+
+	fs.readFile connsFilePath, options, (err, data) ->
+		if err? then cb "Error at reading connections file: #{err}"
+
+		if not data? or data is '' then data = '{}'
+
+		try cb null, JSON.parse(data)
+		catch e then cb "Error at parsing connections file: #{e}"
+
+###*
+* `add-connections` Websocket event
+*
+* @param {string} name Connection name, should be unique (ensures client)
+* @param {Object} conn Data needed for connection to db
+* @param {function(?string=)} cb
+###
+exports.addConnection = (name, conn, cb) ->
+	getConnections (err, connections) ->
+		if err? then cb err
+
+		try 
+			connections[name] = conn
+			serializedConnections = JSON.stringify connections
+		catch e
+			cb "Error at saving connection: #{e}"
+
+		fs.writeFile connsFilePath, serializedConnections, cb

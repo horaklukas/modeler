@@ -7,3 +7,4 @@ public/scripts/lib
 *.log
 
 *.js
+data/

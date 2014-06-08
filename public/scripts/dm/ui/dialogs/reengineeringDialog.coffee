@@ -15,23 +15,28 @@ dm.ui.ReEngineeringDialog = React.createClass
   hide: ->
     @setState visible: false
 
-  handleDbConnection: ->
-    type = @refs.dbtype.getDOMNode().value
-    pass = @refs.pass.getDOMNode().value
-    port = @refs.port.getDOMNode().value
-    connectOptions =
-      host: @refs.host.getDOMNode().value
-      db: @refs.db.getDOMNode().value
-      user: @refs.user.getDOMNode().value
-      pass: if pass is '' then null else pass
-      port: if port is '' then null else port
+  handleError: (err) ->
+    @setState info: {text: err, err: true}
 
-    @props.connection.emit 'connect-db', type, connectOptions, (err, data) =>
-      if err then @setState info: {text: err, err: true}
+  handleDbConnection: ->
+    unless @state.data? then return @handleError 'No connection selected'
+
+    {options} = @state.data
+    type = options.type
+
+    @props.connection.emit 'connect-db', type, options, (err, data) =>
+      if err then @handleError err
       else @setState data: data
 
     # dont hide dialog until process is complete
     return false
+
+  handleConnSelect: (name, options) ->
+    data = null
+
+    if name then data = { name: name, options: options }
+
+    @setState data: data
 
   handleSchemaSelect: ->
 
@@ -68,9 +73,9 @@ dm.ui.ReEngineeringDialog = React.createClass
   createContent: (type) ->
     switch type
       when 'dbconnect'
+        selected = @state.data?.name
         dbTypes = []
         addedTypes = []
-        fieldStyle = float: 'right'
 
         goog.object.forEach @props.dbs, (db, id) ->
           # id of db has format dbtype-dbversion so first part is only what we
@@ -84,32 +89,9 @@ dm.ui.ReEngineeringDialog = React.createClass
           dbTypes.push `(<option key={dbId} value={dbId}>{db.name}</option>)`
 
         `(
-          <form>
-            <p>
-              Database type
-              <select ref="dbtype" style={fieldStyle}>{dbTypes}</select>
-            </p>
-            <p>
-              Hostname or Ip address
-              <input ref="host" style={fieldStyle} />
-            </p>
-            <p>
-              Database name
-              <input ref="db" style={fieldStyle} />
-            </p>
-            <p>
-              Name of database user
-              <input ref="user" style={fieldStyle} />
-            </p>
-            <p>
-              User password
-              <input type="password" ref="pass" style={fieldStyle} />
-            </p>
-            <p>
-              Connection port
-              <input ref="port" style={fieldStyle} maxLength="5" size="10" />
-            </p>
-          </form>
+          <ConnectionsManager source={this.props.connection} dbTypes={dbTypes}
+            selected={selected}
+            onError={this.handleError} onSelect={this.handleConnSelect} />
         )`
       when 'selectschema'
         `(
@@ -141,8 +123,8 @@ dm.ui.ReEngineeringDialog = React.createClass
     title = 'Reengineering dialog'
     buttonSetType = Dialog.buttonSet.OK
     
-    if @state.data is null
-      text = 'Select database machine that you want to connect'
+    if not @state.data? or @state.data.name?
+      text = 'Select existing database connection or create new'
       confirmHandler = @handleDbConnection
       type = 'dbconnect'
     else if @state.data.schemata?
@@ -167,4 +149,118 @@ dm.ui.ReEngineeringDialog = React.createClass
 
       {this.createContent(type)}
     </Dialog>
+    )`
+
+ConnectionsManager = React.createClass
+  onChange: (e) ->
+
+
+  addConnection: (ev) ->
+    ev.preventDefault()
+
+    connName = @refs.name.getDOMNode().value
+
+    if @state.connections[connName]?
+      @props.onError 'Connection with this name already exists'
+
+    type = @refs.dbtype.getDOMNode().value
+    pass = @refs.pass.getDOMNode().value
+    port = @refs.port.getDOMNode().value
+    connectOptions =
+      type: type
+      host: @refs.host.getDOMNode().value
+      db: @refs.db.getDOMNode().value
+      user: @refs.user.getDOMNode().value
+      pass: if pass is '' then null else pass
+      port: if port is '' then null else port
+
+    @props.source.emit 'add-connection', connName, connectOptions, (err) =>
+      if err then return @props.onError err
+
+      connections = @state.connections
+      connections[connName] = connectOptions
+
+      @setState connections: connections
+
+  onConnectionSelect: ->
+    selected = @refs.connections.getDOMNode().value
+
+    if selected is 'placeholder' then selected = null
+
+    @props.onSelect selected, @state.connections[selected]
+
+  createSelect: ->
+    options = [`( <option value="placeholder" key="plchldr">---</option> )`]
+
+    goog.object.forEach @state.connections, (conn, name) ->
+      options.push `( <option value={name} key={name}>{name}</option> )`
+
+    `( 
+      <select ref="connections" onChange={this.onConnectionSelect}>
+        {options}
+      </select> 
+    )`
+
+  componentWillMount: ->
+    @props.source.emit 'get-connections', (err, connections) =>
+      if err then return @props.onError err
+      @setState connections: connections
+
+  getInitialState: ->
+    connections: {}
+
+  render: ->
+    fieldStyle = float: 'right'
+    connName = @props.selected
+    disabled = connName?
+
+    conn = @state.connections[connName] ? {
+      host: null, db: null, user: null, pass: null, port: null, type: null
+    }
+
+    `(
+    <div>
+      {this.createSelect()}
+      <form>
+        <p>
+          Connection name
+          <input ref="name" style={fieldStyle} value={connName} 
+          disabled={disabled} />
+        </p>
+        <p>
+          Database type
+          <select ref="dbtype" style={fieldStyle} value={conn.type} 
+            disabled={disabled}>
+            {this.props.dbTypes}
+          </select>
+        </p>
+        <p>
+          Hostname or Ip address
+          <input ref="host" style={fieldStyle} value={conn.host}
+            disabled={disabled} />
+        </p>
+        <p>
+          Database name
+          <input ref="db" style={fieldStyle} value={conn.db} 
+            disabled={disabled} />
+        </p>
+        <p>
+          Name of database user
+          <input ref="user" style={fieldStyle} value={conn.user} 
+            disabled={disabled} />
+        </p>
+        <p>
+          User password
+          <input type="password" ref="pass" style={fieldStyle} 
+            value={conn.pass} disabled={disabled} />
+        </p>
+        <p>
+          Connection port
+          <input ref="port" style={fieldStyle} maxLength="5" size="10" value={conn.port} disabled={disabled} />
+        </p>
+        <button onClick={this.addConnection} disabled={disabled}>
+          Create
+        </button>
+      </form>
+    </div>
     )`

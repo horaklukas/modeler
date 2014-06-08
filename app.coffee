@@ -42,6 +42,8 @@ app.post '/load', multipartMiddleware, routes.loadModel
 io.on 'connection', (socket) ->
 	socket.on 'connect-db', routes.connectDb
 	socket.on 'get-reeng-data', routes.getReengData
+	socket.on 'get-connections', routes.getConnections
+	socket.on 'add-connection', routes.addConnection
 
 server.listen port, -> 
 	console.log 'Listening on port ' + port
