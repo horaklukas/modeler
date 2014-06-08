@@ -83,7 +83,8 @@ query.getTableColumns = (schema, tables) ->
     CASE WHEN cols.is_nullable = 'YES' then false ELSE true END AS isNotNull,
     CASE WHEN pkcols.isPk = 'PRIMARY KEY' THEN true ELSE false END AS isPk,
     CASE WHEN uniqcols.isUnique = 'UNIQUE' THEN true ELSE false END AS isUnique,
-    CASE WHEN fkcols.isFk= 'FOREIGN KEY' THEN true ELSE false END AS isFk
+    CASE WHEN fkcols.isFk= 'FOREIGN KEY' THEN true ELSE false END AS isFk,
+    cols.ordinal_position AS position
   FROM information_schema.columns AS cols
 
   LEFT JOIN (
@@ -106,7 +107,7 @@ query.getTableColumns = (schema, tables) ->
   
   WHERE cols.table_schema = '#{schema}'
   AND cols.table_name IN ('#{tables.join("','")}')
-  ORDER BY cols.table_name
+  ORDER BY cols.table_name, position
   """
 
 ###*
