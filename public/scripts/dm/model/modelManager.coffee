@@ -155,40 +155,65 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     # first create tables
     for column, i in columns
-      unless actualModel?
+      unless tableModel?
         actualTableName = column.table_name
-        actualModel = new dm.model.Table actualTableName
+        tableModel = new dm.model.Table actualTableName
 
       # dont create foreign key columns, they are created by relation
       unless column.isfk
-        colId = actualModel.setColumn { 
+        colId = tableModel.setColumn { 
           name: column.column_name
           type: column.data_type
           isNotNull: column.isnotnull 
         }
 
-        actualModel.setIndex colId, dm.model.Table.index.PK if column.ispk
-        actualModel.setIndex colId, dm.model.Table.index.UNIQUE if column.isunique
-        actualModel.setIndex colId, dm.model.Table.index.FK if column.isfk
+        tableModel.setIndex colId, dm.model.Table.index.PK if column.ispk
+        tableModel.setIndex colId, dm.model.Table.index.UNIQUE if column.isunique
+        tableModel.setIndex colId, dm.model.Table.index.FK if column.isfk
 
       # last column in list = next doesnt exists or next column from different 
       # table means that model is completed
       if not (columns[i + 1]?.table_name is actualTableName)
         @addTable(
-          actualModel
+          tableModel
           Math.round(Math.random() * canvasSize.width)
           Math.round(Math.random() * canvasSize.height)
         )
-        actualModel = null  
+        tableModel = null  
 
     # then create relations
-    for relation in relations
+    for relation, i in relations
+      childId = @actualModel.getTableIdByName relation.child_table
+
+      if relations[i - 1]?.parent_table isnt relation.parent_table or
+      relations[i - 1]?.child_table isnt relation.child_table
+        parentId = @actualModel.getTableIdByName relation.parent_table
+
+        @addRelation new dm.model.Relation(
+          relation.is_identifying, parentId, childId
+        )
+
+      childTable = @actualModel.getTableById childId
+
+      
+      # since column was created by relation, it hasnt id saved at json, but
+      # has any newly created, so we must get it and the best solution is
+      # by name, because name of column and corresponding parent table column
+      # should equal
+      columnId = childTable.getColumnIdByName(relation.parent_column)
+      childColumn = childTable.getColumnById columnId
+      childColumn.name = relation.child_column
+
+      childTable.setColumn childColumn, columnId
+        
+      ###
       @addRelation(new dm.model.Relation(
           relation.is_identifying
           @actualModel.getTableIdByName relation.parent_table
           @actualModel.getTableIdByName relation.child_table
         )
       )
+      ###
 
   onModelEdit: =>
     @dispatchEvent dm.model.ModelManager.EventType.EDITED

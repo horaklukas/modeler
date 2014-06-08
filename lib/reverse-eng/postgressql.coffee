@@ -41,22 +41,34 @@ query.getTablesList = (schema) ->
 *
 * @param {string} schema Name of database schema to get data from
 * @param {string} constr Name of constraint
-* @param {string} typeAlias Name of constraint type column
+* @param {?string=} typeAlias Name of constraint type column
+* @param {string=} position Name of field that contain position to get. If not
+*  passed, position should not been selected 
 * @return {string} required query
 ###
-query.getConstraintColumns = (schema, constr, typeAlias = 'type') ->
-  """
-  SELECT DISTINCT constrs.constraint_name, 
-    keycols.column_name AS column,
-    keycols.table_name AS table,
-    constrs.constraint_type AS #{typeAlias}
-  FROM information_schema.key_column_usage AS keycols
-  JOIN information_schema.table_constraints AS constrs 
-    ON  keycols.constraint_name = constrs.constraint_name 
-    AND keycols.table_name = constrs.table_name 
-  WHERE constrs.constraint_type = '#{constr}'
-    AND constrs.table_schema = 'public'
-  """
+query.getConstraintColumns = (schema, constr, typeAlias = 'type', position) ->
+  localQuery =  
+    """
+    SELECT DISTINCT constrs.constraint_name, 
+      keycols.column_name AS column,
+      keycols.table_name AS table,
+    """
+
+  if position then localQuery += 
+    """
+      keycols.#{position} AS position,
+    """
+
+  localQuery +=
+    """
+      constrs.constraint_type AS #{typeAlias}
+    FROM information_schema.key_column_usage AS keycols
+    JOIN information_schema.table_constraints AS constrs 
+      ON  keycols.constraint_name = constrs.constraint_name 
+      AND keycols.table_name = constrs.table_name 
+    WHERE constrs.constraint_type = '#{constr}'
+      AND constrs.table_schema = 'public'
+    """
 
 ###*
 * Returns query that select all columns from supplied schema, order by tables
@@ -105,16 +117,16 @@ query.getTableColumns = (schema, tables) ->
 * @param {Array.<string>} tables
 ###
 
-query.getRelations = (schema, tables) ->
+query.getRelations = (schema, tables = []) ->
   """  
   SELECT
-    childcols.table AS child_table,
-    childcols.column AS child_column,
     parentcols.table AS parent_table,
     parentcols.column AS parent_column,
+    childcols.table AS child_table,
+    childcols.column AS child_column,
     CASE WHEN childcolspks.isPk IS NULL THEN false ELSE true END AS is_identifying
   FROM ( 
-    #{query.getConstraintColumns(schema, 'FOREIGN KEY')}
+    #{query.getConstraintColumns(schema, 'FOREIGN KEY', null, 'position_in_unique_constraint')}
   ) childcols
 
   LEFT JOIN (
@@ -133,10 +145,11 @@ query.getRelations = (schema, tables) ->
   ON childcols.constraint_name = refs.constraint_name
 
   JOIN (
-    #{query.getConstraintColumns(schema, 'PRIMARY KEY')}    
+    #{query.getConstraintColumns(schema, 'PRIMARY KEY', null, 'ordinal_position')}    
   ) parentcols
 
   ON refs.unique_constraint_name = parentcols.constraint_name
-  WHERE parentcols.table in ('#{tables.join("','")}')
+  WHERE parentcols.position = childcols.position
+  AND parentcols.table in ('#{tables.join("','")}')
   AND childcols.table in ('#{tables.join("','")}')
   """
