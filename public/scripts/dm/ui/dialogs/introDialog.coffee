@@ -3,8 +3,7 @@
 goog.provide 'dm.ui.IntroDialog'
 
 goog.require 'goog.object'
-
-{Dialog} = dm.ui
+goog.require 'dm.ui.Dialog'
 
 dm.ui.IntroDialog = React.createClass
   statics:
@@ -27,6 +26,7 @@ dm.ui.IntroDialog = React.createClass
     visible: false
 
   render: ->
+    {Dialog} = dm.ui
     {visible} = @state
     title = 'Select action'
     buttonSet = dm.ui.Dialog.buttonSet.NONE

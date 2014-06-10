@@ -7,8 +7,6 @@ goog.require 'goog.net.XhrIo'
 goog.require 'goog.events'
 goog.require 'goog.object'
 
-{Dialog} = dm.ui
-
 dm.ui.SelectDbDialog = React.createClass
   show: (cb) ->
     if cb? then @setProps onSelect: cb
@@ -23,6 +21,7 @@ dm.ui.SelectDbDialog = React.createClass
     info: text: '', err: false
 
   render: ->
+    {Dialog} = dm.ui
     title = 'Select database to work with'
     buttonSetType = Dialog.buttonSet.SELECT
     dbsList = []

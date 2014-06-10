@@ -5,8 +5,8 @@ goog.provide 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.Dialog'
 #goog.require 'goog.array'
 goog.require 'goog.object'
+goog.require 'dm.ui.Dialog'
 
-{Dialog} = dm.ui
 
 dm.ui.ReEngineeringDialog = React.createClass
   show: ->
@@ -120,6 +120,7 @@ dm.ui.ReEngineeringDialog = React.createClass
     data: null
 
   render: ->
+    {Dialog} = dm.ui
     title = 'Reengineering dialog'
     buttonSetType = Dialog.buttonSet.OK
     

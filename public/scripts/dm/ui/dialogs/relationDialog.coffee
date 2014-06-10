@@ -15,8 +15,6 @@ goog.require 'goog.array'
 goog.require 'goog.string'
 goog.require 'dm.ui.Dialog'
 
-{Dialog} = dm.ui
-
 dm.ui.RelationDialog = React.createClass
   _originalModel: null
 
@@ -55,6 +53,8 @@ dm.ui.RelationDialog = React.createClass
     identifying: false
 
   render: ->
+    {Dialog} = dm.ui
+ 
     title = "Relation between tables \"#{@props.parentName}\" and \"#{@props.childName}\""
     show = @state.visible
 

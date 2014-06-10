@@ -15,7 +15,7 @@ describe 'class TableDialog', ->
         'group2': ['type1g2', 'type2g2', 'type3g2', 'type4g2']
 
     tabd = TestUtils.renderIntoDocument dm.ui.TableDialog props
-    dialogRoot = TestUtils.findRenderedComponentWithType tabd, Dialog
+    dialogRoot = TestUtils.findRenderedComponentWithType tabd, dm.ui.Dialog
 
   it 'should left dialog hidden after render', ->
     expect(dialogRoot.state).to.have.property 'visible', false

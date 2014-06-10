@@ -14,7 +14,7 @@ module.exports = (grunt) ->
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
-  grunt.registerTask 'build', ['closureBuilder']
+  grunt.registerTask 'build', ['coffee2closure', 'closureBuilder']
 
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']
 
@@ -72,10 +72,11 @@ module.exports = (grunt) ->
       options:
         closureLibraryPath: 'bower_components/closure-library'
         inputs: './public/scripts/dm/app.js'
+        namespaces: 'dm'
 
         # [OPTIONAL] The location of the compiler.jar
         # This is required if you set the option "compile" to true.
-        #compilerFile: 'path/to/compiler.jar',
+        compilerFile: 'bower_components/closure-compiler/compiler.jar',
 
         # [OPTIONAL] output_mode can be 'list', 'script' or 'compiled'.
         #    If compile is set to true, 'compiled' mode is enforced.
@@ -83,9 +84,17 @@ module.exports = (grunt) ->
         #output_mode: '',
 
         # [OPTIONAL] if we want builder to perform compile
-        compile: false
+        compile: true
 
-        compilerOpts: null
+        compilerOpts: 
+          compilation_level: 'ADVANCED_OPTIMIZATIONS'
+          #compilation_level: 'SIMPLE_OPTIMIZATIONS',
+          externs: ['bower_components/este-library/externs/react.js']
+          define: ["'goog.DEBUG=false'"]
+          warning_level: 'verbose'
+          jscomp_off: 'globalThis'
+          extra_annotation_name: 'jsx'
+
         #execOpts:
         #   maxBuffer: 999999 * 1024
       

@@ -42,7 +42,7 @@ class dm.model.Table extends goog.events.EventTarget
 		@columns = columns
 
 		###*
-	  * @type {Object.<number, type}
+	  * @type {Object.<number, type>}
 		###
 		@indexes = {}
 
@@ -61,8 +61,8 @@ class dm.model.Table extends goog.events.EventTarget
 
 	###*
 	* Adds new columns or updates existing
-	* @param {Array.<(Object,<string,*>|dm.model.TableColumnModel)>} columns List of
-	*  table columns at keys based object
+	* @param {Array.<(Object.<string,*>|dm.model.TableColumnModel)>} columns 
+	* List of  table columns at keys based object
 	###
 	###
 	setColumns: (columns) ->
@@ -141,7 +141,7 @@ class dm.model.Table extends goog.events.EventTarget
   * @return {?dm.model.TableColumn}
 	###
 	getColumnById: (id) ->
-		unless id? then null
+		unless id? then return null
 		@columns[id] ? null
 
 	###*

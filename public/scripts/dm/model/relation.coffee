@@ -55,7 +55,7 @@ class dm.model.Relation extends goog.events.EventTarget
 	setColumnsMapping: (ids) ->
 		@keyColumnsMapping_ = ids
 
-	###
+	###*
 	* @return {Array.<Object.<string,number>>}
 	###
 	getColumnsMapping: ->
@@ -64,7 +64,7 @@ class dm.model.Relation extends goog.events.EventTarget
 	###*
   * @param {?string=} parent
   * @param {?string=} child
-  * @param {(string|null)}
+  * @return {(string|null)}
 	###
 	getOppositeMappingId: (parent, child) ->
 		if parent?
@@ -92,7 +92,7 @@ class dm.model.Relation extends goog.events.EventTarget
 		if child? then @tables.child = child
 	###
 
-	###
+	###*
 	* Since relation model contains "only" ids of tables, its names have to be
 	*  passed
 	*

@@ -19,8 +19,6 @@ goog.require 'dm.model.Table'
 
 goog.require 'dm.ui.Dialog'
 
-{Dialog} = dm.ui
-
 dm.ui.TableDialog = React.createClass
   _originalModel: null
   removed: null
@@ -148,6 +146,7 @@ dm.ui.TableDialog = React.createClass
     errorState: ''
 
   render: ->
+    {Dialog} = dm.ui
     title = "Table \"#{@state.name or 'unnamed'}\""
     show = @state.visible
 
