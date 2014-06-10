@@ -55,12 +55,33 @@ class dm.model.Relation extends goog.events.EventTarget
 	setColumnsMapping: (ids) ->
 		@keyColumnsMapping_ = ids
 
-	###
+	###*
 	* @return {Array.<Object.<string,number>>}
 	###
 	getColumnsMapping: ->
 		@keyColumnsMapping_
-		
+	
+	###*
+  * @param {?string=} parent
+  * @param {?string=} child
+  * @return {(string|null)}
+	###
+	getOppositeMappingId: (parent, child) ->
+		if parent?
+			key = 'parent'
+			oppositeKey = 'child'
+			id = parent
+		else if child?
+			key = 'child'
+			oppositeKey = 'parent'
+			id = child
+		else
+			console.warn 'Get opposite mapping column id: no column id passed'
+			return null
+
+		for mapping in @keyColumnsMapping_ when mapping[key] is id
+			return mapping[oppositeKey]
+
 	###*
   * @param {?string} parent Name of parent table
   * @param {?string=} child Name of child table
@@ -71,7 +92,7 @@ class dm.model.Relation extends goog.events.EventTarget
 		if child? then @tables.child = child
 	###
 
-	###
+	###*
 	* Since relation model contains "only" ids of tables, its names have to be
 	*  passed
 	*

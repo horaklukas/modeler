@@ -48,7 +48,7 @@ class dm.model.Model
 	###*
 	* Returns table ui by table id
   * @param {string} id
-  * @return {dm.ui.Table=}
+  * @return {(dm.ui.Table|null)}
 	###
 	getTableUiById: (id) ->
 		@tables_[id] ? null
@@ -56,7 +56,7 @@ class dm.model.Model
 	###*
   * Returns relation ui by relation id
   * @param {string} id
-  * @return {dm.ui.Relation=}
+  * @return {(dm.ui.Relation|null)}
 	###
 	getRelationUiById: (id) ->
 		@relations_[id] ? null
@@ -64,7 +64,7 @@ class dm.model.Model
 	###*
 	* Returns table model by table id
   * @param {string} id
-  * @return {dm.ui.Table=}
+  * @return {(dm.ui.Table|null)}
 	###
 	getTableById: (id) ->
 		@tables_[id].getModel() ? null
@@ -72,7 +72,7 @@ class dm.model.Model
 	###*
   * Returns relation model by relation id
   * @param {string} id
-  * @return {dm.ui.Relation=}
+  * @return {(dm.ui.Relation|null)}
 	###
 	getRelationById: (id) ->
 		@relations_[id].getModel() ? null

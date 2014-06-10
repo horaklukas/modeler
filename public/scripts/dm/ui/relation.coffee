@@ -72,6 +72,8 @@ class dm.ui.Relation extends goog.ui.Component
 		goog.events.listen groupElement, goog.events.EventType.MOUSEOUT, ->
 			@firstChild.setAttribute 'stroke', 'transparent'
 
+		@setElementInternal groupElement
+
 	###*
   * Recount new position of relation endpoints and set it
   *

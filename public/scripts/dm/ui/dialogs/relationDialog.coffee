@@ -15,8 +15,6 @@ goog.require 'goog.array'
 goog.require 'goog.string'
 goog.require 'dm.ui.Dialog'
 
-{Dialog} = dm.ui
-
 dm.ui.RelationDialog = React.createClass
   _originalModel: null
 
@@ -42,10 +40,10 @@ dm.ui.RelationDialog = React.createClass
 
   onConfirm: ->
     @_originalModel.setType @state.identifying
+    @hide()
 
   hide: ->
-    @setState 
-      visible: false
+    @setState visible: false
 
   handleTypeChange: (isIdentifying) ->
     @setState identifying: isIdentifying
@@ -55,11 +53,14 @@ dm.ui.RelationDialog = React.createClass
     identifying: false
 
   render: ->
+    {Dialog} = dm.ui
+ 
     title = "Relation between tables \"#{@props.parentName}\" and \"#{@props.childName}\""
     show = @state.visible
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={show}>
+    <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide}
+      visible={show}>
       <RelationTypeSelect identifying={this.state.identifying} 
         onChange={this.handleTypeChange} />
     </Dialog>

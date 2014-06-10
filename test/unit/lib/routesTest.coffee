@@ -3,16 +3,16 @@ mocks =
 		getDb: sinon.stub(), getList: sinon.stub(), getSelected: sinon.stub()
 		setList: sinon.spy(), setDbs: sinon.spy(), setSelected: sinon.spy()
 		loadAllDefinitions: sinon.stub()
+	fs:
+		readFile: sinon.stub()
 
 
-describe 'app routes', ->
-	app = null
-		
+describe 'app routes', ->		
 	before ->
 		mockery.enable warnOnUnregistered: false
 		mockery.registerMock './dbs', mocks.databases
 
-		app = require '../../../app'
+		@app = require '../../../app'
 
 	after ->
 		mockery.disable()
@@ -26,7 +26,7 @@ describe 'app routes', ->
 		it 'should response server error if reading databases failed', (done) ->
 			mocks.databases.getList.yields 'Reading failed'
 			
-			request(app)
+			request(@app)
 				.post('/list')
 				.expect('Content-Type', /text\/html/)
 				.expect(500)
@@ -41,7 +41,7 @@ describe 'app routes', ->
 				{'postgre': 'PostgreSQL 9.3'}, {'mysql': 'MYSQL 3'}
 			]
 
-			request(app)
+			request(@app)
 				.post('/list')
 				.expect('Content-Type', /json/)
 				.expect(200)
@@ -63,7 +63,7 @@ describe 'app routes', ->
 			mocks.databases.getSelected.returns 'mysql'
 			mocks.databases.getDb.withArgs('mysql').returns types: [], name: 'MYSQL'
 
-			request(app)
+			request(@app)
 				.get('/')
 				.expect('Content-Type', /text\/html/)
 				.expect(200)
@@ -77,7 +77,7 @@ describe 'app routes', ->
 				'sqlite': { name: 'SQLite'} 
 			]
 
-			request(app)
+			request(@app)
 				.get('/')
 				.expect('Content-Type', /text\/html/)
 				.expect(200)
@@ -87,7 +87,7 @@ describe 'app routes', ->
 		it 'should response bad request if method is POST and db doesnt exist', (done) ->
 			mocks.databases.getSelected.returns null
 			
-			request(app)
+			request(@app)
 				.post('/')
 				.expect('Content-Type', /text/)
 				.expect(400)
@@ -100,7 +100,7 @@ describe 'app routes', ->
 		it 'should set selected db if method is POST and passed db id', (done) ->
 			mocks.databases.getSelected.returns null
 			
-			request(app)
+			request(@app)
 				.post('/')
 				.send( {db: 'postgres'} )
 				.expect(200)
@@ -116,7 +116,7 @@ describe 'app routes', ->
 				types: ['char', 'integer', 'boolean'], name: 'PostgreSQL'
 			}
 
-			request(app)
+			request(@app)
 				.post('/')
 				.send( {db: 'postgres'} )
 				.expect('Content-Type', /json/)
@@ -130,14 +130,35 @@ describe 'app routes', ->
 
 	describe 'method saveModel', ->
 		it 'should response attachment with name of file if passed', (done) ->
-			request(app)
+			request(@app)
 				.post('/save')
 				.send({'name': 'model1'})
 				.expect('Content-Disposition', 'attachment; filename="model1.json"')
 				.expect(200, done)
 
 		it 'should response attachment with `unknown` name of file if not passed', (done)->
-			request(app)
+			request(@app)
 				.post('/save')
 				.expect('Content-Disposition', 'attachment; filename="unknown.json"')
 				.expect(200, done)
+
+	describe.skip 'method getConnections', ->
+		before ->
+			@cb = sinon.spy()
+
+		beforeEach ->
+			mocks.fs.readFile.reset()
+			@cb.reset()
+
+		it 'should response with err if reading connections file failed', ->
+
+
+			@cb.should.been.calledWithExactly 'Error at reading connections file: err'
+
+		it 'should response with err if parsing connections file failed', ->
+
+			@cb.should.been.calledWithExactly 'Error at parsing connections file: err'
+
+		it 'should response with parsed connections if file is ok', ->
+			@cb.should.been.calledWithExactly null, {'c1': {'host': 'h1', 'port': 3}}
+

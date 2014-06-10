@@ -8,7 +8,7 @@ html
 		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/toolbar.css")
 		link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/button.css")
 		script(src="http://localhost:35729/livereload.js")
-		//script(src="/socket.io/socket.io.js")
+		script(src="/socket.io/socket.io.js")
 		script(src="/bower_components/react/react.js")
 		script(src="/bower_components/closure-library/closure/goog/base.js")
 		script(src="/public/scripts/dm/deps.js")
@@ -23,10 +23,12 @@ html
 			div#relationDialog
 			div#loadModelDialog
 			div#sqlCodeDialog
+			div#reengDialog
+			div#inputDialog
 
 		script!= javascript
 		script.
 			goog.require('dm');
 		
-		script(src="/public/scripts/dm/test-data.js")
+		//script(src="/public/scripts/dm/test-data.js")
 				

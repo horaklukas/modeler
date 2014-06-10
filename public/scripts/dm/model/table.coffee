@@ -42,7 +42,7 @@ class dm.model.Table extends goog.events.EventTarget
 		@columns = columns
 
 		###*
-	  * @type {Object.<number, type}
+	  * @type {Object.<number, type>}
 		###
 		@indexes = {}
 
@@ -61,8 +61,8 @@ class dm.model.Table extends goog.events.EventTarget
 
 	###*
 	* Adds new columns or updates existing
-	* @param {Array.<(Object,<string,*>|dm.model.TableColumnModel)>} columns List of
-	*  table columns at keys based object
+	* @param {Array.<(Object.<string,*>|dm.model.TableColumnModel)>} columns 
+	* List of  table columns at keys based object
 	###
 	###
 	setColumns: (columns) ->
@@ -79,16 +79,12 @@ class dm.model.Table extends goog.events.EventTarget
 	setColumn: (column, id) ->
 		# before add (or update) column check if its name is unique and add suffix
 		# in case that not
-		if id?
-			columnByName = @getColumnByName column.name
-			if columnByName? and columnByName isnt @columns[id]
-				column.name += '_0'
+		column.name = @getUniqueColumnName column.name, id
 
+		if id?
 			@columns[id] = column
 			newColumn = false
 		else
-			if @getColumnByName(column.name)? then column.name += '_0'  
-
 			# generate unique id for a new column
 			id = goog.ui.IdGenerator.getInstance().getNextUniqueId()
 			@columns[id] = column
@@ -100,6 +96,30 @@ class dm.model.Table extends goog.events.EventTarget
 		@dispatchEvent new dm.model.Table.ColumnsChange column, id, newColumn
 		
 		return id
+
+	###*
+  * @param {string} name Name of column to check if it is unique
+	* @param {number=} id Optional id of existing column which is updating and
+	*  its name should been unified
+  * @return {string}
+	###
+	getUniqueColumnName: (name, id) ->
+		columnName = name
+		numberSuffix = 0
+
+		###
+		columnByName = @getColumnByName column.name
+		if columnByName? and columnByName isnt @columns[id]
+			column.name += '_0'
+		###
+
+		while (column = @getColumnByName(columnName))?
+			# if found column with same name is column itself dont add suffix
+			if id? and column is @columns[id] then break
+
+			columnName = "#{name}_#{numberSuffix++}"
+
+		columnName
 
 	###*
   * @return {Object.<string, dm.model.TableColumn>} table columns
@@ -121,7 +141,7 @@ class dm.model.Table extends goog.events.EventTarget
   * @return {?dm.model.TableColumn}
 	###
 	getColumnById: (id) ->
-		unless id? then null
+		unless id? then return null
 		@columns[id] ? null
 
 	###*
@@ -131,6 +151,14 @@ class dm.model.Table extends goog.events.EventTarget
 	getColumnByName: (name) ->
 		return col for id, col of @columns when col.name is name
 		return null
+
+	###*
+	* @param {string} name
+  * @return {(string|null)}
+	###
+	getColumnIdByName: (name) ->
+		return id for id, col of @columns when col.name is name
+		return null		
 
 	###*
   * @param {string} id Related column id
@@ -162,9 +190,12 @@ class dm.model.Table extends goog.events.EventTarget
   * @return {Object} table model at JSON representation
 	###
 	toJSON: ->
-		fks = @getColumnsIdsByIndex dm.model.Table.index.FK
+		#fks = @getColumnsIdsByIndex dm.model.Table.index.FK
 		# foreign key columns are created by relation
-		columns =  goog.object.filter @columns, (column, idx) -> idx not in fks
+		#columns =  goog.object.filter @columns, (column, idx) -> idx not in fks
+		columns = goog.object.map @columns, (column, id) =>
+			goog.object.remove column, 'indexes'
+			return column
 
 		'name': @name
 		'columns': columns

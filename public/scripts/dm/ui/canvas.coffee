@@ -177,6 +177,12 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 	getSize: ->
 		@size_
 
+	###*
+	* Remove all objects (tables and relations) from canvas
+	###
+	clear: ->
+		@removeChildren true
+
 goog.addSingletonGetter dm.ui.Canvas
 
 class dm.ui.Canvas.EditObject extends goog.events.Event

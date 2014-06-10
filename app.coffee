@@ -1,6 +1,7 @@
+http = require 'http'
 express = require 'express'
-
 expose = require 'express-expose'
+socketio = require 'socket.io'
 stylus = require 'stylus'
 nib = require 'nib'
 routes = require './lib/routes'
@@ -9,6 +10,9 @@ multipart = require 'connect-multiparty'
 multipartMiddleware = multipart()
 
 app = express()
+server = http.createServer app
+io = socketio.listen server
+port = process.env.PORT or 5000
 
 stylusCompile = (str, path) ->
 	stylus(str).set('filename', path).set('compress', yes)
@@ -35,8 +39,14 @@ app.post '/', routes.app
 app.post '/save', routes.saveModel
 app.post '/load', multipartMiddleware, routes.loadModel
 
-port = process.env.PORT or 5000
-app.listen port, -> console.log 'Listening on port ' + port
+io.on 'connection', (socket) ->
+	socket.on 'connect-db', routes.connectDb
+	socket.on 'get-reeng-data', routes.getReengData
+	socket.on 'get-connections', routes.getConnections
+	socket.on 'add-connection', routes.addConnection
+
+server.listen port, -> 
+	console.log 'Listening on port ' + port
 
 # used for testing http requests
 module.exports = app

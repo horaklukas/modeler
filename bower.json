@@ -1,6 +1,6 @@
 {
   "name": "dbModeler",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "dependencies": {
     "este-library": "git://github.com/steida/este-library.git#5.1.0",
     "react": "~0.10.0"

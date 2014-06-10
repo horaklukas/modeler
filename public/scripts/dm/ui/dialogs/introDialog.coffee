@@ -3,8 +3,7 @@
 goog.provide 'dm.ui.IntroDialog'
 
 goog.require 'goog.object'
-
-{Dialog} = dm.ui
+goog.require 'dm.ui.Dialog'
 
 dm.ui.IntroDialog = React.createClass
   statics:
@@ -12,7 +11,7 @@ dm.ui.IntroDialog = React.createClass
       'new': 'NEW MODEL'
       'load': 'LOAD MODEL'
       'byversion': 'SELECT VERSIONED MODEL - BLIND NOW'
-      'fromdb': 'CREATE MODEL FROM DB - BLIND NOW'
+      'fromdb': 'CREATE MODEL FROM DB'
 
   show: ->
     @setState visible: true
@@ -27,6 +26,7 @@ dm.ui.IntroDialog = React.createClass
     visible: false
 
   render: ->
+    {Dialog} = dm.ui
     {visible} = @state
     title = 'Select action'
     buttonSet = dm.ui.Dialog.buttonSet.NONE

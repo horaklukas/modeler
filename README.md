@@ -22,8 +22,8 @@ _The uploaded application needn't corespond to latest state_
 
 ### App
 * options to delete objects (tables/relations)
-* create database connections manager
-* add reingeneering of model from database
+* <s>create database connections manager</s>
+* <s>add reingeneering of model from database</s>
 * <s>add load/save model funcionality</s>
 
 ### Table
@@ -55,8 +55,14 @@ _The uploaded application needn't corespond to latest state_
   be required
 
 ### Dialogs
+* <s>Create "input model name" dialog</s>
+
+#### Reeng dialog
+* <s>add "check all" option</s>
 
 #### Table dialog
+* Column's length attribute
+* Column's auto increment option 
 * <s>fix lost of unsaved columns change when new column row is added</s>
 * <s>fix allow confirm if table name not filled</s>
 * <s>make columns creted by relation not deletable and editable (only name can

@@ -4,73 +4,77 @@ goog.provide 'dm.ui.LoadModelDialog'
 
 goog.require 'goog.net.IframeIo'
 goog.require 'goog.events'
+goog.require 'dm.ui.Dialog'
 
-{Dialog} = dm.ui
 
 dm.ui.LoadModelDialog = React.createClass
-	###*
+  ###*
   * Show the dialog
-	###
-	show: ->
-		@setState 
-			visible: true
-			info: text: '', type: null 
+  ###
+  show: ->
+    @setState 
+      visible: true
+      info: text: '', type: null 
 
-	onUploadRequest: (e) ->
-		e.preventDefault()
-		form = (`/** @type {HTMLFormElement} */`) e.target
+  hide: ->
+    @setState visible: false
 
-		iFrameIo = new goog.net.IframeIo()
+  onUploadRequest: (e) ->
+    e.preventDefault()
+    form = (`/** @type {HTMLFormElement} */`) e.target
 
-		iFrameIo.sendFromForm(form)
-		
-		goog.events.listen iFrameIo, [
-			goog.net.EventType.SUCCESS, goog.net.EventType.ERROR
-		], @onUploadComplete
+    iFrameIo = new goog.net.IframeIo()
 
-	onUploadComplete: (e) ->
-		iFrameIo = (`/** @type {goog.net.IframeIo} */`) e.target
-		
-		try
-			if e.type is goog.net.EventType.ERROR
-				throw new Error iFrameIo.getLastError()
+    iFrameIo.sendFromForm(form)
+    
+    goog.events.listen iFrameIo, [
+      goog.net.EventType.SUCCESS, goog.net.EventType.ERROR
+    ], @onUploadComplete
 
-			@props.onModelLoad iFrameIo.getResponseJson()
-			@setState visible: false
-		catch e
-			@setState info: {text: e.message, type: 'error'} 
+  onUploadComplete: (e) ->
+    iFrameIo = (`/** @type {goog.net.IframeIo} */`) e.target
+    
+    try
+      if e.type is goog.net.EventType.ERROR
+        throw new Error iFrameIo.getLastError()
 
-		iFrameIo.removeAllListeners()
-		iFrameIo.dispose()
+      @props.onModelLoad iFrameIo.getResponseJson()
+      @hide()
+    catch e
+      @setState info: {text: e.message, type: 'error'} 
 
-	onFileChange: ->
-		@setState loadDisabled: false
+    iFrameIo.removeAllListeners()
+    iFrameIo.dispose()
 
-	getInitialState: ->
+  onFileChange: ->
+    @setState loadDisabled: false
+
+  getInitialState: ->
     visible: false
     info: text: '', type: null
     loadDisabled: true
 
   render: ->
+    {Dialog} = dm.ui
     {visible, info, loadDisabled} = @state
     title = 'Load model from file'
     infoClasses = 'info' + (if info.type? then " #{info.type}" else '')
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={visible} 
-    	buttons={dm.ui.Dialog.buttonSet.CANCEL} >
+    <Dialog title={title} onCancel={this.hide} visible={visible} 
+      buttons={dm.ui.Dialog.buttonSet.CANCEL} >
 
       <form method="POST" action="/load" encType="multipart/form-data"
-      	onSubmit={this.onUploadRequest}>
-				<p className={infoClasses}>{this.state.info.text}</p>
+        onSubmit={this.onUploadRequest}>
+        <p className={infoClasses}>{this.state.info.text}</p>
 
-				<p>Select JSON that contains model:</p>
+        <p>Select JSON that contains model:</p>
 
-				<p>
-					<input type="file" name="modelfile" onChange={this.onFileChange} />
-					<input type="submit" name="load" value="Load model" 
-						disabled={loadDisabled} />
-				</p>
-			</form>
+        <p>
+          <input type="file" name="modelfile" onChange={this.onFileChange} />
+          <input type="submit" name="load" value="Load model" 
+            disabled={loadDisabled} />
+        </p>
+      </form>
     </Dialog>
     )`

@@ -19,8 +19,6 @@ goog.require 'dm.model.Table'
 
 goog.require 'dm.ui.Dialog'
 
-{Dialog} = dm.ui
-
 dm.ui.TableDialog = React.createClass
   _originalModel: null
   removed: null
@@ -72,7 +70,7 @@ dm.ui.TableDialog = React.createClass
       {id} = col
       
       # new or updated columns
-      model = {name: col.name, type: col.type, isNotNull: !!col.isNotNull}
+      model = name: col.name, type: col.type, isNotNull: !!col.isNotNull
 
       # new column has not id and column name is filled
       isNewColumn = not id? and col.name
@@ -96,14 +94,19 @@ dm.ui.TableDialog = React.createClass
           isChangedColumn and not col.isPk
         )
 
+    @hide()
     #@_originalModel = null
 
   nameChange: (e) ->
     @setState name: e.target.value
 
   addColumn: ->
+    for name, group of @props.types
+      defaultType = group[0]
+      break # we need only first type at first group
+
     columns = @state.columns
-    columns.push {name: null, type: null, isNotNull: null}
+    columns.push {name: null, type: defaultType, isNotNull: null}
     
     @setState columns: columns
 
@@ -143,11 +146,12 @@ dm.ui.TableDialog = React.createClass
     errorState: ''
 
   render: ->
+    {Dialog} = dm.ui
     title = "Table \"#{@state.name or 'unnamed'}\""
     show = @state.visible
 
     `(
-    <Dialog title={title} onConfirm={this.onConfirm} visible={show}>
+    <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide} visible={show}>
       <div className="row">
         <span><label>Table name</label></span>
         <span>
