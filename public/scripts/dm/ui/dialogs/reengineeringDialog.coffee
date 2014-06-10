@@ -137,7 +137,8 @@ dm.ui.ReEngineeringDialog = React.createClass
       type = 'selecttables'
 
 
-    infoClass = if @state.info.err then 'error' else 'info'
+    infoClass = 'info'
+    infoClass += ' error' if @state.info.err
     
     `(
     <Dialog title={title} buttons={buttonSetType} visible={this.state.visible}
@@ -181,9 +182,14 @@ ConnectionsManager = React.createClass
       connections[connName] = connectOptions
 
       @setState connections: connections
+      @onConnectionSelect connName
 
-  onConnectionSelect: ->
-    selected = @refs.connections.getDOMNode().value
+  ###*
+  * @param {string} selected Name of newly selected connection, if passed it
+  * is used instead of getting it from DOM
+  ###
+  onConnectionSelect: (selected) ->
+    selected = @refs.connections.getDOMNode().value unless goog.isString selected
 
     if selected is 'placeholder' then selected = null
 
@@ -196,9 +202,8 @@ ConnectionsManager = React.createClass
       options.push `( <option value={name} key={name}>{name}</option> )`
 
     `( 
-      <select ref="connections" onChange={this.onConnectionSelect}>
-        {options}
-      </select> 
+      <select ref="connections" onChange={this.onConnectionSelect} 
+        value={this.props.selected}>{options}</select> 
     )`
 
   componentWillMount: ->
