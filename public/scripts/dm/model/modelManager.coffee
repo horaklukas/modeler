@@ -123,18 +123,17 @@ class dm.model.ModelManager extends goog.events.EventTarget
       parentId = @actualModel.getTableIdByName parent
       childId = @actualModel.getTableIdByName child
 
-      @addRelation new dm.model.Relation(relation.type, parentId, childId)
+      relationModel = new dm.model.Relation(relation.type, parentId, childId)
+      @addRelation relationModel
 
       childTable = @actualModel.getTableById childId
 
       for mapping in relation.mapping
         # since column was created by relation, it hasnt id saved at json, but
         # has any newly created, so we must get it and the best solution is
-        # by name, because name of column and corresponding parent table column
-        # should equal
-        columnId = childTable.getColumnIdByName(
-          tables[tableIdxsByName[parent]].model.columns[mapping.parent].name
-        )
+        # from relation mapping by parent column - we know its id (id from 
+        # loaded model is used)
+        columnId = relationModel.getOppositeMappingId mapping.parent
 
         childTable.setColumn(
           tables[tableIdxsByName[child]].model.columns[mapping.child], columnId
@@ -169,7 +168,6 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
         tableModel.setIndex colId, dm.model.Table.index.PK if column.ispk
         tableModel.setIndex colId, dm.model.Table.index.UNIQUE if column.isunique
-        tableModel.setIndex colId, dm.model.Table.index.FK if column.isfk
 
       # last column in list = next doesnt exists or next column from different 
       # table means that model is completed
@@ -183,37 +181,32 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     # then create relations
     for relation, i in relations
-      childId = @actualModel.getTableIdByName relation.child_table
 
       if relations[i - 1]?.parent_table isnt relation.parent_table or
       relations[i - 1]?.child_table isnt relation.child_table
+        childId = @actualModel.getTableIdByName relation.child_table
         parentId = @actualModel.getTableIdByName relation.parent_table
+  
+        childTable = @actualModel.getTableById childId
+        parentTable = @actualModel.getTableById parentId
 
-        @addRelation new dm.model.Relation(
+        relationModel = new dm.model.Relation(
           relation.is_identifying, parentId, childId
         )
 
-      childTable = @actualModel.getTableById childId
-
+        @addRelation relationModel
       
       # since column was created by relation, it hasnt id saved at json, but
-      # has any newly created, so we must get it and the best solution is
-      # by name, because name of column and corresponding parent table column
-      # should equal
-      columnId = childTable.getColumnIdByName(relation.parent_column)
+      # has any newly created, so we must get it from relation mapping, because
+      # we know name of parent column, its easy to find its id and the id of
+      # opposite child column
+      columnId = relationModel.getOppositeMappingId(
+        parentTable.getColumnIdByName(relation.parent_column)
+      )
       childColumn = childTable.getColumnById columnId
       childColumn.name = relation.child_column
 
       childTable.setColumn childColumn, columnId
-        
-      ###
-      @addRelation(new dm.model.Relation(
-          relation.is_identifying
-          @actualModel.getTableIdByName relation.parent_table
-          @actualModel.getTableIdByName relation.child_table
-        )
-      )
-      ###
 
   onModelEdit: =>
     @dispatchEvent dm.model.ModelManager.EventType.EDITED

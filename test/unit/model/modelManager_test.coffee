@@ -7,12 +7,13 @@ describe 'class model.ModelManager', ->
 	describe 'method createActualFromLoaded', ->
 		before ->
 			@tabModel = setIndex: sinon.spy()
+			@relationModel = getOppositeMappingId: sinon.stub()
 			sinon.stub @mngr, 'bakupOldCreateNewActual'
 			sinon.stub @mngr, 'columnCoercion', (value) -> value
 			sinon.stub @mngr, 'addTable'
 			sinon.stub @mngr, 'addRelation'
 			sinon.stub(dm.model, 'Table').returns @tabModel
-			sinon.stub(dm.model, 'Relation').returns @tabModel
+			sinon.stub(dm.model, 'Relation').returns @relationModel
 
 		beforeEach ->
 			dm.model.Table.reset()
@@ -70,7 +71,6 @@ describe 'class model.ModelManager', ->
 				}]
 
 				@childTable =
-					getColumnIdByName: sinon.stub().withArgs('parent_id').returns ':c'
 					setColumn: sinon.stub()
 
 				@mngr.actualModel = 
@@ -79,6 +79,7 @@ describe 'class model.ModelManager', ->
 
 				@mngr.actualModel.getTableIdByName.withArgs('parenttab').returns 'p0'
 				@mngr.actualModel.getTableIdByName.withArgs('childtab').returns 'ch0'
+				@relationModel.getOppositeMappingId.withArgs(':9').returns ':c'
 
 			beforeEach ->
 				@mngr.actualModel.getTableIdByName.reset()
