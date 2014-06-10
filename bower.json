@@ -1,7 +1,8 @@
 {
   "name": "dbModeler",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "dependencies": {
+    "closure-library": "https://github.com/google/closure-library",
     "este-library": "git://github.com/steida/este-library.git#5.1.0",
     "react": "~0.10.0"
   },
