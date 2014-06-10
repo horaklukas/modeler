@@ -93,12 +93,16 @@ introDialog.show()
 *  `relations`
 ###
 dm.handleReeng = (data) ->
-  name = 'Reengineered model' # @TODO replace this with mode input dialog
-  modelManager.createActualFromCatalogData name, data.columns, data.relations
+  inputDialog.show(
+    'Reengineered model', 'Type name of reenginered model', (name) -> 
+      modelManager.createActualFromCatalogData(
+        name, data.columns, data.relations
+      )
 
-  # set model's db as a actual with replaced dots at version string
-  dm.setActualRdbs data.db.replace '.', '-'
-  dm.setModelSaveStatus true
+      # set model's db as a actual with replaced dots at version string
+      dm.setActualRdbs data.db.replace '.', '-'
+      dm.setModelSaveStatus true
+  )
 
 reengDialog = React.renderComponent(
   dm.ui.ReEngineeringDialog(

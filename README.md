@@ -22,7 +22,7 @@ _The uploaded application needn't corespond to latest state_
 
 ### App
 * options to delete objects (tables/relations)
-* create database connections manager
+* <s>create database connections manager</s>
 * <s>add reingeneering of model from database</s>
 * <s>add load/save model funcionality</s>
 
@@ -55,7 +55,7 @@ _The uploaded application needn't corespond to latest state_
   be required
 
 ### Dialogs
-* Create "input model name" dialog
+* <s>Create "input model name" dialog</s>
 
 #### Reeng dialog
 * <s>add "check all" option</s>
