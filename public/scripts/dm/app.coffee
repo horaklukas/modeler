@@ -40,7 +40,7 @@ dm.state = ''
 ###*
 * @type {Socket}
 ###
-dm.socket = io.connect 'http://localhost'
+dm.socket = io.connect location.hostname
 
 dm.socket.on 'disconnect', ->
   console.log 'Server disconnected at socket.io channel'
