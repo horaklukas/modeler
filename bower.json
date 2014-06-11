@@ -3,7 +3,7 @@
   "version": "0.6.1",
   "dependencies": {
     "closure-compiler": "http://dl.google.com/closure-compiler/compiler-latest.zip",
-    "closure-library": "https://github.com/google/closure-library",
+    "closure-library": "https://github.com/google/closure-library.git",
     "este-library": "git://github.com/steida/este-library.git#5.1.0",
     "react": "~0.10.0"
   },
