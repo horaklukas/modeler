@@ -89,7 +89,10 @@ module.exports = (grunt) ->
         compilerOpts: 
           compilation_level: 'ADVANCED_OPTIMIZATIONS'
           #compilation_level: 'SIMPLE_OPTIMIZATIONS',
-          externs: ['bower_components/este-library/externs/react.js']
+          externs: [
+            'bower_components/este-library/externs/react.js'
+            'bower_components/socket.io-externs/socket.io-externs.js'
+          ]
           define: ["'goog.DEBUG=false'"]
           warning_level: 'verbose'
           jscomp_off: 'globalThis'
