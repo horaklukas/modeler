@@ -92,6 +92,7 @@ module.exports = (grunt) ->
           externs: [
             'bower_components/este-library/externs/react.js'
             'bower_components/socket.io-externs/socket.io-externs.js'
+            'public/scripts/dm/app-externs.js'
           ]
           define: ["'goog.DEBUG=false'"]
           warning_level: 'verbose'

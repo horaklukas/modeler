@@ -7,4 +7,5 @@ public/scripts/lib
 *.log
 
 *.js
+!public/scripts/dm/app-externs.js
 data/
