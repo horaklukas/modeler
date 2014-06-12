@@ -106,6 +106,19 @@ class dm.model.Model
 		mappedTables
 
 	###*
+  * Maps tables by its names
+  *
+  * @return {Object.<string, dm.ui.Table>}
+	###
+	getTablesUiByName: ->
+		mappedTables = {}
+		
+		for id, table of @tables_
+			mappedTables[table.getModel().getName()] = table 
+
+		mappedTables
+
+	###*
   * @param {string} name
   * @param {string} id
 	###

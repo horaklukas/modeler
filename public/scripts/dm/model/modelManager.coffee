@@ -179,13 +179,16 @@ class dm.model.ModelManager extends goog.events.EventTarget
         )
         tableModel = null  
 
+    @spaceOutTablesByRelation relations
+
     # then create relations
     for relation, i in relations
+      {parent_table, child_table} = relation
 
-      if relations[i - 1]?.parent_table isnt relation.parent_table or
-      relations[i - 1]?.child_table isnt relation.child_table
-        childId = @actualModel.getTableIdByName relation.child_table
-        parentId = @actualModel.getTableIdByName relation.parent_table
+      if relations[i - 1]?.parent_table isnt parent_table or
+      relations[i - 1]?.child_table isnt child_table
+        childId = @actualModel.getTableIdByName child_table
+        parentId = @actualModel.getTableIdByName parent_table
   
         childTable = @actualModel.getTableById childId
         parentTable = @actualModel.getTableById parentId
@@ -207,6 +210,64 @@ class dm.model.ModelManager extends goog.events.EventTarget
       childColumn.name = relation.child_column
 
       childTable.setColumn childColumn, columnId
+
+  spaceOutTablesByRelation: (relations) ->
+    tablesByName = @actualModel.getTablesUiByName()
+    canvasSize = @canvas.getSize()
+    relatedTables = []
+
+    for relation in relations
+      parent = relation.parent_table
+      child = relation.child_table
+      parentSize = tablesByName[parent].getSize()
+      childSize = tablesByName[child].getSize()
+
+      added = false
+      for group, i in relatedTables
+        if goog.array.contains(group.tables, child) or
+        goog.array.contains(group.tables, parent)
+          goog.array.insert relatedTables[i].tables, parent
+          goog.array.insert relatedTables[i].tables, child
+
+          relatedTables[i].max.w = Math.max parentSize.width, childSize.width
+          relatedTables[i].max.h = Math.max parentSize.height, childSize.height
+
+          added = true
+          break 
+
+      # neither one table belongs to any existing group of related table
+      if added is false
+        relatedTables.push {
+          max: {
+            w: Math.max(parentSize.width, childSize.width)
+            h: Math.max parentSize.height, childSize.height
+          }
+          tables: [parent, child]
+        }
+
+    # divide groups into sectors, count viewport for each sector and place
+    # groups's tables randomly somewhere there 
+    groupsMatrixSize = Math.ceil Math.sqrt(relatedTables.length)
+    canvasSectorWidth = canvasSize.width / groupsMatrixSize
+    canvasSectorHeight = canvasSize.height / groupsMatrixSize
+
+    for group, i in relatedTables
+      row = Math.floor i / groupsMatrixSize 
+      col = Math.floor i % groupsMatrixSize
+
+      for tabname in group.tables
+        # max position is sector right (bottom) edge minus max group's table
+        # width (height)
+        x = Math.min(
+          Math.round((row + Math.random()) * canvasSectorWidth)
+          ((row + 1) * canvasSectorWidth - group.max.w)
+        )
+        y = Math.min(
+          Math.round((col + Math.random()) * canvasSectorHeight)
+          ((col + 1) * canvasSectorHeight - group.max.h)
+        )
+
+        tablesByName[tabname].setPosition x, y
 
   onModelEdit: =>
     @dispatchEvent dm.model.ModelManager.EventType.EDITED
