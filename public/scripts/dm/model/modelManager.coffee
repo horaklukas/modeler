@@ -284,6 +284,13 @@ class dm.model.ModelManager extends goog.events.EventTarget
     @dispatchEvent dm.model.ModelManager.EventType.CHANGE
 
   ###*
+  * @param {string} name
+  ###
+  changeActualModelName: (name) =>
+    @actualModel.name = name
+    @dispatchEvent dm.model.ModelManager.EventType.CHANGE
+
+  ###*
   * @param {string} value
   * @return {(boolean|number|string)}
   ###

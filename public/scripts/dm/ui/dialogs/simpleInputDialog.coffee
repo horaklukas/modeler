@@ -21,8 +21,13 @@ dm.ui.SimpleInputDialog = React.createClass
     @setState value: e.target.value
 
   handleConfirm: ->
-    if @props.confirmCb? then@props.confirmCb @state.value
+    if @props.confirmCb? then @props.confirmCb @state.value
     else console.warn 'Callback for SimpleInputDialog not defined'
+
+    @hide()
+
+  hide: ->
+    @setState visible: false
 
   getInitialState: ->
     visible: false
@@ -35,7 +40,7 @@ dm.ui.SimpleInputDialog = React.createClass
 
     `(
       <Dialog title={this.props.title} buttons={buttonSet} visible={visible} 
-        onConfirm={this.handleConfirm}
+        onConfirm={this.handleConfirm} onCancel={this.hide}
       >
         <p>
           <label>{this.props.title}</label>

@@ -215,6 +215,13 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
       modelManager.addRelation model
       relationDialog.show model, tables
 
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.STATUS_CHANGE, (ev) ->
+  inputDialog.show(
+    modelManager.actualModel.name
+    'Type and confirm model name'
+    modelManager.changeActualModelName
+  )
+
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   generator = new dm.sqlgen.Sql92
 

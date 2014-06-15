@@ -21,6 +21,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
 		SAVE_MODEL: goog.events.getUniqueId 'save-model'
 		LOAD_MODEL: goog.events.getUniqueId 'load-model'
+		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
 
 	###*
   * @constructor
@@ -94,6 +95,13 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			
 			if selectedButton.setActionEvent ev
 				@selectionModel_.setSelectedItem() # reset selected tool
+
+		goog.events.listen(
+			goog.dom.getElementByClass('model-name', @statusBar_)
+			goog.events.EventType.DBLCLICK
+			(ev) =>
+				@dispatchEvent dm.ui.Toolbar.EventType.STATUS_CHANGE 
+		)
 
 	###*
   * @param {goog.ui.Button} button
