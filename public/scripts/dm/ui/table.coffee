@@ -12,6 +12,7 @@ goog.require 'goog.math.Size'
 goog.require 'goog.ui.Component'
 goog.require 'goog.events'
 goog.require 'goog.fx.Dragger'
+goog.require 'dm.ui.tmpls.createElementFromReactComponent'
 
 class dm.ui.Table extends goog.ui.Component
 	@EventType =
@@ -195,16 +196,6 @@ class dm.ui.Table extends goog.ui.Component
 	removeColumn: (id) ->
 		column = goog.dom.query("[name=#{id}]", @body_)[0]
 		goog.dom.removeNode column
-
-
-dm.ui.tmpls.createElementFromReactComponent = (reactComponent) ->
-	componentHtml = React.renderComponentToStaticMarkup reactComponent
-	wrapper = goog.dom.createElement 'div'
-
-	wrapper.innerHTML = componentHtml
-
-	goog.dom.getFirstElementChild wrapper
-
 
 # Table templates
 dm.ui.tmpls.Table = React.createClass

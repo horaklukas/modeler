@@ -1,3 +1,5 @@
+`/** @jsx React.DOM */`
+
 goog.provide 'dm.ui.Canvas'
 goog.provide 'dm.ui.Canvas.Click'
 
@@ -68,6 +70,9 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		}
 
 		@addTableInternal_ @clueTable
+
+		[defs] = goog.dom.getElementsByTagNameAndClass 'defs', null, @getElement()
+		defs.innerHTML = dm.ui.tmpls.CardinalityMarkers()
 
 	###*
   * @param {string} canvasId Id of element to init canvas on
@@ -156,7 +161,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 	###	
 	addRelation: (relation) =>
 		@addChild relation, false
-		relation.draw canvas
+		relation.draw this
 
 	###*
   * @param {Element} element
@@ -203,3 +208,51 @@ class dm.ui.Canvas.Click extends goog.events.Event
 	###
 	constructor: (obj, @position) ->
 		super dm.ui.Canvas.EventType.CLICK, obj
+
+dm.ui.tmpls.CardinalityMarkers = ->
+	markers = [
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneExactly', width: 19, height: 19, refx: 0, refy: 10,
+			path: 'M4,1 L4,18z M8,1 L8,18z'}
+		)
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneOptional', width: 39, height: 19, refx: 0, refy: 10,
+			path: 'M4,1 l0,18z', circle:{x: 13, y:10 }}
+		)
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneOptionalEnd', width: 22, height: 19, refx: 21, refy: 10,
+			path: 'M17,1 l0,18z', circle:{x: 8, y:10 }}
+		)
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneOrEn', width: 19, height: 19, refx: 0, refy: 10,
+			path: 'M1,1 L14,10 L1,18 M14,1 L14,18z'}
+		)
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneOrEnEnd', width: 19, height: 19, refx: 21, refy: 10,
+			path: 'M17,1 L4,10 L17,18 M3,1 L3,18z'}
+		)
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneOrEnOptional', width: 29, height: 19, refx: 0, refy: 10,
+			path: 'M1,1 L14,10 L1,18', circle:{x: 21, y:10 }}
+		)
+		dm.ui.tmpls.Cardinality(
+			{id: 'oneOrEnOptionalEnd', width: 32, height: 19, refx: 33, refy: 10,
+			path: 'M29,1 L16,10 L29,18', circle:{x: 8, y:10 }}
+		)
+	]
+
+	markers.join '\n'
+
+dm.ui.tmpls.Cardinality = ({id, width, height, refx, refy, path, circle}) ->
+	elements = ["<path d='#{path}' class='solidLine' />"]
+	
+	if circle?
+		elements.push(
+			"<circle cx='#{circle.x}' cy='#{circle.y}' r='7' class='solidLine' />"
+		)
+
+	"""
+	<marker id='#{id}' markerWidth='#{width}'' markerHeight='#{height}'' refx='#{refx}'' refy='#{refy}'' orient='auto' markerUnits='userSpaceOnUse'>
+		#{elements.join('\n')}
+	</marker>
+	"""

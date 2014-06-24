@@ -62,7 +62,8 @@ _The uploaded application needn't corespond to latest state_
 
 #### Table dialog
 * Column's length attribute
-* Column's auto increment option 
+* Column's auto increment option
+* Fix creating of tables with same names
 * <s>fix lost of unsaved columns change when new column row is added</s>
 * <s>fix allow confirm if table name not filled</s>
 * <s>make columns creted by relation not deletable and editable (only name can

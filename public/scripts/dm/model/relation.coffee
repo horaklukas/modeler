@@ -33,6 +33,14 @@ class dm.model.Relation extends goog.events.EventTarget
 			parent: parent
 			child: child
 		
+		@cardinality =
+			parent: '1'
+			child: 'n'
+
+		@modality =
+			parent: 1
+			child: 0
+
 	###*
 	* @param {boolean} identify True if relation is identyfing
 	###
@@ -41,6 +49,16 @@ class dm.model.Relation extends goog.events.EventTarget
 
 		@dispatchEvent 'type-change'
 		
+	setCardinalityAndModality: (cardinality, modality) ->
+		@cardinality = cardinality
+		@modality = modality
+
+		@dispatchEvent 'cardinality-change'
+
+	getCardinalityAndModality: ->
+		cardinality: @cardinality
+		modality: @modality			
+
 	###*
 	* @return {boolean}
 	###

@@ -5,6 +5,7 @@ goog.require 'dm.model.Table.index'
 goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.Stroke'
 goog.require 'goog.object'
+goog.require 'dm.ui.tmpls.createElementFromReactComponent'
 
 class dm.ui.Relation extends goog.ui.Component
 	###*
@@ -57,6 +58,8 @@ class dm.ui.Relation extends goog.ui.Component
 		@relationPath_ = canvas.drawPath(
 			path, dm.ui.Relation.relationStroke, null, @relationGroup_
 		)
+
+		@setCardinalityMarkers model.getCardinalityAndModality()
 		
 		groupElement = @relationGroup_.getElement()
 		groupElement.id = @getId()
@@ -82,9 +85,20 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	recountPosition: (parentTable, childTable) =>
 		newPath = @getRelationPath new goog.graphics.Path, parentTable, childTable
+		
+		@setCardinalityMarkers @getModel().getCardinalityAndModality()
 
 		@relationPath_.setPath newPath
 		@relationBg_.setPath newPath
+
+	setCardinalityMarkers: ({cardinality, modality})->
+		parentClassName = @getCardinalityClass cardinality.parent, modality.parent
+		childClassName = @getCardinalityClass cardinality.child, modality.child, true
+
+		goog.style.setStyle @relationPath_.getElement(), {
+			markerStart: "url(##{parentClassName})" 
+			markerEnd: "url(##{childClassName})" 
+		}
 
 	###*
   * Handler for `changed relation type` event
@@ -103,6 +117,24 @@ class dm.ui.Relation extends goog.ui.Component
 			childTabModel.setIndex(
 				map.child, dm.model.Table.index.PK, not isIdentifying
 			)
+
+	###*
+  * @param {Object.<string,string>} cardinality
+  * @param {Object.<string,number>} modality
+  * @param {boolean=} end
+  * @return {string} class name
+	###
+	getCardinalityClass: (cardinality, modality, end = false) ->
+		className = 'one'
+
+		if cardinality is 'n' then className += 'OrEn'
+
+		if modality is 1 and cardinality is '1' then className += 'Exactly'
+		else if modality is 0 then className += 'Optional'
+
+		if end is true then className += 'End'
+
+		className
 
 	###*
   * @param {goog.graphics.Path} path Path object to set points on

@@ -120,12 +120,14 @@ class dm.model.Model
 
 	###*
   * @param {string} name
-  * @param {string} id
+  * @return {(string|null)} id
 	###
 	getTableIdByName: (name) ->
 		for id, table of @tables_ when table.getModel().getName() is name
 			#console.log '' table.getModel().getName(), name
 			return table.getId(); break
+
+		return null
 
 	###*
 	* @param {string} tableId
