@@ -146,7 +146,8 @@ module.exports = (grunt) ->
         use: [ require('nib') ]
       compile:
         files: 
-          'public/styles/main.css': 'public/styles/main.styl'
+          'public/styles/dm.css': 'public/styles/dm.styl'
+          'public/styles/dm-closure-included.css': 'public/styles/dm-closure-included.styl'
 
     watch:
       coffee:
