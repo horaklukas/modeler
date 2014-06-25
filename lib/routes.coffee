@@ -44,8 +44,11 @@ exports.app = (req, res, next) ->
 
 				exposeData.dbs = defs
 
+				page = 'main'
+				page += '-devel' if @process.env.MODE is 'development'
+
 				res.expose exposeData, 'dmAssets'
-				res.render 'main', title: 'Database not selected'
+				res.render page, title: 'Database not selected'
 
 ###*
 * POST request, invoke "save file" dialog for save model to JSON file

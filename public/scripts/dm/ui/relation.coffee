@@ -143,7 +143,7 @@ class dm.ui.Relation extends goog.ui.Component
   * @return {goog.graphics.Path} new relation path
 	###
 	getRelationPath: (path, parentTable, childTable) =>
-		points = @getRelationPoints parentTable, childTable
+		{start, stop} = @getRelationPoints parentTable, childTable
 		
 		#path.lineTo points.break1.x, points.break1.y
 		#unless goog.math.Coordinate.equals points.break2, points.break1
@@ -169,8 +169,15 @@ class dm.ui.Relation extends goog.ui.Component
 		else
 			path.lineTo points.start.coords.x, points.start.coords.y + widthHalf
 		###
-		path.moveTo points.start.coords.x, points.start.coords.y
-		path.lineTo points.stop.coords.x, points.stop.coords.y
+		path.moveTo start.coords.x, start.coords.y
+
+		# unary relation cant be straight
+		if parentTable is childTable
+			path.lineTo start.coords.x - 40, start.coords.y
+			path.lineTo start.coords.x - 40, stop.coords.y + 40
+			path.lineTo stop.coords.x, stop.coords.y + 40
+		
+		path.lineTo stop.coords.x, stop.coords.y
 
 	###*
   * @param {Element} parentTable
@@ -184,6 +191,7 @@ class dm.ui.Relation extends goog.ui.Component
 		dists = []
 		distsPoint = []
 
+
 		for sPos, sCoord of sTab
 			for ePos, eCoord of eTab
 				dist = @getPathDistance sPos, sCoord, ePos, eCoord
@@ -192,7 +200,8 @@ class dm.ui.Relation extends goog.ui.Component
 					dists.push dist
 					distsPoint[dist] = [sPos, ePos]
 
-		if dists.length is 0 then result = ['top', 'top']
+		if parentTable is childTable then result = ['left', 'bottom']
+		else if dists.length is 0 then result = ['top', 'top']
 		else result = distsPoint[Math.min dists...]
 
 		#start = sTab[result[0]]
