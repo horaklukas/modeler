@@ -60,7 +60,11 @@ describe 'component RelationDialog', ->
 
 	describe 'method show', ->
 		isIdent = sinon.stub()
-		relModel = isIdentifying: isIdent
+		cardMod = sinon.stub().returns({
+			cardinality: {parent: '1', child: 'n'}
+			modality: {parent: 1, child: 1}
+		})
+		relModel = isIdentifying: isIdent, getCardinalityAndModality: cardMod
 		tables = 
 			'parent': id: 't1', name: 'parentTab1'	
 			'child': id: 't2', name: 'parentTab1'	

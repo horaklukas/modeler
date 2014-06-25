@@ -71,8 +71,14 @@ class dm.model.ModelManager extends goog.events.EventTarget
       rel.onTypeChange childTable.getModel()
       @onModelEdit()
 
+    goog.events.listen model, 'cardinality-change', =>
+      rel.setCardinalityMarkers model.getCardinalityAndModality()
+      @onModelEdit()
+
     columnsListChangeEvents = ['column-add', 'column-change' ,'column-delete']
-    
+
+    # this events need not to dispatch "model edited" event because its 
+    # already done by table move (which bubble to recount rel position)    
     goog.events.listen parentTable.getModel(), columnsListChangeEvents, ->
       rel.recountPosition parentTable.getElement(), childTable.getElement()
 

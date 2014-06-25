@@ -216,6 +216,10 @@ dm.ui.tmpls.CardinalityMarkers = ->
 			path: 'M4,1 L4,18z M8,1 L8,18z'}
 		)
 		dm.ui.tmpls.Cardinality(
+			{id: 'oneExactlyEnd', width: 19, height: 19, refx: 12, refy: 10,
+			path: 'M4,1 L4,18z M8,1 L8,18z'}
+		)
+		dm.ui.tmpls.Cardinality(
 			{id: 'oneOptional', width: 39, height: 19, refx: 0, refy: 10,
 			path: 'M4,1 l0,18z', circle:{x: 13, y:10 }}
 		)
