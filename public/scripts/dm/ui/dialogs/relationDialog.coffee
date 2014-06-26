@@ -38,6 +38,7 @@ dm.ui.RelationDialog = React.createClass
 
     @setState 
       visible: true
+      name: model.getName()
       identifying: model.isIdentifying()
       cardinality: cardinality
       modality: modality
@@ -47,6 +48,7 @@ dm.ui.RelationDialog = React.createClass
     @_originalModel.setCardinalityAndModality(
       @state.cardinality, @state.modality
     )
+    @_originalModel.setName @state.name
 
     @hide()
 
@@ -63,8 +65,12 @@ dm.ui.RelationDialog = React.createClass
 
     @setState nextState
 
+  handleNameChange: ({target}) ->
+    @setState name: target.value
+
   getInitialState: ->
     visible: false
+    name: ''
     identifying: false
     cardinality: parent: '1', child: 'n'
     modality: parent: 1, child: 1
@@ -72,18 +78,21 @@ dm.ui.RelationDialog = React.createClass
   render: ->
     {Dialog} = dm.ui
  
-    title = "Relation between tables \"#{@props.parentName}\" and \"#{@props.childName}\""
+    title = "Relation \"#{this.state.name}\""
     {visible, identifying, cardinality, modality} = @state
 
     `(
     <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide}
       visible={visible}>
+      
       <p>
-        Parent table: <strong>{this.props.parentName}</strong>
+        Relation name
+        <input value={this.state.name} onChange={this.handleNameChange} />
       </p>
-      <p>
-        Child table: <strong>{this.props.childName}</strong>
-      </p>
+
+      <p>Parent table: <strong>{this.props.parentName}</strong></p>
+      <p>Child table: <strong>{this.props.childName}</strong></p>
+
       <RelationTypeSelect identifying={identifying} 
         onChange={this.handleTypeChange} />
       <CardinalityModalitySelect identifying={identifying} modality={modality} 

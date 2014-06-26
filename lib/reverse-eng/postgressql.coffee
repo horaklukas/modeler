@@ -121,6 +121,7 @@ query.getTableColumns = (schema, tables) ->
 query.getRelations = (schema, tables = []) ->
   """  
   SELECT
+    refs.constraint_name AS name,
     parentcols.table AS parent_table,
     parentcols.column AS parent_column,
     childcols.table AS child_table,

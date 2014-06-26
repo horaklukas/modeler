@@ -5,12 +5,13 @@ goog.require 'goog.events.EventTarget'
 class dm.model.Relation extends goog.events.EventTarget
 	###*
   * @param {boolean} identify True if relation is identifying
-  * @param {dm.ui.Table} parent Relation parent table
-  * @param {dm.ui.Table} child Relation child table
+  * @param {string} parent Relation parent table id
+  * @param {string} child Relation child table id
+  * @param {string=} name Relation name
   * @constructor
   * @extends {goog.events.EventTarget}
 	###
-	constructor: (identify, parent, child) ->
+	constructor: (identify, parent, child, name) ->
 		super()
 		#@setRelatedTables startTab, endTab
 		
@@ -25,6 +26,8 @@ class dm.model.Relation extends goog.events.EventTarget
 		###
 		@keyColumnsMapping_ = []
 
+		@name_ = name ? 'new relation'
+
 		###*
 		* Id of parent and child table
 	  * @type {Object.<string, string>}
@@ -33,12 +36,18 @@ class dm.model.Relation extends goog.events.EventTarget
 			parent: parent
 			child: child
 		
-		@cardinality =
+		###*
+	  * @type {Object.<string, string>}
+		###
+		@cardinality_ =
 			parent: '1'
 			child: 'n'
 
-		@modality =
-			parent: 1
+		###*
+	  * @type {Object.<string, number>}
+		###
+		@modality_ =
+			parent: if identify  then 1 else 0
 			child: 0
 
 	###*
@@ -49,15 +58,27 @@ class dm.model.Relation extends goog.events.EventTarget
 
 		@dispatchEvent 'type-change'
 		
+	###*
+  * @param {string} name
+	###
+	setName: (name) ->
+		@name_ = name	
+
+	###*
+  * @return {string}
+	###
+	getName: ->
+		@name_
+
 	setCardinalityAndModality: (cardinality, modality) ->
-		@cardinality = cardinality
-		@modality = modality
+		@cardinality_ = cardinality
+		@modality_ = modality
 
 		@dispatchEvent 'cardinality-change'
 
 	getCardinalityAndModality: ->
-		cardinality: @cardinality
-		modality: @modality			
+		cardinality: @cardinality_
+		modality: @modality_			
 
 	###*
 	* @return {boolean}
@@ -120,7 +141,10 @@ class dm.model.Relation extends goog.events.EventTarget
 	###
 	toJSON: (parentName, childName) ->
 		'type': @identifying_
+		'name': @name_
 		'mapping': @keyColumnsMapping_
 		'tables': 
 			parent: parentName
 			child: childName
+		'cardinality': @cardinality_
+		'modality': @modality_

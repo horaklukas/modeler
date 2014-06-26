@@ -3,110 +3,117 @@ goog.require 'dm.ui.RelationDialog'
 {TestUtils} = React.addons
 
 describe 'component RelationDialog', ->
-	reld = null
+  reld = null
 
-	before ->
-		reld = TestUtils.renderIntoDocument dm.ui.RelationDialog()
+  before ->
+    reld = TestUtils.renderIntoDocument dm.ui.RelationDialog()
 
-	describe 'method handleTypeChange', ->
-		inputs = null
+  describe 'method handleTypeChange', ->
+    inputs = null
 
-		beforeEach ->
-			inputs = TestUtils.scryRenderedDOMComponentsWithClass reld, 'type'
+    beforeEach ->
+      inputs = TestUtils.scryRenderedDOMComponentsWithClass reld, 'type'
 
-		it 'should save identifying as a boolean value', ->
-			reld.setState identifying: true
-			expect(reld.state.identifying).to.equal true
+    it 'should save identifying as a boolean value', ->
+      reld.setState identifying: true
+      expect(reld.state.identifying).to.equal true
 
-			TestUtils.Simulate.change inputs[0]
-			expect(reld.state.identifying).to.equal false
+      TestUtils.Simulate.change inputs[0]
+      expect(reld.state.identifying).to.equal false
 
-			TestUtils.Simulate.change inputs[1]
-			expect(reld.state.identifying).to.equal true
+      TestUtils.Simulate.change inputs[1]
+      expect(reld.state.identifying).to.equal true
 
-	describe.skip 'method swapTables', ->
-		ev = preventDefault: sinon.spy(), target: null
-		gebc = null
-		parent = null
-		child = null
+  describe.skip 'method swapTables', ->
+    ev = preventDefault: sinon.spy(), target: null
+    gebc = null
+    parent = null
+    child = null
 
-		before ->
-			gebc = sinon.stub goog.dom, 'getElementByClass'
-			parent = document.createElement 'div'
-			child = document.createElement 'div'
-			gebc.withArgs('parent').returns parent
-			gebc.withArgs('child').returns child
+    before ->
+      gebc = sinon.stub goog.dom, 'getElementByClass'
+      parent = document.createElement 'div'
+      child = document.createElement 'div'
+      gebc.withArgs('parent').returns parent
+      gebc.withArgs('child').returns child
 
-		beforeEach ->
-			reld.tablesSwaped = false
-			parent.innerHTML = 'Parent name'
-			child.innerHTML = 'Child name'
-			ev.preventDefault.reset()
-			gebc.reset()
+    beforeEach ->
+      reld.tablesSwaped = false
+      parent.innerHTML = 'Parent name'
+      child.innerHTML = 'Child name'
+      ev.preventDefault.reset()
+      gebc.reset()
 
-		after ->
-			gebc.restore()
+    after ->
+      gebc.restore()
 
-		it 'should toggle swapped table flag', ->
-			reld.swapTables ev
+    it 'should toggle swapped table flag', ->
+      reld.swapTables ev
 
-			reld.tablesSwaped.should.be.true
-			
-		it 'should swap content text inside child and parent', ->
-			reld.swapTables ev
+      reld.tablesSwaped.should.be.true
+      
+    it 'should swap content text inside child and parent', ->
+      reld.swapTables ev
 
-			parent.textContent.should.equal 'Child name'
-			child.textContent.should.equal 'Parent name'
+      parent.textContent.should.equal 'Child name'
+      child.textContent.should.equal 'Parent name'
 
-	describe 'method show', ->
-		isIdent = sinon.stub()
-		cardMod = sinon.stub().returns({
-			cardinality: {parent: '1', child: 'n'}
-			modality: {parent: 1, child: 1}
-		})
-		relModel = isIdentifying: isIdent, getCardinalityAndModality: cardMod
-		tables = 
-			'parent': id: 't1', name: 'parentTab1'	
-			'child': id: 't2', name: 'parentTab1'	
+  describe 'method show', ->
+    before -> 
+      @isIdent = sinon.stub()
+      @cardMod = sinon.stub().returns({
+        cardinality: {parent: '1', child: 'n'}
+        modality: {parent: 1, child: 1}
+      })
+      @relModel = 
+        isIdentifying: @isIdent
+        getCardinalityAndModality: @cardMod
+        getName: sinon.stub()
 
-		beforeEach ->
-			isIdent.reset()
+      @tables = 
+        'parent': id: 't1', name: 'parentTab1'  
+        'child': id: 't2', name: 'parentTab1' 
 
-		it 'should showdialog', ->
-			reld.setState visible: false
-			
-			reld.show relModel, tables
+    beforeEach ->
+      @isIdent.reset()
 
-			expect(reld.state).to.have.property 'visible', true
+    it 'should showdialog', ->
+      reld.setState visible: false
+      
+      reld.show @relModel, @tables
 
-		it 'should set identifying relation', ->
-			inputs = TestUtils.scryRenderedDOMComponentsWithClass reld, 'type'
+      expect(reld.state).to.have.property 'visible', true
 
-			isIdent.returns true
-			
-			reld.show relModel, tables
-			
-			expect(reld.state).to.have.property 'identifying', true
-			expect(inputs[0].props).to.have.property 'checked', false
-			expect(inputs[1].props).to.have.property 'checked', true
+    it 'should set identifying relation', ->
+      inputs = TestUtils.scryRenderedDOMComponentsWithClass reld, 'type'
 
-			isIdent.returns false
-			
-			reld.show relModel, tables
-			
-			expect(reld.state).to.have.property 'identifying', false
-			expect(inputs[0].props).to.have.property 'checked', true
-			expect(inputs[1].props).to.have.property 'checked', false
+      @isIdent.returns true
+      
+      reld.show @relModel, @tables
+      
+      expect(reld.state).to.have.property 'identifying', true
+      expect(inputs[0].props).to.have.property 'checked', false
+      expect(inputs[1].props).to.have.property 'checked', true
 
-		it 'should fill dialog title with tabels names', ->
-			tables['parent']['name'] = 'table1'
-			tables['child']['name'] = 'table2'
-			isIdent.returns true
+      @isIdent.returns false
+      
+      reld.show @relModel, @tables
+      
+      expect(reld.state).to.have.property 'identifying', false
+      expect(inputs[0].props).to.have.property 'checked', true
+      expect(inputs[1].props).to.have.property 'checked', false
 
-			reld.show relModel, tables
+    it 'should fill dialog title with tabels names', ->
+      #@tables['parent']['name'] = 'table1'
+      #@tables['child']['name'] = 'table2'
+      @relModel.getName.returns 'relation1'
 
-			dialog = TestUtils.findRenderedComponentWithType reld, dm.ui.Dialog
+      @isIdent.returns true
 
-			expect(dialog.props).to.have.property(
-				'title', 'Relation between tables "table1" and "table2"'
-			)
+      reld.show @relModel, @tables
+
+      dialog = TestUtils.findRenderedComponentWithType reld, dm.ui.Dialog
+
+      expect(dialog.props).to.have.property(
+        'title', 'Relation "relation1"'
+      )

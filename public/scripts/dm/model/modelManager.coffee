@@ -125,11 +125,15 @@ class dm.model.ModelManager extends goog.events.EventTarget
       @addTable tableModel, table.pos.x, table.pos.y
 
     for relation in relations
+      {name, type, cardinality, modality} = relation
       {parent, child} = relation.tables
+
       parentId = @actualModel.getTableIdByName parent
       childId = @actualModel.getTableIdByName child
 
-      relationModel = new dm.model.Relation(relation.type, parentId, childId)
+      relationModel = new dm.model.Relation(type, parentId, childId, name)
+      relationModel.setCardinalityAndModality cardinality, modality
+
       @addRelation relationModel
 
       childTable = @actualModel.getTableById childId
@@ -200,7 +204,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
         parentTable = @actualModel.getTableById parentId
 
         relationModel = new dm.model.Relation(
-          relation.is_identifying, parentId, childId
+          relation.is_identifying, parentId, childId, relation.name
         )
 
         @addRelation relationModel
