@@ -130,13 +130,16 @@ CardinalityModalitySelect = React.createClass
     
     `(
       <div>
-        Cardinality:
-        <input type="radio" value="1" checked={card == '1'} onChange={cb}
-          disabled={disabled} />
-        One exactly        
-        <input type="radio" value="n" checked={card == 'n'} onChange={cb}
-          disabled={disabled} />
-        One or more
+        <div>
+          <input type="radio" value="1" checked={card == '1'} onChange={cb}
+            disabled={disabled} />
+          One exactly
+        </div>
+        <div>
+          <input type="radio" value="n" checked={card == 'n'} onChange={cb}
+            disabled={disabled} />
+          One or more
+        </div>
       </div>
     )`
 
@@ -145,30 +148,31 @@ CardinalityModalitySelect = React.createClass
 
     `(
       <div>
-        Modality: 
-        <input type="radio" value="1" checked={moda == 1} onChange={cb}
-          disabled={disabled} />
-        Mandatory
-        <input type="radio" value="0" checked={moda == 0} onChange={cb}
-          disabled={disabled} />
-        Optional
+        <div>
+          <input type="radio" value="1" checked={moda == 1} onChange={cb}
+            disabled={disabled} />
+          Mandatory
+        </div>
+        <div>
+          <input type="radio" value="0" checked={moda == 0} onChange={cb}
+            disabled={disabled} />
+          Optional
+        </div>
       </div>
     )`
 
   render: ->
     {cardinality, modality, identifying} = @props
-    topStyles =
-      marginTop: 15
 
     `(
-      <div style={topStyles}>
-        <div>
-          <strong>Parent</strong>
+      <div className="cardmod">
+        <strong>Parent</strong>
+        <div className="row">
           {this.createCardinality(cardinality.parent, 'parent')}
           {this.createModality(modality.parent, 'parent', identifying)}
         </div>
-        <div>
-          <strong>Child</strong>
+        <strong>Child</strong>
+        <div className="row">
           {this.createCardinality(cardinality.child, 'child')}
           {this.createModality(modality.child, 'child')}
         </div>
