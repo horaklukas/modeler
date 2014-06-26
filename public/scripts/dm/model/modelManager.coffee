@@ -91,6 +91,34 @@ class dm.model.ModelManager extends goog.events.EventTarget
     rel.getId()
 
   ###*
+  * @param {dm.ui.Table} table
+  ###
+  deleteTable: (table) ->
+    model = table.getModel()
+
+    goog.events.removeAll table
+    goog.events.removeAll model
+
+    @actualModel.removeTable table.getId() 
+    @canvas.removeTable table
+
+  ###*
+  * @param {dm.ui.Relation} relation
+  ###
+  deleteRelation: (relation) ->
+    model = relation.getModel()
+    childTable = @actualModel.getTableById model.tables.child
+
+    relation.removeRelatedTablesKeys childTable
+
+    goog.events.removeAll relation
+    goog.events.removeAll model
+
+    @actualModel.removeRelation relation.getId() 
+    @canvas.removeRelation relation
+
+
+  ###*
   * @param {string} name Model name
   * @param {Array.<Object>} tables List of tables at form at which they was saved
   *  at filesystem

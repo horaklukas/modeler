@@ -3,6 +3,7 @@
 goog.provide 'dm.ui.Canvas'
 goog.provide 'dm.ui.Canvas.Click'
 
+goog.require 'dm.ui.Table.EventType'
 goog.require 'goog.dom'
 goog.require 'goog.style'
 goog.require 'goog.events'
@@ -11,11 +12,15 @@ goog.require 'goog.graphics.SvgGraphics'
 goog.require 'goog.graphics.Stroke'
 goog.require 'goog.graphics.SolidFill'
 goog.require 'goog.graphics.Path'
-goog.require 'dm.ui.Table.EventType'
+goog.require 'goog.ui.Menu'
+goog.require 'goog.ui.MenuHeader'
+goog.require 'goog.ui.MenuItem'
+goog.require 'goog.ui.MenuSeparator'
 
 class dm.ui.Canvas extends goog.graphics.SvgGraphics
 	@EventType = 
 		OBJECT_EDIT: goog.events.getUniqueId 'object-edit'
+		OBJECT_DELETE: goog.events.getUniqueId 'object-delete'
 		CLICK: goog.events.getUniqueId 'click'
 		RESIZED: goog.events.getUniqueId 'resized'	
 
@@ -41,6 +46,11 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		###
 		@rootElement_ = null
 
+		###*
+    * @type {goog.ui.Menu}
+		###
+		@menu = null
+
 	###*
   * @override
 	###	
@@ -61,6 +71,8 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		goog.events.listen @rootElement_, goog.events.EventType.DBLCLICK, @onDblClick
 		goog.events.listen @rootElement_, goog.events.EventType.CLICK, @onClick
 
+		goog.events.listen @rootElement_, goog.events.EventType.CONTEXTMENU, @onRightClick
+
 		#goog.events.listen @element_, goog.events.EventType.MOUSEDOWN, @onMouseDown
 		#goog.events.listen @, dm.ui.Table.EventType.CATCH, @onCaughtTable
 
@@ -78,6 +90,13 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		goog.events.listen(
 			goog.dom.getWindow(), goog.events.EventType.RESIZE, @updateSize
 		)
+
+		@menu = new goog.ui.Menu()
+		@menu.setVisible false
+		@menu.addChild new goog.ui.MenuHeader(''), true
+		@menu.addChild new goog.ui.MenuSeparator(), true
+		@menu.addChild new goog.ui.MenuItem('Delete'), true
+		@menu.render goog.dom.getElement 'canvasmenu'
 
 	###*
   * @param {string} canvasId Id of element to init canvas on
@@ -119,11 +138,13 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
   ###
 	onDblClick: (ev) =>
 		# clicked on empty place at canvase, where isnt any object 
-		if ev.target is @rootElement_ then return false
+		if @isCanvasElement(ev.target) then return false
 
 		object = @getChild @getObjectIdByElement ev.target
 
-		@dispatchEvent new dm.ui.Canvas.EditObject object
+		@dispatchEvent(
+			new dm.ui.Canvas.ObjectAction dm.ui.Canvas.EventType.OBJECT_EDIT, object
+		)
 
 		###
 		if table then @clickedTable table
@@ -134,13 +155,57 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
   * @param {goog.events.Event} ev
   ###
 	onClick: (ev) =>
-		if ev.target is @rootElement_ then object = null
+		if @isCanvasElement(ev.target) then object = null
 		else object = @getChild @getObjectIdByElement ev.target
 		
 		position = goog.style.getRelativePosition ev, ev.currentTarget
 		
 		@dispatchEvent new dm.ui.Canvas.Click object, position
 	
+	###*
+  * @param {goog.events.Event} ev
+  ###
+	onRightClick: (ev) =>
+		ev.preventDefault() # dont show native context menu
+
+		if @isCanvasElement(ev.target) then return false
+
+		object = @getChild @getObjectIdByElement ev.target
+		objName = object.getModel().getName()
+
+		@menu.getChildAt(0).setCaption goog.dom.createDom('strong', null, objName)
+
+		goog.events.listen document, goog.events.EventType.CLICK, @hideMenu
+		goog.events.listen @menu, 'action', =>
+			@hideMenu()
+			
+			@dispatchEvent(
+				new dm.ui.Canvas.ObjectAction(
+					dm.ui.Canvas.EventType.OBJECT_DELETE, object
+				)
+			)
+
+		@menu.setVisible true
+
+		{x, y} = goog.style.getRelativePosition ev, @rootElement_
+		# 30 is height of toolbar, it must be imputed since menu is positioned
+		# absolutely to document, not canvas
+		@menu.setPosition x, y + 30 
+
+
+	hideMenu: =>
+		goog.events.unlisten document, goog.events.EventType.CLICK, @hideMenu
+		goog.events.removeAll @menu, 'action'
+
+		@menu.setVisible false
+
+	###*
+  * @param {Element} elem Element to test
+  * @return {boolean}
+	###
+	isCanvasElement: (elem) ->
+		elem is @rootElement_ or elem is @getElement()
+
 	###*
 	* Save table element internaly and call function for render to DOM
   * @param {(dm.ui.Table)} table
@@ -169,11 +234,24 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		else goog.dom.appendChild @rootElement_, table  
 
 	###*
+  * @param {dm.ui.Table} table
+	###
+	removeTable: (table) ->
+		@removeChild table.getId(), true
+
+	###*
   * @param {(dm.ui.Relation)} relation
 	###	
 	addRelation: (relation) =>
 		@addChild relation, false
 		relation.draw this
+
+	###*
+  * @param {dm.ui.Relation} relation
+	###
+	removeRelation: (relation) ->
+		@removeChild relation.getId(), false
+		relation.disposeInternal()
 
 	###*
   * @param {Element} element
@@ -202,14 +280,15 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 goog.addSingletonGetter dm.ui.Canvas
 
-class dm.ui.Canvas.EditObject extends goog.events.Event
+class dm.ui.Canvas.ObjectAction extends goog.events.Event
 	###*
+	* @param {dm.ui.Canvas.EventType} event Type of action
   * @param {HTMLElement}
   * @constructor
   * @extends {goog.events.Event}
 	###
-	constructor: (obj) ->
-		super dm.ui.Canvas.EventType.OBJECT_EDIT, obj
+	constructor: (event, obj) ->
+		super event, obj
 
 class dm.ui.Canvas.Click extends goog.events.Event
 	###*

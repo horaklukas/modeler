@@ -77,3 +77,6 @@ _The uploaded application needn't corespond to latest state_
 ### Control Panel
 * <s>__fix error when select activated tool once again__</s>
 * <s>fix tools icons to be exclusive</s>
+
+### Canvas
+* creating of table or relation by select item at canvas contextmenu

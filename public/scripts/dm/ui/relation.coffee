@@ -5,6 +5,7 @@ goog.require 'dm.model.Table.index'
 goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.Stroke'
 goog.require 'goog.object'
+goog.require 'goog.dom'
 goog.require 'dm.ui.tmpls.createElementFromReactComponent'
 
 class dm.ui.Relation extends goog.ui.Component
@@ -368,3 +369,19 @@ class dm.ui.Relation extends goog.ui.Component
 			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
 
 		relationModel.setColumnsMapping keysMapping
+
+	removeRelatedTablesKeys: (childModel) =>
+		relationModel = @getModel()
+		isIdentifying = relationModel.isIdentifying()
+		
+		mapping = relationModel.getColumnsMapping()
+
+		# remove indexes from columns created by relation, but columns left in table
+		for mapp in mapping
+			childModel.setIndex mapp.child, dm.model.Table.index.FK, true
+			if isIdentifying
+				childModel.setIndex mapp.child, dm.model.Table.index.PK, true
+
+	disposeInternal: ->
+		goog.events.removeAll @relationGroup_
+		goog.dom.removeNode @relationGroup_.getElement()
