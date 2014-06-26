@@ -187,7 +187,7 @@ class dm.ui.Table extends goog.ui.Component
 	* @param {dm.model.TableColumn} newColumn
 	###
 	updateColumn: (id, column) ->
-		oldColumn = goog.dom.query("[name=#{id}]", @body_)[0]
+		oldColumn = goog.dom.query("[name='#{id}']", @body_)[0]
 		newColumn = dm.ui.tmpls.createElementFromReactComponent(
 			dm.ui.tmpls.Column {id: id, data: column}
 		)

@@ -8,7 +8,7 @@ goog.require 'goog.object'
 goog.require 'goog.ui.IdGenerator'
 
 ###*
-* @typedef {{name:string, type:string, isNotNull:boolean}}
+* @typedef {{name:string, type:string, isNotNull:boolean, length:?number}}
 ###
 dm.model.TableColumn
 

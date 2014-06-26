@@ -84,7 +84,8 @@ query.getTableColumns = (schema, tables) ->
     CASE WHEN pkcols.isPk = 'PRIMARY KEY' THEN true ELSE false END AS isPk,
     CASE WHEN uniqcols.isUnique = 'UNIQUE' THEN true ELSE false END AS isUnique,
     CASE WHEN fkcols.isFk= 'FOREIGN KEY' THEN true ELSE false END AS isFk,
-    cols.ordinal_position AS position
+    cols.ordinal_position AS position,
+    cols.character_maximum_length AS length
   FROM information_schema.columns AS cols
 
   LEFT JOIN (

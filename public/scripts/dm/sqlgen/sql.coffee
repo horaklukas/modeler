@@ -128,6 +128,7 @@ class dm.sqlgen.Sql
 	createColumn: (column) ->
 		data = ["`#{column.name}`", column.type.toUpperCase()]
 		data.push 'NOT NULL' if column.isNotNull
+		data[1] += "(#{column.length})" if column.length
 		
 		data.join ' '
 

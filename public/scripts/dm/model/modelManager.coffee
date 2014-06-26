@@ -174,6 +174,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
           name: column.column_name
           type: column.data_type
           isNotNull: column.isnotnull 
+          length: if column.length then column.length else null
         }
 
         tableModel.setIndex colId, dm.model.Table.index.PK if column.ispk
