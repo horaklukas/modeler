@@ -20,6 +20,7 @@ class dm.model.Table extends goog.events.EventTarget
 		FK: 'FK'
 		PK: 'PK'
 		UNIQUE: 'UNQ'
+		INDEX: 'IDX'
 
 	###*
 	* @param {string=} name

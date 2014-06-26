@@ -7,7 +7,10 @@ describe 'class model.ModelManager', ->
 	describe 'method createActualFromLoaded', ->
 		before ->
 			@tabModel = setIndex: sinon.spy()
-			@relationModel = getOppositeMappingId: sinon.stub()
+			@relationModel = 
+				getOppositeMappingId: sinon.stub()
+				setCardinalityAndModality: sinon.stub()
+
 			sinon.stub @mngr, 'bakupOldCreateNewActual'
 			sinon.stub @mngr, 'columnCoercion', (value) -> value
 			sinon.stub @mngr, 'addTable'
@@ -52,6 +55,7 @@ describe 'class model.ModelManager', ->
 					'type': true,
 					'mapping': [{'parent':':9', 'child':':g'}],
 					'tables': {'parent':'parenttab','child':'childtab'}
+					'name': 'rel1'
 				}]
 
 				@tablesdata = [{
@@ -85,11 +89,11 @@ describe 'class model.ModelManager', ->
 				@mngr.actualModel.getTableIdByName.reset()
 				@childTable.setColumn.reset()
 
-			it 'should add relation with type and tables names', ->
+			it 'should add relation with type,tables names and relation name', ->
 				@mngr.createActualFromLoaded 'nm', @tablesdata, @relationsdata
 
 				dm.model.Relation.should.been.calledOnce.and.calledWithNew
-				dm.model.Relation.should.been.calledWithExactly true, 'p0', 'ch0'
+				dm.model.Relation.should.been.calledWithExactly true, 'p0', 'ch0', 'rel1'
 
 
 			it 'should rename fk columns on child table to correct name', ->

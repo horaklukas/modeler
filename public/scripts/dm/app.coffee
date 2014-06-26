@@ -15,7 +15,7 @@ goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
-goog.require 'dm.sqlgen.Sql92'
+goog.require 'dm.sqlgen.list'
 
 goog.require 'goog.dom'
 goog.require 'goog.events'
@@ -223,7 +223,8 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.STATUS_CHANGE, (ev) ->
   )
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
-  generator = new dm.sqlgen.Sql92
+  actualDbType = dm.actualRdbs.match(/^([a-zA-Z]*)\-/)?[1]
+  generator = dm.sqlgen.list[actualDbType ? 'sql']
 
   generator.generate(
     tables: modelManager.actualModel.getTables()
