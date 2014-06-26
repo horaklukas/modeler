@@ -85,6 +85,10 @@ class dm.ui.Table extends goog.ui.Component
 		goog.events.listen @dragger, 'end', @dragStartEnd
 		goog.events.listen @dragger, 'end', => 
 			@dispatchEvent dm.ui.Table.EventType.MOVED
+
+		canvas = dm.ui.Canvas.getInstance()
+		goog.events.listen canvas, dm.ui.Canvas.EventType.RESIZED, =>
+			@dragger.setLimits @getDragLimits()
 	
 	dragStartEnd: (e) ->
 		#@target.style.zIndex = if e.type is 'start' then 99 else 1

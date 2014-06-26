@@ -16,7 +16,8 @@ goog.require 'dm.ui.Table.EventType'
 class dm.ui.Canvas extends goog.graphics.SvgGraphics
 	@EventType = 
 		OBJECT_EDIT: goog.events.getUniqueId 'object-edit'
-		CLICK: goog.events.getUniqueId 'click'	
+		CLICK: goog.events.getUniqueId 'click'
+		RESIZED: goog.events.getUniqueId 'resized'	
 
 	###*
   * @constructor
@@ -55,7 +56,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 	enterDocument: ->
 		super()
 		@rootElement_ = goog.dom.getParentElement @getElement()
-		@size_ = goog.style.getSize @rootElement_
+		@updateSize()
 
 		goog.events.listen @rootElement_, goog.events.EventType.DBLCLICK, @onDblClick
 		goog.events.listen @rootElement_, goog.events.EventType.CLICK, @onClick
@@ -73,6 +74,10 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 		[defs] = goog.dom.getElementsByTagNameAndClass 'defs', null, @getElement()
 		defs.innerHTML = dm.ui.tmpls.CardinalityMarkers()
+
+		goog.events.listen(
+			goog.dom.getWindow(), goog.events.EventType.RESIZE, @updateSize
+		)
 
 	###*
   * @param {string} canvasId Id of element to init canvas on
@@ -101,6 +106,13 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		goog.events.listen @svg, goog.events.EventType.DBLCLICK, @onDblClick
 		goog.events.listen @html, goog.events.EventType.CLICK, @onClick
 		###
+
+	###*
+  * Updates actual canvas size
+	###
+	updateSize: =>
+		@size_ = goog.style.getSize @rootElement_
+		@dispatchEvent dm.ui.Canvas.EventType.RESIZED
 
 	###*
   * @param {goog.events.Event} ev
