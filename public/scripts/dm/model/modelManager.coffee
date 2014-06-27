@@ -79,8 +79,11 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     # this events need not to dispatch "model edited" event because its 
     # already done by table move (which bubble to recount rel position)    
-    goog.events.listen parentTable.getModel(), columnsListChangeEvents, ->
-      rel.recountPosition parentTable.getElement(), childTable.getElement()
+    goog.events.listen(
+      parentTable.getModel()
+      columnsListChangeEvents
+      goog.partial(@onParentColumnChange, rel, parentTable, childTable)
+    )
 
     goog.events.listen childTable.getModel(), columnsListChangeEvents, ->
       rel.recountPosition parentTable.getElement(), childTable.getElement()
@@ -89,6 +92,58 @@ class dm.model.ModelManager extends goog.events.EventTarget
     @actualModel.addRelation rel
     
     rel.getId()
+
+  ###*
+  * Called when any column of relation's parent table is changed
+  *
+  * @param {dm.ui.Relation} rel
+  * @param {dm.ui.Table} parentTable
+  * @param {dm.ui.Table} childTable
+  * @param {dm.model.Table.ColumnsChange} ev
+  ###
+  onParentColumnChange: (rel, parentTable, childTable, {type, column}) =>
+    model = rel.getModel()
+    relMappings = model.getColumnsMapping()
+    identifying = model.isIdentifying()
+
+    childModel = childTable.getModel()
+
+    rel.recountPosition parentTable.getElement(), childTable.getElement()
+
+    switch type
+      when 'column-delete' 
+        if relMappings.length is 1 and relMappings[0].parent is column.id
+          @deleteRelation rel
+        else if relMappings.length > 1
+          # primary key at parent table has more columns so relation not need
+          # to be deleted when one of them is deleted
+          for mapping, idx in relMappings when mapping.parent is column.id 
+            childTable.removeColumn mapping.child 
+            model.removeMapping idx
+
+      when 'column-add'
+        # add only parent table pkeys that wasnt created by other relation
+        if not column.data.indexes? or
+        not goog.array.contains(column.data.indexes, dm.model.Table.index.PK) or goog.array.contains column.data.indexes, dm.model.Table.index.FK
+          break
+
+        id = rel.addForeignKeyColumn column.data, childModel, identifying
+
+        goog.array.insert relMappings, { parent: column.id, child: id }  
+        model.setColumnsMapping relMappings
+
+      when 'column-change'
+        childId = model.getOppositeMappingId column.id
+
+        break unless childId?
+
+        # if parent column changed to not be primary key
+        #unless goog.array.contains column.data.indexes, dm.model.Table.index.PK
+
+        childColumn = childModel.getColumnById childId 
+        childColumn.type = column.data.type
+        childColumn.length = column.data.length
+        #childModel.setColumn childColumn, childId
 
   ###*
   * @param {dm.ui.Table} table

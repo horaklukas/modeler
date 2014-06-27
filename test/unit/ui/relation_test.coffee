@@ -227,7 +227,6 @@ describe 'class Relation', ->
 		gcols = sinon.stub()
 		gcolid = sinon.stub()
 		scol = sinon.stub()
-		sindex = sinon.spy()
 		iident = sinon.stub()
 		scm = sinon.spy()
 		parentModel = null
@@ -235,7 +234,7 @@ describe 'class Relation', ->
 
 		before ->
 			parentModel = getColumns: gcols, getColumnsIdsByIndex: gcolid
-			childModel = setColumn: scol, setIndex: sindex	
+			childModel = setColumn: scol
 
 			sinon.stub(rel, 'getModel').returns {
 				isIdentifying: iident, setColumnsMapping: scm
@@ -246,7 +245,6 @@ describe 'class Relation', ->
 			gcolid.reset()
 			scol.reset()
 			iident.reset()
-			sindex.reset()
 			scm.reset()
 
 		after ->
@@ -260,10 +258,9 @@ describe 'class Relation', ->
 
 			rel.setRelatedTablesKeys parentModel, childModel
 
-			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk1'
-			sindex.should.been.calledTwice
-			sindex.should.been.calledWithExactly 1, dm.model.Table.index.PK
-			sindex.should.been.calledWithExactly 1, dm.model.Table.index.FK
+			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk1', null, [
+				dm.model.Table.index.FK, dm.model.Table.index.PK
+			]
 
 		it 'should add primary column from parent to child as a non primary', ->
 			iident.returns false
@@ -273,9 +270,9 @@ describe 'class Relation', ->
 
 			rel.setRelatedTablesKeys parentModel, childModel
 
-			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk11'
-			sindex.should.been.calledOnce
-			sindex.should.been.calledWithExactly 2, dm.model.Table.index.FK
+			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk11', null, [
+				dm.model.Table.index.FK
+			]
 
 		it 'should left original column be primary even if child column change', ->
 			parentColumns = [	{name:'notPk1'},{name:'Pk2'},{name:'notPk2'}	]
@@ -286,7 +283,7 @@ describe 'class Relation', ->
 
 			rel.setRelatedTablesKeys parentModel, childModel
 
-			scol.should.been.calledOnce.and.calledWithExactly name: 'Pk2'
+			scol.should.been.calledOnce.and.calledWith name: 'Pk2'
 			parentColumns[1].should.deep.equal name: 'Pk2'
 
 		it 'should save mapping of fk-> pk columns id', ->

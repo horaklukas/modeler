@@ -359,16 +359,29 @@ class dm.ui.Relation extends goog.ui.Component
 		isIdentifying = relationModel.isIdentifying()
 
 		for pkColId in parentPkColIds
-			childTableColumn = goog.object.clone parentCols[pkColId]
+			childId = @addForeignKeyColumn(
+				parentCols[pkColId], childModel, isIdentifying
+			)
 
-			id = childModel.setColumn childTableColumn
-			keysMapping.push parent: pkColId, child: id
-			
-			childModel.setIndex id, dm.model.Table.index.FK
-			
-			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
+			keysMapping.push parent: pkColId, child: childId
 
 		relationModel.setColumnsMapping keysMapping
+
+	###*
+  * @param {dm.ui.TableColumn} parentColumn
+  * @param {dm.model.Table} childModel
+  * @param {boolean} is Pk Determine if column should also have primary
+  * @return {string} id of new column
+	###
+	addForeignKeyColumn: (parentColumn, childModel, isPk = false) ->
+		childTableColumn = goog.object.clone parentColumn
+
+		indexes = [dm.model.Table.index.FK]
+		if isPk is true then goog.array.insert indexes, dm.model.Table.index.PK 
+
+		id = childModel.setColumn childTableColumn, null, indexes 		
+
+		return id
 
 	removeRelatedTablesKeys: (childModel) =>
 		relationModel = @getModel()

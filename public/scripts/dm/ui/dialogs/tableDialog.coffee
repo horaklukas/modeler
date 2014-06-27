@@ -228,7 +228,7 @@ Column = React.createClass
       <span>{typesList}</span>
       <span>
         <input type="text" className="length" value={length ? length : ''}
-          size="5" onKeyPress={this.checkLengthIsNumber} 
+          size="5" disabled={isFk} onKeyPress={this.checkLengthIsNumber} 
           onChange={this.handleChange} />
       </span>
       <span>
