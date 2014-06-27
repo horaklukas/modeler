@@ -155,4 +155,5 @@ query.getRelations = (schema, tables = []) ->
   WHERE parentcols.position = childcols.position
   AND parentcols.table in ('#{tables.join("','")}')
   AND childcols.table in ('#{tables.join("','")}')
+  ORDER BY parent_table, child_table
   """

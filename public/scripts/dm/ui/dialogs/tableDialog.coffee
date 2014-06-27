@@ -183,7 +183,7 @@ ColumnsList = React.createClass
   render: ->
     titles = ['Name', 'Type', 'Length','PK', 'Not NULL', 'Unique', '']
     head = goog.array.map titles, (title) ->
-      `(<span>{title}</span>)`
+      `(<span key={title.toLowerCase()}>{title}</span>)`
 
     columns = goog.array.map @props.columns, @createColumn, this
 
@@ -257,7 +257,7 @@ TypesList = React.createClass
   createGroup: (groupName, groupTypes) ->
     groupTypes = goog.array.map groupTypes, @createType
 
-    `( <optgroup label={groupName}>{groupTypes}</optgroup> )`
+    `( <optgroup label={groupName} key={groupName}>{groupTypes}</optgroup> )`
 
   getDefaultProps: ->
     disabled: false, selected: null
