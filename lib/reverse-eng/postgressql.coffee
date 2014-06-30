@@ -84,7 +84,8 @@ query.getTableColumns = (schema, tables) ->
     CASE WHEN pkcols.isPk = 'PRIMARY KEY' THEN true ELSE false END AS isPk,
     CASE WHEN uniqcols.isUnique = 'UNIQUE' THEN true ELSE false END AS isUnique,
     CASE WHEN fkcols.isFk= 'FOREIGN KEY' THEN true ELSE false END AS isFk,
-    cols.ordinal_position AS position
+    cols.ordinal_position AS position,
+    cols.character_maximum_length AS length
   FROM information_schema.columns AS cols
 
   LEFT JOIN (
@@ -121,6 +122,7 @@ query.getTableColumns = (schema, tables) ->
 query.getRelations = (schema, tables = []) ->
   """  
   SELECT
+    refs.constraint_name AS name,
     parentcols.table AS parent_table,
     parentcols.column AS parent_column,
     childcols.table AS child_table,
@@ -153,4 +155,5 @@ query.getRelations = (schema, tables = []) ->
   WHERE parentcols.position = childcols.position
   AND parentcols.table in ('#{tables.join("','")}')
   AND childcols.table in ('#{tables.join("','")}')
+  ORDER BY parent_table, child_table
   """

@@ -8,7 +8,7 @@ goog.require 'goog.object'
 goog.require 'goog.ui.IdGenerator'
 
 ###*
-* @typedef {{name:string, type:string, isNotNull:boolean}}
+* @typedef {{name:string, type:string, isNotNull:boolean, length:?number}}
 ###
 dm.model.TableColumn
 
@@ -20,6 +20,7 @@ class dm.model.Table extends goog.events.EventTarget
 		FK: 'FK'
 		PK: 'PK'
 		UNIQUE: 'UNQ'
+		INDEX: 'IDX'
 
 	###*
 	* @param {string=} name
@@ -74,9 +75,10 @@ class dm.model.Table extends goog.events.EventTarget
 	* 
   * @param {dm.model.TableColumn} column
 	* @param {number=} id
+	* @param {Array.<dm.model.Table.index>=} indexes
 	* @return {number} id of new or updated column
 	###
-	setColumn: (column, id) ->
+	setColumn: (column, id, indexes) ->
 		# before add (or update) column check if its name is unique and add suffix
 		# in case that not
 		column.name = @getUniqueColumnName column.name, id
@@ -89,6 +91,8 @@ class dm.model.Table extends goog.events.EventTarget
 			id = goog.ui.IdGenerator.getInstance().getNextUniqueId()
 			@columns[id] = column
 			newColumn = true
+
+			if indexes? then @indexes[id] = indexes 
 
 		# add additional information about column's indexes
 		if @indexes[id] then column.indexes = @indexes[id]

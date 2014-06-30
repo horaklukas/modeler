@@ -12,6 +12,7 @@ goog.require 'goog.math.Size'
 goog.require 'goog.ui.Component'
 goog.require 'goog.events'
 goog.require 'goog.fx.Dragger'
+goog.require 'dm.ui.tmpls.createElementFromReactComponent'
 
 class dm.ui.Table extends goog.ui.Component
 	@EventType =
@@ -84,6 +85,10 @@ class dm.ui.Table extends goog.ui.Component
 		goog.events.listen @dragger, 'end', @dragStartEnd
 		goog.events.listen @dragger, 'end', => 
 			@dispatchEvent dm.ui.Table.EventType.MOVED
+
+		canvas = dm.ui.Canvas.getInstance()
+		goog.events.listen canvas, dm.ui.Canvas.EventType.RESIZED, =>
+			@dragger.setLimits @getDragLimits()
 	
 	dragStartEnd: (e) ->
 		#@target.style.zIndex = if e.type is 'start' then 99 else 1
@@ -182,7 +187,7 @@ class dm.ui.Table extends goog.ui.Component
 	* @param {dm.model.TableColumn} newColumn
 	###
 	updateColumn: (id, column) ->
-		oldColumn = goog.dom.query("[name=#{id}]", @body_)[0]
+		oldColumn = goog.dom.query("[name='#{id}']", @body_)[0]
 		newColumn = dm.ui.tmpls.createElementFromReactComponent(
 			dm.ui.tmpls.Column {id: id, data: column}
 		)
@@ -195,16 +200,6 @@ class dm.ui.Table extends goog.ui.Component
 	removeColumn: (id) ->
 		column = goog.dom.query("[name=#{id}]", @body_)[0]
 		goog.dom.removeNode column
-
-
-dm.ui.tmpls.createElementFromReactComponent = (reactComponent) ->
-	componentHtml = React.renderComponentToStaticMarkup reactComponent
-	wrapper = goog.dom.createElement 'div'
-
-	wrapper.innerHTML = componentHtml
-
-	goog.dom.getFirstElementChild wrapper
-
 
 # Table templates
 dm.ui.tmpls.Table = React.createClass

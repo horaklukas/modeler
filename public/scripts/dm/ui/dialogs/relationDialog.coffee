@@ -34,12 +34,22 @@ dm.ui.RelationDialog = React.createClass
       childName: tables.child.name
     }
 
+    {cardinality, modality} = model.getCardinalityAndModality()
+
     @setState 
       visible: true
+      name: model.getName()
       identifying: model.isIdentifying()
+      cardinality: cardinality
+      modality: modality
 
   onConfirm: ->
     @_originalModel.setType @state.identifying
+    @_originalModel.setCardinalityAndModality(
+      @state.cardinality, @state.modality
+    )
+    @_originalModel.setName @state.name
+
     @hide()
 
   hide: ->
@@ -48,21 +58,45 @@ dm.ui.RelationDialog = React.createClass
   handleTypeChange: (isIdentifying) ->
     @setState identifying: isIdentifying
 
+  handleCardModChange: (cardinality, modality) ->
+    nextState = {}
+    if cardinality? then nextState.cardinality = cardinality
+    if modality? then nextState.modality = modality
+
+    @setState nextState
+
+  handleNameChange: ({target}) ->
+    @setState name: target.value
+
   getInitialState: ->
     visible: false
+    name: ''
     identifying: false
+    cardinality: parent: '1', child: 'n'
+    modality: parent: 1, child: 1
 
   render: ->
     {Dialog} = dm.ui
  
-    title = "Relation between tables \"#{@props.parentName}\" and \"#{@props.childName}\""
-    show = @state.visible
+    title = "Relation \"#{this.state.name}\""
+    {visible, identifying, cardinality, modality} = @state
 
     `(
     <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide}
-      visible={show}>
-      <RelationTypeSelect identifying={this.state.identifying} 
+      visible={visible}>
+      
+      <p>
+        Relation name
+        <input value={this.state.name} onChange={this.handleNameChange} />
+      </p>
+
+      <p>Parent table: <strong>{this.props.parentName}</strong></p>
+      <p>Child table: <strong>{this.props.childName}</strong></p>
+
+      <RelationTypeSelect identifying={identifying} 
         onChange={this.handleTypeChange} />
+      <CardinalityModalitySelect identifying={identifying} modality={modality} 
+        cardinality={cardinality} onChange={this.handleCardModChange} />
     </Dialog>
     )`
 
@@ -85,132 +119,71 @@ RelationTypeSelect = React.createClass
   render: ->
     options = goog.array.map ['Non-Identifying', 'Identifying'], @createType
 
-    `( <div><div>Relation type</div>{options}</div> )`
+    `( <div><p><strong>Relation type</strong></p>{options}</div> )`
 
-`/*
-class dm.dialogs.RelationDialog extends goog.ui.Dialog
-  @EventType =
-    CONFIRM: goog.events.getUniqueId 'dialog-confirmed'
+CardinalityModalitySelect = React.createClass
+  handleCardinalityChange: (type, ev) ->
+    {cardinality} = @props
+    cardinality[type] = ev.target.value
 
-  constructor: ->
-    super()
+    @props.onChange cardinality, null
+
+  handleModalityChange: (type, ev) ->
+    {modality} = @props
+    modality[type] = goog.string.toNumber ev.target.value
+
+    @props.onChange null, modality
+
+  createCardinality: (card, type, disabled = false) ->
+    cb = goog.partial @handleCardinalityChange, type
     
-    @isIdentifying = false
-    @tablesSwaped = false
+    `(
+      <div>
+        <div>
+          <input type="radio" value="1" checked={card == '1'} onChange={cb}
+            disabled={disabled} />
+          One exactly
+        </div>
+        <div>
+          <input type="radio" value="n" checked={card == 'n'} onChange={cb}
+            disabled={disabled} />
+          One or more
+        </div>
+      </div>
+    )`
 
-    #@relatedTables = parent: null, child: null
+  createModality: (moda, type, disabled = false) ->
+    cb = goog.partial @handleModalityChange, type
 
-    @setContent tmpls.dialogs.createRelation.dialog false
-    @setButtonSet goog.ui.Dialog.ButtonSet.createOkCancel()
-    @setDraggable false
+    `(
+      <div>
+        <div>
+          <input type="radio" value="1" checked={moda == 1} onChange={cb}
+            disabled={disabled} />
+          Mandatory
+        </div>
+        <div>
+          <input type="radio" value="0" checked={moda == 0} onChange={cb}
+            disabled={disabled} />
+          Optional
+        </div>
+      </div>
+    )`
 
-    # force render dialog, so all control widgets exists since now
-    content = @getContentElement()
-    
-    @relPrefsForm = goog.dom.getElement 'relprefs'
+  render: ->
+    {cardinality, modality, identifying} = @props
 
-    # events 1) change identifying of relation 2) dialog ok or cancel
-    goog.events.listen @relPrefsForm, goog.events.EventType.CHANGE, @setIdentifying
-
-    goog.events.listen @relPrefsForm, goog.events.EventType.SUBMIT, @swapTables
-
-    goog.events.listen @, goog.ui.Dialog.EventType.SELECT, @onSelect
-
-  ###*
-  * If change type of relation (identifying or non-identifying) then save
-  * actual value 
-  * @param {goog.events.Event} ev
-  ###
-  setIdentifying: (ev) =>
-    @isIdentifying = Boolean goog.string.toNumber ev.target.value
-
-  ###*
-  * @param {goog.events.Event} ev
-  ###
-  swapTables: (ev) =>
-    # swap ids
-    @tablesSwaped = !@tablesSwaped
-
-    # swap tables names in dialog
-    parent = goog.dom.getElementByClass 'parent', ev.target
-    child = goog.dom.getElementByClass 'child', ev.target
-
-    tmp = goog.dom.getTextContent parent
-
-    goog.dom.setTextContent parent, goog.dom.getTextContent child
-    goog.dom.setTextContent child, tmp
-
-    ev.preventDefault()
-
-  ###*
-  * @param {boolean} show Wheater show or hide dialog
-  * @param {dm.ui.Relation=} relation
-  ###
-  show: (show, relation) ->
-    if relation?
-      @relatedRelation = relation
-      @isIdentifying = relation.getModel().isIdentifying()
-      @tablesSwaped = false
-      parentName = relation.parentTab.getModel().getName()
-      childName = relation.childTab.getModel().getName()
-
-      @setValues parentName,  childName, @isIdentifying
-      @setTitle "Relation between tables \"#{parentName}\" and \"#{childName}\""
-
-    @setVisible show 
-
-  onSelect: (e) =>
-    if e.key isnt 'ok' then return true
-    
-    @relatedRelation.getModel().setType @isIdentifying
-    
-    if @tablesSwaped then @relatedRelation.setRelatedTables(
-      @relatedRelation.childTab, @relatedRelation.parentTab
-    )
-      #tmp = @relatedRelation.parentTab
-      #@relatedRelation.parentTab = @relatedRelation.childTab
-      #@relatedRelation.childTab = tmp
-    #confirmEvent =  new dm.dialogs.RelationDialog.Confirm(@, @relatedRelation, @isIdentifying, @relatedTables.parent, @relatedTables.child)
-
-    #@dispatchEvent confirmEvent
-
-  ###*
-  * @param {string} parent Parent table name
-  * @param {string} child Child table name
-  * @param {boolean} ident 
-  ###
-  setValues: (parent, child, ident) ->
-    #@isIdentifying = ident
-    #@relatedTables.parent = dm.actualModel.getTableById parent.getId()
-    #@relatedTables.child = dm.actualModel.getTableById child.getId()
-
-    goog.soy.renderElement @relPrefsForm, tmpls.dialogs.createRelation.prefs, 
-      { ident: ident, parentTable: parent, childTable: child }
-
-goog.addSingletonGetter dm.dialogs.RelationDialog
-
-#class dm.dialogs.RelationDialog.Confirm extends goog.events.Event
-# constructor: (dialog, id, ident, parenttab, childtab) ->
-#   super dm.dialogs.RelationDialog.EventType.CONFIRM, dialog
-
-
-###*
-* @type {string}
-###
-#@relationId = id
-
-###*
-* @type {boolean}
-###
-#@identifying = ident
-
-###*
-* @type {string}
-###
-#@parentTable = parenttab
-
-###*
-* @type {string}
-###
-#@childTable = childtab
-*/`
+    `(
+      <div className="cardmod">
+        <strong>Parent</strong>
+        <div className="row">
+          {this.createCardinality(cardinality.parent, 'parent')}
+          {this.createModality(modality.parent, 'parent', identifying)}
+        </div>
+        <strong>Child</strong>
+        <div className="row">
+          {this.createCardinality(cardinality.child, 'child')}
+          {this.createModality(modality.child, 'child')}
+        </div>
+      </div>
+    )`

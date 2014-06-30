@@ -5,6 +5,8 @@ goog.require 'dm.model.Table.index'
 goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.Stroke'
 goog.require 'goog.object'
+goog.require 'goog.dom'
+goog.require 'dm.ui.tmpls.createElementFromReactComponent'
 
 class dm.ui.Relation extends goog.ui.Component
 	###*
@@ -57,6 +59,8 @@ class dm.ui.Relation extends goog.ui.Component
 		@relationPath_ = canvas.drawPath(
 			path, dm.ui.Relation.relationStroke, null, @relationGroup_
 		)
+
+		@setCardinalityMarkers model.getCardinalityAndModality()
 		
 		groupElement = @relationGroup_.getElement()
 		groupElement.id = @getId()
@@ -82,9 +86,20 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	recountPosition: (parentTable, childTable) =>
 		newPath = @getRelationPath new goog.graphics.Path, parentTable, childTable
+		
+		@setCardinalityMarkers @getModel().getCardinalityAndModality()
 
 		@relationPath_.setPath newPath
 		@relationBg_.setPath newPath
+
+	setCardinalityMarkers: ({cardinality, modality})->
+		parentClassName = @getCardinalityClass cardinality.parent, modality.parent
+		childClassName = @getCardinalityClass cardinality.child, modality.child, true
+
+		goog.style.setStyle @relationPath_.getElement(), {
+			markerStart: "url(##{parentClassName})" 
+			markerEnd: "url(##{childClassName})" 
+		}
 
 	###*
   * Handler for `changed relation type` event
@@ -105,13 +120,31 @@ class dm.ui.Relation extends goog.ui.Component
 			)
 
 	###*
+  * @param {Object.<string,string>} cardinality
+  * @param {Object.<string,number>} modality
+  * @param {boolean=} end
+  * @return {string} class name
+	###
+	getCardinalityClass: (cardinality, modality, end = false) ->
+		className = 'one'
+
+		if cardinality is 'n' then className += 'OrEn'
+
+		if modality is 1 and cardinality is '1' then className += 'Exactly'
+		else if modality is 0 then className += 'Optional'
+
+		if end is true then className += 'End'
+
+		className
+
+	###*
   * @param {goog.graphics.Path} path Path object to set points on
   * @param {Element} parentTable
   * @param {Element} childTable
   * @return {goog.graphics.Path} new relation path
 	###
 	getRelationPath: (path, parentTable, childTable) =>
-		points = @getRelationPoints parentTable, childTable
+		{start, stop} = @getRelationPoints parentTable, childTable
 		
 		#path.lineTo points.break1.x, points.break1.y
 		#unless goog.math.Coordinate.equals points.break2, points.break1
@@ -137,8 +170,15 @@ class dm.ui.Relation extends goog.ui.Component
 		else
 			path.lineTo points.start.coords.x, points.start.coords.y + widthHalf
 		###
-		path.moveTo points.start.coords.x, points.start.coords.y
-		path.lineTo points.stop.coords.x, points.stop.coords.y
+		path.moveTo start.coords.x, start.coords.y
+
+		# unary relation cant be straight
+		if parentTable is childTable
+			path.lineTo start.coords.x - 40, start.coords.y
+			path.lineTo start.coords.x - 40, stop.coords.y + 40
+			path.lineTo stop.coords.x, stop.coords.y + 40
+		
+		path.lineTo stop.coords.x, stop.coords.y
 
 	###*
   * @param {Element} parentTable
@@ -152,6 +192,7 @@ class dm.ui.Relation extends goog.ui.Component
 		dists = []
 		distsPoint = []
 
+
 		for sPos, sCoord of sTab
 			for ePos, eCoord of eTab
 				dist = @getPathDistance sPos, sCoord, ePos, eCoord
@@ -160,7 +201,8 @@ class dm.ui.Relation extends goog.ui.Component
 					dists.push dist
 					distsPoint[dist] = [sPos, ePos]
 
-		if dists.length is 0 then result = ['top', 'top']
+		if parentTable is childTable then result = ['left', 'bottom']
+		else if dists.length is 0 then result = ['top', 'top']
 		else result = distsPoint[Math.min dists...]
 
 		#start = sTab[result[0]]
@@ -317,13 +359,42 @@ class dm.ui.Relation extends goog.ui.Component
 		isIdentifying = relationModel.isIdentifying()
 
 		for pkColId in parentPkColIds
-			childTableColumn = goog.object.clone parentCols[pkColId]
+			childId = @addForeignKeyColumn(
+				parentCols[pkColId], childModel, isIdentifying
+			)
 
-			id = childModel.setColumn childTableColumn
-			keysMapping.push parent: pkColId, child: id
-			
-			childModel.setIndex id, dm.model.Table.index.FK
-			
-			if isIdentifying then	childModel.setIndex id, dm.model.Table.index.PK
+			keysMapping.push parent: pkColId, child: childId
 
 		relationModel.setColumnsMapping keysMapping
+
+	###*
+  * @param {dm.ui.TableColumn} parentColumn
+  * @param {dm.model.Table} childModel
+  * @param {boolean} is Pk Determine if column should also have primary
+  * @return {string} id of new column
+	###
+	addForeignKeyColumn: (parentColumn, childModel, isPk = false) ->
+		childTableColumn = goog.object.clone parentColumn
+
+		indexes = [dm.model.Table.index.FK]
+		if isPk is true then goog.array.insert indexes, dm.model.Table.index.PK 
+
+		id = childModel.setColumn childTableColumn, null, indexes 		
+
+		return id
+
+	removeRelatedTablesKeys: (childModel) =>
+		relationModel = @getModel()
+		isIdentifying = relationModel.isIdentifying()
+		
+		mapping = relationModel.getColumnsMapping()
+
+		# remove indexes from columns created by relation, but columns left in table
+		for mapp in mapping
+			childModel.setIndex mapp.child, dm.model.Table.index.FK, true
+			if isIdentifying
+				childModel.setIndex mapp.child, dm.model.Table.index.PK, true
+
+	disposeInternal: ->
+		goog.events.removeAll @relationGroup_
+		goog.dom.removeNode @relationGroup_.getElement()

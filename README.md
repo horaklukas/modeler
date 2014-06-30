@@ -8,11 +8,10 @@ _The uploaded application needn't corespond to latest state_
 
 ## WORK PLAN
 1. Frontend modeler part
-  * creating table and relation objects _in progress_
+  * creating table and relation objects
   * making table structure by selected database type
 2. Backend modeler part
   * reingeneering of tables and relations from database
-  * _possiblly creating of tables and relations from  database catalog_
 3. Managment of models part
   * making image snapshoots from models
   * versioning of models
@@ -42,7 +41,7 @@ _The uploaded application needn't corespond to latest state_
 
 ### Relation
 * fix not disabled opossite points when counting path connection points
-* "selfish relation" is relation from table to the same table 
+* <s>"unary relation" is relation from table to the same table </s>
 * <s>fix propagating name of table to relation model if table name change</s>
 * <s>multiple relations on same table side</s> resolved with direct realtions
 * <s>types of relation - identifying, non-identifyig</s>
@@ -62,7 +61,8 @@ _The uploaded application needn't corespond to latest state_
 
 #### Table dialog
 * Column's length attribute
-* Column's auto increment option 
+* Column's auto increment option
+* Fix creating of tables with same names
 * <s>fix lost of unsaved columns change when new column row is added</s>
 * <s>fix allow confirm if table name not filled</s>
 * <s>make columns creted by relation not deletable and editable (only name can
@@ -77,3 +77,6 @@ _The uploaded application needn't corespond to latest state_
 ### Control Panel
 * <s>__fix error when select activated tool once again__</s>
 * <s>fix tools icons to be exclusive</s>
+
+### Canvas
+* creating of table or relation by select item at canvas contextmenu

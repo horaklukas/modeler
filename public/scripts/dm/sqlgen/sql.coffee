@@ -4,13 +4,13 @@
 *  if their syntax is different than common SQL-92
 ###
 
-goog.provide 'dm.sqlgen.Sql92'
+goog.provide 'dm.sqlgen.Sql'
 
 goog.require 'dm.model.Table.index'
 goog.require 'goog.array'
 goog.require 'dm.ui.SqlCodeDialog'
 
-class dm.sqlgen.Sql92
+class dm.sqlgen.Sql
 	###*
   * @param {Object} options
 	###
@@ -126,6 +126,10 @@ class dm.sqlgen.Sql92
   * @return {string} piece of sql that defines table column
 	###
 	createColumn: (column) ->
-		notNull = if column.isNotNull then ' NOT NULL' else ''
+		data = ["`#{column.name}`", column.type.toUpperCase()]
+		data.push 'NOT NULL' if column.isNotNull
+		data[1] += "(#{column.length})" if column.length
 		
-		"#{column.name} #{column.type}#{notNull}"
+		data.join ' '
+
+goog.addSingletonGetter dm.sqlgen.Sql

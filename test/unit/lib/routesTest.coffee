@@ -5,12 +5,15 @@ mocks =
 		loadAllDefinitions: sinon.stub()
 	fs:
 		readFile: sinon.stub()
+	mkdirp:
+		sinon.stub()
 
 
 describe 'app routes', ->		
 	before ->
 		mockery.enable warnOnUnregistered: false
 		mockery.registerMock './dbs', mocks.databases
+		mockery.registerMock 'mkdirp', mocks.mkdirp
 
 		@app = require '../../../app'
 

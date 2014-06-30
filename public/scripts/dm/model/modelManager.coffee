@@ -71,10 +71,19 @@ class dm.model.ModelManager extends goog.events.EventTarget
       rel.onTypeChange childTable.getModel()
       @onModelEdit()
 
+    goog.events.listen model, 'cardinality-change', =>
+      rel.setCardinalityMarkers model.getCardinalityAndModality()
+      @onModelEdit()
+
     columnsListChangeEvents = ['column-add', 'column-change' ,'column-delete']
-    
-    goog.events.listen parentTable.getModel(), columnsListChangeEvents, ->
-      rel.recountPosition parentTable.getElement(), childTable.getElement()
+
+    # this events need not to dispatch "model edited" event because its 
+    # already done by table move (which bubble to recount rel position)    
+    goog.events.listen(
+      parentTable.getModel()
+      columnsListChangeEvents
+      goog.partial(@onParentColumnChange, rel, parentTable, childTable)
+    )
 
     goog.events.listen childTable.getModel(), columnsListChangeEvents, ->
       rel.recountPosition parentTable.getElement(), childTable.getElement()
@@ -83,6 +92,86 @@ class dm.model.ModelManager extends goog.events.EventTarget
     @actualModel.addRelation rel
     
     rel.getId()
+
+  ###*
+  * Called when any column of relation's parent table is changed
+  *
+  * @param {dm.ui.Relation} rel
+  * @param {dm.ui.Table} parentTable
+  * @param {dm.ui.Table} childTable
+  * @param {dm.model.Table.ColumnsChange} ev
+  ###
+  onParentColumnChange: (rel, parentTable, childTable, {type, column}) =>
+    model = rel.getModel()
+    relMappings = model.getColumnsMapping()
+    identifying = model.isIdentifying()
+
+    childModel = childTable.getModel()
+
+    rel.recountPosition parentTable.getElement(), childTable.getElement()
+
+    switch type
+      when 'column-delete' 
+        if relMappings.length is 1 and relMappings[0].parent is column.id
+          @deleteRelation rel
+        else if relMappings.length > 1
+          # primary key at parent table has more columns so relation not need
+          # to be deleted when one of them is deleted
+          for mapping, idx in relMappings when mapping.parent is column.id 
+            childTable.removeColumn mapping.child 
+            model.removeMapping idx
+
+      when 'column-add'
+        # add only parent table pkeys that wasnt created by other relation
+        if not column.data.indexes? or
+        not goog.array.contains(column.data.indexes, dm.model.Table.index.PK) or goog.array.contains column.data.indexes, dm.model.Table.index.FK
+          break
+
+        id = rel.addForeignKeyColumn column.data, childModel, identifying
+
+        goog.array.insert relMappings, { parent: column.id, child: id }  
+        model.setColumnsMapping relMappings
+
+      when 'column-change'
+        childId = model.getOppositeMappingId column.id
+
+        break unless childId?
+
+        # if parent column changed to not be primary key
+        #unless goog.array.contains column.data.indexes, dm.model.Table.index.PK
+
+        childColumn = childModel.getColumnById childId 
+        childColumn.type = column.data.type
+        childColumn.length = column.data.length
+        #childModel.setColumn childColumn, childId
+
+  ###*
+  * @param {dm.ui.Table} table
+  ###
+  deleteTable: (table) ->
+    model = table.getModel()
+
+    goog.events.removeAll table
+    goog.events.removeAll model
+
+    @actualModel.removeTable table.getId() 
+    @canvas.removeTable table
+
+  ###*
+  * @param {dm.ui.Relation} relation
+  ###
+  deleteRelation: (relation) ->
+    model = relation.getModel()
+    childTable = @actualModel.getTableById model.tables.child
+
+    relation.removeRelatedTablesKeys childTable
+
+    goog.events.removeAll relation
+    goog.events.removeAll model
+
+    @actualModel.removeRelation relation.getId() 
+    @canvas.removeRelation relation
+
 
   ###*
   * @param {string} name Model name
@@ -119,11 +208,15 @@ class dm.model.ModelManager extends goog.events.EventTarget
       @addTable tableModel, table.pos.x, table.pos.y
 
     for relation in relations
+      {name, type, cardinality, modality} = relation
       {parent, child} = relation.tables
+
       parentId = @actualModel.getTableIdByName parent
       childId = @actualModel.getTableIdByName child
 
-      relationModel = new dm.model.Relation(relation.type, parentId, childId)
+      relationModel = new dm.model.Relation(type, parentId, childId, name)
+      relationModel.setCardinalityAndModality cardinality, modality
+
       @addRelation relationModel
 
       childTable = @actualModel.getTableById childId
@@ -164,6 +257,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
           name: column.column_name
           type: column.data_type
           isNotNull: column.isnotnull 
+          length: if column.length then column.length else null
         }
 
         tableModel.setIndex colId, dm.model.Table.index.PK if column.ispk
@@ -179,19 +273,22 @@ class dm.model.ModelManager extends goog.events.EventTarget
         )
         tableModel = null  
 
+    @spaceOutTablesByRelation relations
+
     # then create relations
     for relation, i in relations
+      {parent_table, child_table} = relation
 
-      if relations[i - 1]?.parent_table isnt relation.parent_table or
-      relations[i - 1]?.child_table isnt relation.child_table
-        childId = @actualModel.getTableIdByName relation.child_table
-        parentId = @actualModel.getTableIdByName relation.parent_table
+      if relations[i - 1]?.parent_table isnt parent_table or
+      relations[i - 1]?.child_table isnt child_table
+        childId = @actualModel.getTableIdByName child_table
+        parentId = @actualModel.getTableIdByName parent_table
   
         childTable = @actualModel.getTableById childId
         parentTable = @actualModel.getTableById parentId
 
         relationModel = new dm.model.Relation(
-          relation.is_identifying, parentId, childId
+          relation.is_identifying, parentId, childId, relation.name
         )
 
         @addRelation relationModel
@@ -208,6 +305,64 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
       childTable.setColumn childColumn, columnId
 
+  spaceOutTablesByRelation: (relations) ->
+    tablesByName = @actualModel.getTablesUiByName()
+    canvasSize = @canvas.getSize()
+    relatedTables = []
+
+    for relation in relations
+      parent = relation.parent_table
+      child = relation.child_table
+      parentSize = tablesByName[parent].getSize()
+      childSize = tablesByName[child].getSize()
+
+      added = false
+      for group, i in relatedTables
+        if goog.array.contains(group.tables, child) or
+        goog.array.contains(group.tables, parent)
+          goog.array.insert relatedTables[i].tables, parent
+          goog.array.insert relatedTables[i].tables, child
+
+          relatedTables[i].max.w = Math.max parentSize.width, childSize.width
+          relatedTables[i].max.h = Math.max parentSize.height, childSize.height
+
+          added = true
+          break 
+
+      # neither one table belongs to any existing group of related table
+      if added is false
+        relatedTables.push {
+          max: {
+            w: Math.max(parentSize.width, childSize.width)
+            h: Math.max parentSize.height, childSize.height
+          }
+          tables: [parent, child]
+        }
+
+    # divide groups into sectors, count viewport for each sector and place
+    # groups's tables randomly somewhere there 
+    groupsMatrixSize = Math.ceil Math.sqrt(relatedTables.length)
+    canvasSectorWidth = canvasSize.width / groupsMatrixSize
+    canvasSectorHeight = canvasSize.height / groupsMatrixSize
+
+    for group, i in relatedTables
+      row = Math.floor i / groupsMatrixSize 
+      col = Math.floor i % groupsMatrixSize
+
+      for tabname in group.tables
+        # max position is sector right (bottom) edge minus max group's table
+        # width (height)
+        x = Math.min(
+          Math.round((row + Math.random()) * canvasSectorWidth)
+          ((row + 1) * canvasSectorWidth - group.max.w)
+        )
+        y = Math.min(
+          Math.round((col + Math.random()) * canvasSectorHeight)
+          ((col + 1) * canvasSectorHeight - group.max.h)
+        )
+
+        tablesByName[tabname].setPosition x, y
+
   onModelEdit: =>
     @dispatchEvent dm.model.ModelManager.EventType.EDITED
 
@@ -220,6 +375,13 @@ class dm.model.ModelManager extends goog.events.EventTarget
     @canvas.clear()
     @actualModel = new dm.model.Model name
 
+    @dispatchEvent dm.model.ModelManager.EventType.CHANGE
+
+  ###*
+  * @param {string} name
+  ###
+  changeActualModelName: (name) =>
+    @actualModel.name = name
     @dispatchEvent dm.model.ModelManager.EventType.CHANGE
 
   ###*

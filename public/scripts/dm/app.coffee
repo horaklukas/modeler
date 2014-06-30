@@ -15,7 +15,7 @@ goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
-goog.require 'dm.sqlgen.Sql92'
+goog.require 'dm.sqlgen.list'
 
 goog.require 'goog.dom'
 goog.require 'goog.events'
@@ -175,11 +175,10 @@ goog.events.listen canvas, dm.ui.Table.EventType.MOVE, (e) ->
       canvas.getChild(child).getElement()
     )
 
-goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) -> 
-  object = ev.target
-  model = object.getModel()
+goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, ({target}) -> 
+  model = target.getModel()
 
-  if object instanceof dm.ui.Relation
+  if target instanceof dm.ui.Relation
     {parent, child} = model.tables
     tables = 
       parent: 
@@ -190,8 +189,26 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, (ev) ->
         name: modelManager.actualModel.getTableById(child).getName()
 
     relationDialog.show model, tables
-  else if object instanceof dm.ui.Table
+  else if target instanceof dm.ui.Table
     tableDialog.show model
+
+goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_DELETE, ({target}) =>
+  model = target.getModel()
+
+  if confirm("You want to delete #{model.getName()}'. Are you sure?") is true
+    
+    if target instanceof dm.ui.Relation then modelManager.deleteRelation target
+    else if target instanceof dm.ui.Table
+      relatedRelations = modelManager.actualModel.getRelationsByTable(
+        target.getId()
+      )
+
+      for relId in (relatedRelations ? [])
+        modelManager.deleteRelation(
+          modelManager.actualModel.getRelationUiById relId
+        )
+
+      modelManager.deleteTable target
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
   switch ev.objType
@@ -215,8 +232,16 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
       modelManager.addRelation model
       relationDialog.show model, tables
 
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.STATUS_CHANGE, (ev) ->
+  inputDialog.show(
+    modelManager.actualModel.name
+    'Type and confirm model name'
+    modelManager.changeActualModelName
+  )
+
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
-  generator = new dm.sqlgen.Sql92
+  actualDbType = dm.actualRdbs.match(/^([a-zA-Z]*)\-/)?[1]
+  generator = dm.sqlgen.list[actualDbType ? 'sql']
 
   generator.generate(
     tables: modelManager.actualModel.getTables()

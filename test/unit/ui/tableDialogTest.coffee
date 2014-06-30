@@ -98,13 +98,13 @@ describe 'class TableDialog', ->
 
       expect(tabd.state.columns).to.have.length 1
       expect(tabd.state.columns[0]).to.deep.equal {
-        name: null, type: 'type1g1', isNotNull: null
+        name: null, type: 'type1g1', length: '', isNotNull: null
       }
 
     it 'should show all columns and set its values', ->
       fakeModel.getColumns.returns [
-        {name:'bob', type:'type1g1',  isNotNull: false}
-        {name:'bobek', type:'type1g2',  isNotNull: true}
+        {name:'bob', type:'type1g1', length: '', isNotNull: false}
+        {name:'bobek', type:'type1g2', length: '', isNotNull: true}
       ]
 
       tabd.show fakeModel
@@ -125,20 +125,20 @@ describe 'class TableDialog', ->
   describe 'method addColumn', ->
     it 'should add new empty column with default type to list of columns', ->
       tabd.setState columns: [
-        {name: 'Julius', type: 'type1g1', isNotNull: false}
+        {name: 'Julius', type: 'type1g1', length: '', isNotNull: false}
       ]
       
       tabd.addColumn()
       
       expect(tabd.state.columns).to.have.length 2
       expect(tabd.state.columns[1]).to.deep.equal {
-        name: null, type: 'type1g1', isNotNull: null
+        name: null, type: 'type1g1', length: '', isNotNull: null
       }
 
     it 'should render empty row to the end', ->
       tabd.setState columns: [
-        {name: 'Julius', type: 'type1g1', isNotNull: false}
-        {name: 'Cesar', type: 'type1g2', isNotNull: true}
+        {name: 'Julius', type: 'type1g1', length: '', isNotNull: false}
+        {name: 'Cesar', type: 'type1g2', length: '', isNotNull: true}
       ]
       
       cols = TestUtils.scryRenderedDOMComponentsWithClass tabd, 'tableColumn'
@@ -172,9 +172,9 @@ describe 'class TableDialog', ->
 
     it 'should remove the column element', ->
       tabd.setState columns: [
-        {name:'athos', type:'type1g1',  isNotNull: false}
-        {name:'portos', type:'type1g2', isNotNull: true}
-        {name:'aramis', type:'type2g2', isNotNull: false}
+        {name:'athos', type:'type1g1',  length: '', isNotNull: false}
+        {name:'portos', type:'type1g2', length: '', isNotNull: true}
+        {name:'aramis', type:'type2g2', length: '', isNotNull: false}
       ]
 
       cols = TestUtils.scryRenderedComponentsWithType tabd, Column
@@ -189,9 +189,9 @@ describe 'class TableDialog', ->
 
     it 'it should add id of colum to list of removed', ->
       tabd.setState columns: [
-        {id: 'chickid',  name:'chicken', type:'type1g1',  isNotNull: false}
-        {id: 'punkid', name:'punk', type:'type1g2', isNotNull: true}
-        {id: 'paoid', name:'pao', type:'type2g2', isNotNull: false}
+        {id: 'chickid',  name:'chicken', type:'type1g1',  length:'', isNotNull: false}
+        {id: 'punkid', name:'punk', type:'type1g2', length:'', isNotNull: true}
+        {id: 'paoid', name:'pao', type:'type2g2', length:'', isNotNull: false}
       ]
 
       cols = TestUtils.scryRenderedDOMComponentsWithClass tabd, 'tableColumn'
@@ -203,10 +203,10 @@ describe 'class TableDialog', ->
 
     it 'should only remove element if column has not id (is newly created)', ->
       tabd.setState columns: [
-        {id: 'patid',  name:'pat', type:'type1g1',  isNotNull: false}
-        {id: 'matid', name:'mat', type:'type1g2', isNotNull: true}
-        {id: null, name:'jaja', type:'type2g2', isNotNull: false}
-        {id: null, name:'paja', type:'type2g1', isNotNull: false}
+        {id: 'patid',  name:'pat', type:'type1g1', length:'', isNotNull: false}
+        {id: 'matid', name:'mat', type:'type1g2', length:'', isNotNull: true}
+        {id: null, name:'jaja', type:'type2g2', length:'', isNotNull: false}
+        {id: null, name:'paja', type:'type2g1', length:'', isNotNull: false}
       ]
 
       cols = TestUtils.scryRenderedDOMComponentsWithClass tabd, 'tableColumn'
@@ -309,12 +309,12 @@ describe 'class TableDialog', ->
 
     it 'should set all columns in list for update to model', ->
       tabd.setState columns: [
-        { name: 'col1', type: 'type1g1', isNotNull: true, isUnique: false,
-        isPk: false, id: 'id1' }
-        { name: 'col1', type: 'type1g2', isNotNull: true, isUnique: false,
-        isPk: true, id: 'id3' }
-        { name: 'col1', type: 'type2g1', isNotNull: false, isUnique: true,
-        isPk: false, id: 'id5' }
+        { name: 'col1', type: 'type1g1', length: '', isNotNull: true, 
+        isUnique: false, isPk: false, id: 'id1' }
+        { name: 'col1', type: 'type1g2', length: '', isNotNull: true, 
+        isUnique: false, isPk: true, id: 'id3' }
+        { name: 'col1', type: 'type2g1', length: '', isNotNull: false, 
+        isUnique: true, isPk: false, id: 'id5' }
       ]
 
       tabd.changed = ['id1', 'id5']
@@ -323,20 +323,55 @@ describe 'class TableDialog', ->
 
       fakeModel.setColumn.should.been.calledTwice
       fakeModel.setColumn.should.been.calledWithExactly(
-        {name: 'col1', type: 'type1g1', isNotNull: true}, 'id1'
+        {name: 'col1', type: 'type1g1', length: null, isNotNull: true}, 'id1'
       )
       fakeModel.setColumn.should.been.calledWithExactly(
-        {name: 'col1', type: 'type2g1', isNotNull: false}, 'id5'
+        {name: 'col1', type: 'type2g1', length: null, isNotNull: false}, 'id5'
+      )
+
+    it 'should replace length with null if not exist or is empty string', ->
+      tabd.setState columns: [
+        { name: 'col1', type: 'type1g1', length: null, isNotNull: true, 
+        isUnique: false, isPk: false, id: 'id1' }
+        { name: 'col1', type: 'type1g2', length: '', isNotNull: true, 
+        isUnique: false, isPk: true, id: 'id5' }
+      ]
+
+      tabd.changed = ['id1', 'id5']
+
+      tabd.onConfirm()
+
+      fakeModel.setColumn.should.been.calledTwice
+      expect(fakeModel.setColumn.firstCall.args[0]).to.have.property(
+        'length', null
+      )
+      expect(fakeModel.setColumn.secondCall.args[0]).to.have.property(
+        'length', null
+      )
+
+    it 'should pass column length as integer if it exist', ->
+      tabd.setState columns: [
+        { name: 'col1', type: 'type1g1', length: '16', isNotNull: true, 
+        isUnique: false, isPk: false, id: 'id1' }
+      ]
+
+      tabd.changed = ['id1']
+
+      tabd.onConfirm()
+
+      fakeModel.setColumn.should.been.calledOnce
+      expect(fakeModel.setColumn.lastCall.args[0]).to.have.property(
+        'length', 16
       )
 
     it 'should remove all columns in list from model', ->
       tabd.setState columns: [
-        { name: 'col1', type: 'type1g1', isNotNull: true, isUnique: false,
-        isPk: false, id: 'id1' }
-        { name: 'col1', type: 'type1g2', isNotNull: true, isUnique: false,
-        isPk: true, id: 'id3' }
-        { name: 'col1', type: 'type2g1', isNotNull: false, isUnique: true,
-        isPk: false, id: 'id5' }
+        { name: 'col1', type: 'type1g1', length: '', isNotNull: true,
+        isUnique: false, isPk: false, id: 'id1' }
+        { name: 'col1', type: 'type1g2', length: '', isNotNull: true,
+        isUnique: false, isPk: true, id: 'id3' }
+        { name: 'col1', type: 'type2g1', length: '', isNotNull: false,
+        isUnique: true, isPk: false, id: 'id5' }
       ]
 
       tabd.removed = ['id1', 'id3']
@@ -349,37 +384,39 @@ describe 'class TableDialog', ->
 
     it 'should add new column if it hasnt id and name is filled', ->
       tabd.setState columns: [
-        { name: 'five', type: 'type1g1', isNotNull: true, isUnique: false,
-        isPk: false, id: 'id1' }
-        { name: '', type: 'type1g2', isNotNull: true, isUnique: false,
-        isPk: true }
-        { name: 'seven', type: 'type2g1', isNotNull: false, isUnique: true,
-        isPk: false }
-        { name: undefined, type: 'type2g1', isNotNull: false, isUnique: true,
-        isPk: false }
+        { name: 'five', type: 'type1g1', length: '', isNotNull: true,
+        isUnique: false, isPk: false, id: 'id1' }
+        { name: '', type: 'type1g2', length: '', isNotNull: true,
+        isUnique: false, isPk: true }
+        { name: 'seven', type: 'type2g1', length: '', isNotNull: false,
+        isUnique: true, isPk: false }
+        { name: undefined, type: 'type2g1', length: '', isNotNull: false,
+        isUnique: true, isPk: false }
       ]
 
       tabd.onConfirm()
 
       fakeModel.setColumn.should.been.calledOnce
       fakeModel.setColumn.should.been.calledWithExactly(
-        {name: 'seven', type: 'type2g1', isNotNull: false}, undefined
+        {name:'seven', type:'type2g1', length:null, isNotNull:false}, undefined
       )
       
     it 'should add or delete primary and unique indexes for existing cols', ->
       tabd.setState columns: [
-        { name: 'one', type: 'type1g1', isNotNull: true, isUnique: false,
-        isPk: true, id: 'id1' }
-        { name: 'two', type: 'type1g2', isNotNull: true, isUnique: false,
-        isPk: true, id: 'id2' }
-        { name: 'tree', type: 'type2g1', isNotNull: true, isUnique: true,
-        isPk: false, id: 'id3' }
+        { name: 'one', type: 'type1g1', length: '', isNotNull: true, 
+        isUnique: false, isPk: true, id: 'id1' }
+        { name: 'two', type: 'type1g2', length: '', isNotNull: true, 
+        isUnique: false, isPk: true, id: 'id2' }
+        { name: 'tree', type: 'type2g1', length: '', isNotNull: true, 
+        isUnique: true, isPk: false, id: 'id3' }
       ]
 
-      fakeModel.setColumn.withArgs({name:'one',type:'type1g1',isNotNull:true})
-        .returns 'id1'
-      fakeModel.setColumn.withArgs({name:'tree',type:'type2g1',isNotNull:true})
-        .returns 'id3'
+      fakeModel.setColumn.withArgs(
+        {name:'one', type:'type1g1', length:null, isNotNull:true}
+      ).returns 'id1'
+      fakeModel.setColumn.withArgs(
+        {name:'tree', type:'type2g1', length:null, isNotNull:true}
+      ).returns 'id3'
 
       tabd.changed = ['id1', 'id3']
 
@@ -393,20 +430,22 @@ describe 'class TableDialog', ->
 
     it 'should add unique or primary index for new columns', ->
       tabd.setState columns: [
-        { name: 'one', type: 'type1g1', isNotNull: false, isUnique: true,
-        isPk: true }
-        { name: 'two', type: 'type1g2', isNotNull: true, isUnique: false,
-        isPk: true, id: 'id2' }
-        { name: 'tree', type: 'type2g1', isNotNull: true, isUnique: true,
-        isPk: false }
-        { name: 'four', type: 'type2g2', isNotNull: false, isUnique: false,
-        isPk: false, id: 'id4' }
+        { name: 'one', type: 'type1g1', length: '', isNotNull: false,
+        isUnique: true, isPk: true }
+        { name: 'two', type: 'type1g2', length: '', isNotNull: true,
+        isUnique: false, isPk: true, id: 'id2' }
+        { name: 'tree', type: 'type2g1', length: '', isNotNull: true,
+        isUnique: true, isPk: false }
+        { name: 'four', type: 'type2g2', length: '', isNotNull: false,
+        isUnique: false, isPk: false, id: 'id4' }
       ]
 
-      fakeModel.setColumn.withArgs({name:'one',type:'type1g1',isNotNull:false})
-        .returns 'id5'
-      fakeModel.setColumn.withArgs({name:'tree',type:'type2g1',isNotNull:true})
-        .returns 'id6'
+      fakeModel.setColumn.withArgs(
+        {name:'one', type:'type1g1', length:null, isNotNull:false}
+      ).returns 'id5'
+      fakeModel.setColumn.withArgs(
+        {name:'tree', type:'type2g1', length:null, isNotNull:true}
+      ).returns 'id6'
 
       tabd.onConfirm()
 

@@ -89,7 +89,11 @@ module.exports = (grunt) ->
         compilerOpts: 
           compilation_level: 'ADVANCED_OPTIMIZATIONS'
           #compilation_level: 'SIMPLE_OPTIMIZATIONS',
-          externs: ['bower_components/este-library/externs/react.js']
+          externs: [
+            'bower_components/este-library/externs/react.js'
+            'bower_components/socket.io-externs/socket.io-externs.js'
+            'public/scripts/dm/app-externs.js'
+          ]
           define: ["'goog.DEBUG=false'"]
           warning_level: 'verbose'
           jscomp_off: 'globalThis'
@@ -142,7 +146,8 @@ module.exports = (grunt) ->
         use: [ require('nib') ]
       compile:
         files: 
-          'public/styles/main.css': 'public/styles/main.styl'
+          'public/styles/dm.css': 'public/styles/dm.styl'
+          'public/styles/dm-closure-included.css': 'public/styles/dm-closure-included.styl'
 
     watch:
       coffee:

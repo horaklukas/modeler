@@ -28,6 +28,15 @@ class dm.model.Model
 		@tables_[table.getId()] = table #.getModel()
 
 	###*
+	* Remove table from list of tables and all its reference to relations
+	*
+	* @param {string} id
+	###
+	removeTable: (id) =>
+		goog.object.remove @tables_, id
+		goog.object.remove @relationsByTable, id
+
+	###*
 	* @param {dm.ui.Relation} relation
 	###
 	addRelation: (relation) ->
@@ -44,6 +53,16 @@ class dm.model.Model
 
 		goog.array.insert @relationsByTable[parent], id
 		goog.array.insert @relationsByTable[child], id
+
+	###*
+	* Remove relation from list of relations
+	*
+	* @param {string} id
+	###
+	removeRelation: (id) ->
+		goog.object.remove @relations_, id
+
+		goog.array.remove(rels, id) for tab, rels of @relationsByTable
 
 	###*
 	* Returns table ui by table id
@@ -106,13 +125,28 @@ class dm.model.Model
 		mappedTables
 
 	###*
+  * Maps tables by its names
+  *
+  * @return {Object.<string, dm.ui.Table>}
+	###
+	getTablesUiByName: ->
+		mappedTables = {}
+		
+		for id, table of @tables_
+			mappedTables[table.getModel().getName()] = table 
+
+		mappedTables
+
+	###*
   * @param {string} name
-  * @param {string} id
+  * @return {(string|null)} id
 	###
 	getTableIdByName: (name) ->
 		for id, table of @tables_ when table.getModel().getName() is name
 			#console.log '' table.getModel().getName(), name
 			return table.getId(); break
+
+		return null
 
 	###*
 	* @param {string} tableId

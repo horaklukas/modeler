@@ -1,5 +1,6 @@
 fs = require 'fs'
 fspath = require 'path'
+mkdirp = require 'mkdirp'
 async = require 'async'
 databases = require './dbs'
 reverseEng = require './reverse-eng'
@@ -43,8 +44,11 @@ exports.app = (req, res, next) ->
 
 				exposeData.dbs = defs
 
+				page = 'main'
+				page += '-devel' if @process.env.MODE is 'development'
+
 				res.expose exposeData, 'dmAssets'
-				res.render 'main', title: 'Database not selected'
+				res.render page, title: 'Database not selected'
 
 ###*
 * POST request, invoke "save file" dialog for save model to JSON file
@@ -169,13 +173,16 @@ exports.getConnections = getConnections = (cb) ->
 		encoding: 'utf8'
 		flag: 'a+' # new connections file is created if it doesnt exist
 
-	fs.readFile connsFilePath, options, (err, data) ->
-		if err? then cb "Error at reading connections file: #{err}"
+	mkdirp fspath.dirname(connsFilePath), (err) ->
+		if err? then return cb "Error at reading connections files: #{err}"
+		
+		fs.readFile connsFilePath, options, (err, data) ->
+			if err? then return cb "Error at reading connections file: #{err}"
 
-		if not data? or data is '' then data = '{}'
+			if not data? or data is '' then data = '{}'
 
-		try cb null, JSON.parse(data)
-		catch e then cb "Error at parsing connections file: #{e}"
+			try cb null, JSON.parse(data)
+			catch e then cb "Error at parsing connections file: #{e}"
 
 ###*
 * `add-connections` Websocket event
@@ -186,7 +193,7 @@ exports.getConnections = getConnections = (cb) ->
 ###
 exports.addConnection = (name, conn, cb) ->
 	getConnections (err, connections) ->
-		if err? then cb err
+		if err? then return cb err
 
 		try 
 			connections[name] = conn

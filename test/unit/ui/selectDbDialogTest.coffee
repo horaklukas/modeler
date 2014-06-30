@@ -17,12 +17,15 @@ describe 'component SelectDbDialog', ->
 			onSelect: cb
 
 		dlg = TestUtils.renderIntoDocument dm.ui.SelectDbDialog props
-		dbSelect = TestUtils.findRenderedDOMComponentWithTag dlg, 'select'
+		[nameSelect, versionSelect] = TestUtils.scryRenderedDOMComponentsWithTag(
+			dlg, 'select'
+		) 
 
 	beforeEach ->
 		cb.reset()
 
-	it 'should supply id of selected db when dialog confirmed', ->
+	it 'should supply id of first selected db when no select change done', ->
+		dlg.show()
 		dlg.handleDbSelect()
 
 		cb.should.been.calledOnce.and.calledWithExactly 'db1'
