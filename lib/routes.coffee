@@ -4,6 +4,7 @@ mkdirp = require 'mkdirp'
 async = require 'async'
 databases = require './dbs'
 reverseEng = require './reverse-eng'
+appVersion = require('../package').version
 
 ###*
 * POST request by ajax from select database dialog
@@ -48,7 +49,7 @@ exports.app = (req, res, next) ->
 				page += '-devel' if @process.env.MODE is 'development'
 
 				res.expose exposeData, 'dmAssets'
-				res.render page, title: 'Database not selected'
+				res.render page, {title: 'Database not selected', version: appVersion}
 
 ###*
 * POST request, invoke "save file" dialog for save model to JSON file
