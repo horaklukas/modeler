@@ -1,4 +1,4 @@
-goog.provide 'dm'
+goog.provide 'dme'
 
 goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
@@ -8,42 +8,28 @@ goog.require 'dm.ui.Relation'
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.Toolbar'
 goog.require 'dm.ui.Toolbar.EventType'
-goog.require 'dm.ui.SelectDbDialog'
 goog.require 'dm.ui.TableDialog'
 goog.require 'dm.ui.RelationDialog'
-goog.require 'dm.ui.LoadModelDialog'
-goog.require 'dm.ui.IntroDialog'
-goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
 goog.require 'dm.sqlgen.list'
-
 goog.require 'goog.dom'
 goog.require 'goog.events'
-#goog.require 'goog.userAgent.product'
 
 ###*
-* @type {string}
+* @type {Object}
 ###
-dm.actualRdbs = null
+dme.dbDef = dmAssets.db
 
 ###*
 * If last version of actual model is saved
 * @type {boolean}
 ###
-dm.saved = true
+dme.saved = true
 
 ###*
 * @type {string}
 ###
-dm.state = ''
-
-###*
-* @type {Socket}
-###
-dm.socket = io.connect location.hostname
-
-dm.socket.on 'disconnect', ->
-  console.log 'Server disconnected at socket.io channel'
+dme.state = ''
 
 canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
@@ -54,65 +40,17 @@ toolbar.renderBefore canvasElement
 
 modelManager = new dm.model.ModelManager(canvas)
 
-###*
-* @param {boolean} saved
-###
-dm.setModelSaveStatus = (saved) ->
-  dm.saved = saved
-  toolbar.setStatus null, null, saved
+toolbar.setStatus(
+  dmAssets.model.name, "#{dme.dbDef.name} #{dme.dbDef.version}", true
+)
 
-dm.handleNewModel = (db) ->
-  dm.setActualRdbs db
-  inputDialog.show(
-    'NewModel', 'Type name of new model', modelManager.bakupOldCreateNewActual
-  )
-  dm.setModelSaveStatus true
-
-###*
-* @param {string} action Id of action selected at intro dialog
-###
-dm.handleIntroAction = (action) ->
-  switch action
-    when 'new' then selectDbDialog.show(dm.handleNewModel)
-    when 'load' then loadModelDialog.show()
-    #when 'byversion' then ''
-    when 'fromdb' then reengDialog.show()
-    else return
-
-  introDialog.hide()
-
-introDialog = React.renderComponent(
-  dm.ui.IntroDialog(onSelect: dm.handleIntroAction)
-  goog.dom.getElement 'introDialog'
-) 
-
-introDialog.show()
-
-###*
-* @param {Object.<string, object>} object containing keys `tables` and 
-*  `relations`
-###
-dm.handleReeng = (data) ->
-  inputDialog.show(
-    'Reengineered model', 'Type name of reenginered model', (name) -> 
-      modelManager.createActualFromCatalogData(
-        name, data.columns, data.relations
-      )
-
-      # set model's db as a actual with replaced dots at version string
-      dm.setActualRdbs data.db.replace '.', '-'
-      dm.setModelSaveStatus true
-  )
-
-reengDialog = React.renderComponent(
-  dm.ui.ReEngineeringDialog(
-    connection: dm.socket, dbs: dmAssets.dbs, onDataReceive: dm.handleReeng
-  )
-  goog.dom.getElement 'reengDialog'
+modelManager.createActualFromLoaded(
+  dmAssets.model.name, dmAssets.model.tables, dmAssets.model.relations
 )
 
 ###*
 * @param {string} db Id of db to set as actual
+###
 ###
 dm.setActualRdbs = (db) ->
   dbDef = dmAssets.dbs[db]
@@ -131,9 +69,9 @@ selectDbDialog = React.renderComponent(
   dm.ui.SelectDbDialog(dbs: dmAssets.dbs, onSelect: dm.setActualRdbs)
   goog.dom.getElement 'selectDbDialog'
 )
-
+###
 tableDialog = React.renderComponent(
-  dm.ui.TableDialog(types: null)
+  dm.ui.TableDialog(types: dme.dbDef.types)
   goog.dom.getElement 'tableDialog'
 )
 
@@ -143,19 +81,28 @@ relationDialog = React.renderComponent(
 )
 
 ###*
+* @param {boolean} saved
+###
+dme.setModelSaveStatus = (saved) ->
+  dme.saved = saved
+  toolbar.setStatus null, null, saved
+
+###*
 * @param {Object} json JSON representation of model
 ###
-dm.handleModelLoad = (json) ->
+dme.handleModelLoad = (json) ->
   modelManager.createActualFromLoaded json.name, json.tables, json.relations
   
   # set model's db as a actual
-  dm.setActualRdbs json.db
-  dm.setModelSaveStatus true
+  #dm.setActualRdbs json.db
+  dme.setModelSaveStatus true
 
+###
 loadModelDialog = React.renderComponent(
   dm.ui.LoadModelDialog(onModelLoad: dm.handleModelLoad)
   goog.dom.getElement 'loadModelDialog' 
 )
+###
 
 inputDialog = React.renderComponent(
   dm.ui.SimpleInputDialog()
@@ -240,7 +187,7 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.STATUS_CHANGE, (ev) ->
   )
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
-  actualDbType = dm.actualRdbs.match(/^([a-zA-Z]*)\-/)?[1]
+  actualDbType = dme.actualRdbs.id.match(/^([a-zA-Z]*)\-/)?[1]
   generator = dm.sqlgen.list[actualDbType ? 'sql']
 
   generator.generate(
@@ -251,7 +198,7 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
   name = modelManager.actualModel.name.toLowerCase()
   model = modelManager.actualModel.toJSON()
-  model.db = dm.actualRdbs
+  #model.db = dm.actualRdbs
 
   model = JSON.stringify model
 
@@ -261,24 +208,24 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
     goog.dom.createDom 'input', {type: 'hidden', name: 'model', value: model }
   )
 
-  dm.state = 'saving'
+  dme.state = 'saving'
   form.submit()
 
-goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, loadModelDialog.show
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
-    dm.setModelSaveStatus false
+    dme.setModelSaveStatus false
 
 goog.dom.getWindow().onbeforeunload = (ev) ->
   # when saving model dont show dialog
-  if dm.state is 'saving'
+  if dme.state is 'saving'
     dm.state = ''
     return 
 
-  if not dm.saved
+  if not dme.saved
     return "Model #{modelManager.actualModel.name} isnt saved, really exit?"
 
   ###

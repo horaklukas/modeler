@@ -1,12 +1,7 @@
 extends ./layout
 
 block append styles
-	link(rel="stylesheet", type="text/css", href="/public/styles/dm.css")
-	link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/common.css")
-	link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/dialog.css")
-	link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/toolbar.css")
-	link(rel="stylesheet", type="text/css", href="/bower_components/closure-library/closure/goog/css/button.css")
-	//link(rel="stylesheet", type="text/css", href="/public/styles/dm-closure-included.css")
+	link(rel="stylesheet", type="text/css", href="/public/styles/dm-closure-included.css")
 block append scripts
 	script(src="/socket.io/socket.io.js")
 	script(src="/bower_components/react/react.js")
