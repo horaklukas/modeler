@@ -60,8 +60,8 @@ module.exports = exportApp =
       cb null, exportApp.createDef(dbs.getDb(dbId), model)
 
   createDef: (def, model) ->
-    appId = crypto.createHash('md5')
-      .update(def.name).update(def.version).update(model.name).digest 'hex'
+    appId = crypto.createHash('md5').update((new Date).getTime().toString())
+      .digest 'hex'
 
     """
     var dmDefault = {
