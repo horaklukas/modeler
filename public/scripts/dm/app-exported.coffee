@@ -14,11 +14,13 @@ goog.require 'dm.ui.SimpleInputDialog'
 goog.require 'dm.sqlgen.list'
 goog.require 'goog.dom'
 goog.require 'goog.events'
+goog.require 'goog.storage.Storage'
+goog.require 'goog.storage.mechanism.HTML5LocalStorage'
 
 ###*
 * @type {Object}
 ###
-dme.dbDef = dmAssets.db
+dme.dbDef = dmDefault.db
 
 ###*
 * If last version of actual model is saved
@@ -31,6 +33,12 @@ dme.saved = true
 ###
 dme.state = ''
 
+###*
+* Id of exported app for identification at local storage
+* @type {string}
+###
+dme.ID = dmDefault.id 
+
 canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
 canvas.render canvasElement
@@ -41,19 +49,24 @@ toolbar.renderBefore canvasElement
 modelManager = new dm.model.ModelManager(canvas)
 
 toolbar.setStatus(
-  dmAssets.model.name, "#{dme.dbDef.name} #{dme.dbDef.version}", true
+  dmDefault.model.name, "#{dme.dbDef.name} #{dme.dbDef.version}", true
 )
 
 modelManager.createActualFromLoaded(
-  dmAssets.model.name, dmAssets.model.tables, dmAssets.model.relations
+  dmDefault.model.name, dmDefault.model.tables, dmDefault.model.relations
 )
+
+dme.storage = null
+mechanism = new goog.storage.mechanism.HTML5LocalStorage
+
+dme.storage = new goog.storage.Storage(mechanism) if mechanism.isAvailable()
 
 ###*
 * @param {string} db Id of db to set as actual
 ###
 ###
 dm.setActualRdbs = (db) ->
-  dbDef = dmAssets.dbs[db]
+  dbDef = dmDefault.dbs[db]
 
   console.error 'Selected database isnt defined' if not dbDef
 
@@ -66,7 +79,7 @@ dm.setActualRdbs = (db) ->
   toolbar.setStatus null, "#{dbDef.name} #{dbDef.version}"
 
 selectDbDialog = React.renderComponent(
-  dm.ui.SelectDbDialog(dbs: dmAssets.dbs, onSelect: dm.setActualRdbs)
+  dm.ui.SelectDbDialog(dbs: dmDefault.dbs, onSelect: dm.setActualRdbs)
   goog.dom.getElement 'selectDbDialog'
 )
 ###
@@ -196,22 +209,17 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   )
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
-  name = modelManager.actualModel.name.toLowerCase()
-  model = modelManager.actualModel.toJSON()
-  #model.db = dm.actualRdbs
-
-  model = JSON.stringify model
-
-  form = goog.dom.createDom(
-    'form', {action: '/save', method: 'POST'}
-    goog.dom.createDom 'input', {type: 'hidden', name: 'name', value: name }
-    goog.dom.createDom 'input', {type: 'hidden', name: 'model', value: model }
-  )
-
-  dme.state = 'saving'
-  form.submit()
+  return console.warn('Storage mechanism isnt available') unless dme.storage?
+  
+  dme.storage.set dme.ID, modelManager.actualModel.toJSON()
+  dme.setModelSaveStatus true
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
+  return console.warn('Storage mechanism isnt available') unless dme.storage?
+  
+  json = dme.storage.get dme.ID
+  modelManager.createActualFromLoaded json.name, json.tables, json.relations
+  dme.setModelSaveStatus true
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name

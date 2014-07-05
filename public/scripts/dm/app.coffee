@@ -215,7 +215,7 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
     when 'table'
       inputDialog.show(
         'NewTable', 'Type name of new table', (name) ->
-          model = new dm.model.Table name
+          model = new dm.model.Table name, []
           modelManager.addTable model, ev.data.x, ev.data.y
           tableDialog.show model
       )
@@ -251,6 +251,17 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
     relations: modelManager.actualModel.getRelations()
   )
 
+dm.submitDataWithFakeForm = (action, data, state = '') ->
+  data = for name, value of data
+    goog.dom.createDom 'input', {'type':'hidden', 'name':name, 'value':value }
+
+  form = goog.dom.createDom(
+    'form', {'action': action, 'method': 'POST'}, data
+  )
+
+  dm.state = state
+  form.submit()
+
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
   model = modelManager.actualModel.toJSON()
   model['db'] = dm.actualRdbs
@@ -267,17 +278,6 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.EXPORT_MODEL, (ev) ->
     'model': JSON.stringify modelManager.actualModel.toJSON()
 
   dm.submitDataWithFakeForm '/export', data, 'exporting'
-
-dm.submitDataWithFakeForm = (action, data, state = '') ->
-  data = for name, value of data
-    goog.dom.createDom 'input', {'type':'hidden', 'name':name, 'value':value }
-
-  form = goog.dom.createDom(
-    'form', {'action': action, 'method': 'POST'}, data
-  )
-
-  dm.state = state
-  form.submit()
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, loadModelDialog.show
 

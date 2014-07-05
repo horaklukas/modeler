@@ -1,6 +1,7 @@
 fs = require 'fs'
 {spawn} = require 'child_process'
 fspath = require 'path'
+crypto = require 'crypto'
 jade = require 'jade'
 CleanCss = require 'clean-css'
 #uglifyjs = require 'uglify-js'
@@ -59,10 +60,14 @@ module.exports = exportApp =
       cb null, exportApp.createDef(dbs.getDb(dbId), model)
 
   createDef: (def, model) ->
+    appId = crypto.createHash('md5')
+      .update(def.name).update(def.version).update(model.name).digest 'hex'
+
     """
-    var dmAssets = {
+    var dmDefault = {
       'db': #{JSON.stringify def},
-      'model': #{JSON.stringify(model)}
+      'model': #{JSON.stringify model},
+      id: '#{appId}'
     };
     """
 
