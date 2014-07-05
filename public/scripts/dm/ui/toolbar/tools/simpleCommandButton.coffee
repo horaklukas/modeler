@@ -9,8 +9,11 @@ class dm.ui.tools.SimpleCommandButton extends goog.ui.ToolbarButton
   * @constructor
   * @extends {goog.ui.ToolbarButton}
 	###	
-	constructor: (cssClass, event) ->
-		super goog.dom.createDom 'div', "icon tool #{cssClass}"
+	constructor: (cssClass, event, title = '') ->
+		super goog.dom.createDom 'div', {
+			'class': "icon tool #{cssClass}"
+			'title': title
+		}
 
 		###*
     * @type {string}
@@ -19,22 +22,3 @@ class dm.ui.tools.SimpleCommandButton extends goog.ui.ToolbarButton
 
 	startAction: ->
 		@dispatchEvent @event
-###
-goog.provide 'dm.ui.tools.GenerateSql'
-
-goog.require 'goog.ui.ToolbarButton'
-goog.require 'dm.sqlgen.Sql92'
-
-class dm.ui.tools.GenerateSql extends goog.ui.ToolbarButton
-###
-###*
-* @constructor
-* @extends {goog.ui.ToolbarButton}
-###
-###	
-constructor: ->
-	super goog.dom.createDom 'div', 'icon tool generate-sql'
-
-startAction: ->
-	@dispatchEvent dm.ui.Toolbar.EventType.GENERATE_SQL
-###

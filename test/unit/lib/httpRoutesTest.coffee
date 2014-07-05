@@ -157,28 +157,51 @@ describe 'app http routes', ->
 			mocks.export.getReactJsScript.yields null, 'react-js-script'
 			mocks.export.getAppStyles.yields null, 'app-css'
 			mocks.export.compileCss.withArgs('app-css').returns 'compiled-css' 
-
-		it 'should response attachment with rendered template', (done) ->
-			mocks.export.getDbDefScript
-				.withArgs('sql-1', 'passed db model').yields null, 'db-def-script'
 			mocks.export.renderTemplate
 				.withArgs('react-js-script\ndb-def-script\napp-script', 'compiled-css')
 				.yields null, 'rendered template content' 
 
+		it 'should response attachment with model name as a filename', (done) ->
+			mocks.export.getDbDefScript.withArgs('sql').yields null, 'db-def-script'
+
 			request(@app)
 				.post('/export')
-				.send({dbid: 'sql-1', model: 'passed db model'})
-				.expect('Content-Disposition', 'attachment; filename="exported.html"')
+				.send({dbid: 'sql', model: '{"name":"model3","data":"fakeddata"}'})
+				.expect('Content-Disposition', 'attachment; filename="model3.html"')
+				.expect(200, done)
+
+		it 'should parse model  and pass it for getting app script as an object', (done) ->
+			mocks.export.getDbDefScript.withArgs('sql2').yields null, 'db-def-script'
+			stringifiedModel = '{"name":"jmeno","data":{"relations":[1,2],"tables":[3,4]}}'
+
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql2', model: stringifiedModel})
+				.expect('Content-Disposition', 'attachment; filename="model3.html"')
+				.expect(200, ->
+					mocks.export.getDbDefScript.lastCall.args[1].should.deep.equal {
+						name: 'jmeno', data: {relations: [1, 2], tables: [3, 4]}
+					}
+					done()
+				)
+
+		it 'should response attachment with rendered template', (done) ->
+			mocks.export.getDbDefScript
+				.withArgs('sql-1', {'name': 'db model'}).yields null, 'db-def-script'
+
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql-1', model: '{"name": "db model"}'})
 				.expect(200)
 				.expect(/rendered template content/ , done)
 
 		it 'should response with error if getting any source failed', (done) ->
-			mocks.export.getDbDefScript.withArgs('sql', 'mdl').yields null, 'script'
+			mocks.export.getDbDefScript.withArgs('sql3', {'mdl': 'da'}).yields null, 'script'
 			mocks.export.getAppScript.yields 'build err'
 
 			request(@app)
 				.post('/export')
-				.send({dbid: 'sql', model: 'mdl'})
+				.send({dbid: 'sql3', model: '{"mdl":"da"}'})
 				.expect('Content-Type', /text/)
 				.expect(500)
 				.end (err, res) ->
@@ -189,14 +212,14 @@ describe 'app http routes', ->
 
 		it 'should reponse with error if rendering failed', (done) ->
 			mocks.export.getDbDefScript
-				.withArgs('sql', 'mdl').yields null, 'db-def-script'
+				.withArgs('sql4', {'mdl': 'da'}).yields null, 'db-def-script'
 			mocks.export.renderTemplate
 				.withArgs('react-js-script\ndb-def-script\napp-script', 'compiled-css')
 				.yields 'render error'
 
 			request(@app)
 				.post('/export')
-				.send({dbid: 'sql', model: 'mdl'})
+				.send({dbid: 'sql4', model: '{"mdl":"da"}'})
 				.expect('Content-Type', /text/)
 				.expect(500)
 				.end (err, res) ->

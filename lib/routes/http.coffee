@@ -69,7 +69,7 @@ exports.loadModel = (req, res) ->
     catch e then res.send 500, 'Selected file isnt valid JSON'
 
 exports.exportModel = (req, res) ->
-  model = req.body.model
+  model = JSON.parse req.body.model
   dbId = req.body.dbid
 
   async.parallel {
@@ -85,9 +85,9 @@ exports.exportModel = (req, res) ->
     js = reactjs + '\n' + dbdef + '\n' + appsrc
     css = exportApp.compileCss results.styles
 
-    exportApp.renderTemplate js, css ,(err, html) ->
+    exportApp.renderTemplate js, css, appVersion, (err, html) ->
       if err then return res.send 500, "Error at rendering template: #{err}"
       
-      res.attachment 'exported.html' 
+      res.attachment "#{model.name.toLowerCase() ? 'exported'}.html"
       res.setHeader 'Content-Type', 'text/html'
       res.end html, 'utf8'

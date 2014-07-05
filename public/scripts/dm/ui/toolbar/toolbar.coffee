@@ -21,13 +21,15 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
 		SAVE_MODEL: goog.events.getUniqueId 'save-model'
 		LOAD_MODEL: goog.events.getUniqueId 'load-model'
+		EXPORT_MODEL: goog.events.getUniqueId 'export-model'
 		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
 
 	###*
+	* @param {boolean} exportMode
   * @constructor
   * @extends {goog.ui.Toolbar}
 	###
-	constructor: ->
+	constructor: (exportMode = false)->
 		super()
 
 		@selectionModel_ = new goog.ui.SelectionModel()
@@ -38,6 +40,8 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		###
 		@statusBar_ = null
 
+		@exportMode_ = exportMode
+
 	###* @override	###
 	createDom: ->
 		super()
@@ -47,14 +51,21 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		@addChild new dm.ui.tools.CreateRelation(false), true
 		@addChild new goog.ui.ToolbarSeparator(), true
 		@addChild new dm.ui.tools.SimpleCommandButton(
-			'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL
+			'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL, 'Generate SQL code'
 		), true
 		@addChild new dm.ui.tools.SimpleCommandButton(
-			'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL
+			'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL, 'Save model'
 		), true
 		@addChild new dm.ui.tools.SimpleCommandButton(
-			'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL
+			'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL, 'Load model'
 		), true
+
+		unless @exportMode_
+			@addChild new dm.ui.tools.SimpleCommandButton(
+				'export-model', dm.ui.Toolbar.EventType.EXPORT_MODEL, 'Export model'
+			), true
+			
+
 		@addChild new goog.ui.ToolbarSeparator(), true
 
 		domHelper = @getDomHelper()

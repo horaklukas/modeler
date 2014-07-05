@@ -12,7 +12,7 @@ builderPath = fspath.join closurePath, 'closure/bin/build/closurebuilder.py'
 publicDirPath = fspath.join __dirname, '..', 'public'
 appSrcPath = fspath.join publicDirPath, 'scripts/dm/'
 
-exportApp =
+module.exports = exportApp =
   reactJsPath: fspath.join bowerComponentsPath, 'react/react.min.js'
 
   ###*
@@ -54,9 +54,9 @@ exportApp =
   getDbDefScript: (dbId, model, cb) ->
     definition = dbs.getDb dbId
 
-    if definition? then cb null, exportApp.createDef definition, modelForExport
+    if definition? then cb null, exportApp.createDef definition, model
     else dbs.loadAllDefinitions ->
-      cb null, exportApp.createDef(dbs.getDb(dbId), modelForExport)
+      cb null, exportApp.createDef(dbs.getDb(dbId), model)
 
   createDef: (def, model) ->
     """
@@ -94,12 +94,13 @@ exportApp =
   compileJs: (uncompiledJs) ->
     uglifyjs.minify uncompiledJs, {fromString: true}
 
-  renderTemplate: (compiledJs, compiledCss, cb) ->
+  renderTemplate: (compiledJs, compiledCss, appVersion, cb) ->
     exportTemplatePath = fspath.join __dirname, '../views/app-exported.jade'
     options =
       pretty: true
       javascript: compiledJs
       appStyles: compiledCss
+      version: appVersion
 
     jade.renderFile exportTemplatePath, options, (err, html) ->
       if err then cb "Error at rendering template: #{err}"

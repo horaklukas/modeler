@@ -33,6 +33,7 @@ app.configure ->
 	app.use (err, req, res, next) ->
 	  res.render '500', error: err
 	app.use express.errorHandler()
+
 	
 app.get '/', httpRoutes.app
 app.post '/', httpRoutes.app

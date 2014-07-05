@@ -96,7 +96,7 @@ exports.getReengData = (tables, mainCb) ->
 ###*
 * @type {string}
 ###
-connsFilePath = fspath.join	__dirname, '../data/connections.json'
+connsFilePath = fspath.join	__dirname, '../../data/connections.json'
 
 ###*
 * `get-connections` Websocket event

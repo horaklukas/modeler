@@ -249,19 +249,31 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   )
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
-  name = modelManager.actualModel.name.toLowerCase()
   model = modelManager.actualModel.toJSON()
-  model.db = dm.actualRdbs
+  model['db'] = dm.actualRdbs
 
-  model = JSON.stringify model
+  data =
+    'name': modelManager.actualModel.name.toLowerCase()
+    'model': JSON.stringify model
+
+  dm.submitDataWithFakeForm '/save', data, 'saving'
+
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.EXPORT_MODEL, (ev) ->
+  data =
+    'dbid': dm.actualRdbs
+    'model': JSON.stringify modelManager.actualModel.toJSON()
+
+  dm.submitDataWithFakeForm '/export', data, 'exporting'
+
+dm.submitDataWithFakeForm = (action, data, state = '') ->
+  data = for name, value of data
+    goog.dom.createDom 'input', {'type':'hidden', 'name':name, 'value':value }
 
   form = goog.dom.createDom(
-    'form', {action: '/save', method: 'POST'}
-    goog.dom.createDom 'input', {type: 'hidden', name: 'name', value: name }
-    goog.dom.createDom 'input', {type: 'hidden', name: 'model', value: model }
+    'form', {'action': action, 'method': 'POST'}, data
   )
 
-  dm.state = 'saving'
+  dm.state = state
   form.submit()
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, loadModelDialog.show
@@ -274,12 +286,12 @@ goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
 
 goog.dom.getWindow().onbeforeunload = (ev) ->
   # when saving model dont show dialog
-  if dm.state is 'saving'
+  if dm.state is 'saving' or dm.state is 'exporting'
     dm.state = ''
     return 
 
-  if not dm.saved
-    return "Model #{modelManager.actualModel.name} isnt saved, really exit?"
+  unless dm.saved
+    return "Model \"#{modelManager.actualModel.name}\" isnt saved, really exit?"
 
   ###
   msg = 'Really unload?'

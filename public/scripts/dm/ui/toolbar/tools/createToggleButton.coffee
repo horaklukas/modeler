@@ -12,8 +12,11 @@ class dm.ui.tools.CreateToggleButton extends goog.ui.ToolbarToggleButton
   * @constructor
   * @extends {goog.ui.ToolbarToggleButton}
 	###	
-	constructor: (name) ->
-		super goog.dom.createDom 'div', "icon tool create-#{name}"
+	constructor: (name, title = '') ->
+		super goog.dom.createDom 'div', {
+			'class': "icon tool create-#{name}"
+			'title': title
+		}
 
 		@setAutoStates goog.ui.Component.State.CHECKED, false
 
