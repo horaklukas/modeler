@@ -11,6 +11,7 @@ goog.require 'dm.ui.Toolbar.EventType'
 goog.require 'dm.ui.TableDialog'
 goog.require 'dm.ui.RelationDialog'
 goog.require 'dm.ui.SimpleInputDialog'
+goog.require 'dm.ui.InfoDialog'
 goog.require 'dm.sqlgen.list'
 goog.require 'goog.dom'
 goog.require 'goog.events'
@@ -91,6 +92,11 @@ tableDialog = React.renderComponent(
 relationDialog = React.renderComponent(
   dm.ui.RelationDialog()
   goog.dom.getElement 'relationDialog' 
+)
+
+infoDialog = React.renderComponent(
+  dm.ui.InfoDialog()
+  goog.dom.getElement 'infoDialog'
 )
 
 ###*
@@ -209,17 +215,25 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, (ev) ->
   )
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
-  return console.warn('Storage mechanism isnt available') unless dme.storage?
-  
-  dme.storage.set dme.ID, modelManager.actualModel.toJSON()
-  dme.setModelSaveStatus true
+  if dme.storage?
+    dme.storage.set dme.ID, modelManager.actualModel.toJSON()
+    dme.setModelSaveStatus true
+    text = 'Save successful'
+  else
+    text = 'Storage mechanism isnt available!'  
+
+  infoDialog.show text
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
-  return console.warn('Storage mechanism isnt available') unless dme.storage?
+  if dme.storage?
+    json = dme.storage.get dme.ID
+    modelManager.createActualFromLoaded json.name, json.tables, json.relations
+    dme.setModelSaveStatus true
+    text = 'Load was successful'
+  else  
+    text = 'Storage mechanism isnt available!'
   
-  json = dme.storage.get dme.ID
-  modelManager.createActualFromLoaded json.name, json.tables, json.relations
-  dme.setModelSaveStatus true
+  infoDialog.show text
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name

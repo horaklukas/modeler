@@ -1,0 +1,19 @@
+icon-colors(bg, content)
+  background-color: bg
+  border: 2px solid content
+  color: content
+
+.info-dialog
+  .icon
+    display: inline-block
+    size: 25px
+    line-height: @width
+    text-align: center
+    font-size: 20px
+    font-weight: bold
+    margin: 10px 5px 10px 0
+    &.info
+      icon-colors(#29f, #fff)
+      border-radius: 15px
+    &.warning 
+      icon-colors(#ff0, #000)
