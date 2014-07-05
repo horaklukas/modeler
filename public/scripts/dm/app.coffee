@@ -213,9 +213,12 @@ goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_DELETE, ({target}) =>
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.CREATE, (ev) ->
   switch ev.objType
     when 'table'
-      model = new dm.model.Table()
-      modelManager.addTable model, ev.data.x, ev.data.y
-      tableDialog.show model
+      inputDialog.show(
+        'NewTable', 'Type name of new table', (name) ->
+          model = new dm.model.Table name
+          modelManager.addTable model, ev.data.x, ev.data.y
+          tableDialog.show model
+      )
     when 'relation'
       {parent, child, identifying} = ev.data
       #rel.setRelatedTables parent.getModel(), child.getModel() 
