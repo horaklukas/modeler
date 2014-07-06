@@ -5,6 +5,11 @@ mkdirp = require 'mkdirp'
 reverseEng = require '../reverse-eng'
 
 ###*
+* @type {string}
+###
+connsFilePath = fspath.join	__dirname, '../../data/connections.json'
+
+###*
 * `connect-db` WebSocket event
 *
 * @param {string} type Type of database to get corresponding db interface
@@ -92,11 +97,6 @@ exports.getReengData = (tables, mainCb) ->
 			relations: relationsData
 			db: "#{dbType}-#{dbVersion}" 
 		}
-
-###*
-* @type {string}
-###
-connsFilePath = fspath.join	__dirname, '../../data/connections.json'
 
 ###*
 * `get-connections` Websocket event
