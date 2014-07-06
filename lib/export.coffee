@@ -55,19 +55,20 @@ module.exports = exportApp =
   getDbDefScript: (dbId, model, cb) ->
     definition = dbs.getDb dbId
 
-    if definition? then cb null, exportApp.createDef definition, model
+    if definition? then cb null, exportApp.createDef definition, dbId, model
     else dbs.loadAllDefinitions ->
-      cb null, exportApp.createDef(dbs.getDb(dbId), model)
+      cb null, exportApp.createDef(dbs.getDb(dbId), dbId, model)
 
-  createDef: (def, model) ->
+  createDef: (def, defId, model) ->
     appId = crypto.createHash('md5').update((new Date).getTime().toString())
       .digest 'hex'
 
     """
     var dmDefault = {
       'db': #{JSON.stringify def},
+      'dbId': '#{defId}',
       'model': #{JSON.stringify model},
-      id: '#{appId}'
+      'id': '#{appId}'
     };
     """
 

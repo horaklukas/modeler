@@ -1,5 +1,6 @@
 goog.provide 'dm'
 
+goog.require 'dm.core.handlers'
 goog.require 'dm.model.ModelManager'
 goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.Table.EventType'
@@ -12,11 +13,14 @@ goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
-goog.require 'dm.core.handlers'
+goog.require 'dm.ui.tools.CreateTable'
+goog.require 'dm.ui.tools.CreateRelation'
+goog.require 'dm.ui.tools.SimpleCommandButton'
 
+goog.require 'goog.ui.Toolbar'
+goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.dom'
 goog.require 'goog.events'
-
 
 ###*
 * @type {Socket}
@@ -30,67 +34,63 @@ canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
 canvas.render canvasElement
 
-toolbar = new dm.ui.Toolbar()
-toolbar.renderBefore canvasElement
-
 modelManager = new dm.model.ModelManager(canvas)
 
-dm.core.init canvas, toolbar, modelManager
+toolbar = new dm.ui.Toolbar()
 
-introDialog = React.renderComponent(
-  dm.ui.IntroDialog(onSelect: dm.core.handlers.introActionSelected)
-  goog.dom.getElement 'introDialog'
-)
+toolbar.addChild new dm.ui.tools.CreateTable, true
+toolbar.addChild new dm.ui.tools.CreateRelation(true), true
+toolbar.addChild new dm.ui.tools.CreateRelation(false), true
+toolbar.addChild new goog.ui.ToolbarSeparator(), true
+toolbar.addChild new dm.ui.tools.SimpleCommandButton(
+  'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL, 'Generate SQL code'
+), true
+toolbar.addChild new dm.ui.tools.SimpleCommandButton(
+  'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL, 'Save model'
+), true
+toolbar.addChild new dm.ui.tools.SimpleCommandButton(
+  'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL, 'Load model'
+), true
+toolbar.addChild new dm.ui.tools.SimpleCommandButton(
+  'export-model', dm.ui.Toolbar.EventType.EXPORT_MODEL, 'Export model'
+), true
+toolbar.addChild new goog.ui.ToolbarSeparator(), true
 
-dm.core.registerDialog 'intro', introDialog
+toolbar.renderBefore canvasElement
+dm.core.init canvas, toolbar, modelManager, dmAssets.dbs
 
-dm.core.getDialog('intro').show()
+dialogs =
+  'intro': 
+    componentName: 'IntroDialog'
+    props: {onSelect: dm.core.handlers.introActionSelected}
+  'reeng': 
+    componentName: 'ReEngineeringDialog'
+    props:
+      connection: dm.socket, dbs: dmAssets.dbs
+      onDataReceive: dm.core.handlers.reengRequest
+    
+  'selectDb':
+    componentName: 'SelectDbDialog' 
+    props: {dbs: dmAssets.dbs, onSelect: dm.core.state.setActualRdbs}
+  'table':
+    componentName: 'TableDialog'
+    props: {types: null}
+  'relation':
+    componentName: 'RelationDialog' 
+    props: {}
+  'loadModel':
+    componentName: 'LoadModelDialog' 
+    props: {onModelLoad: dm.core.handlers.modelLoad}
+  'input':
+    componentName: 'SimpleInputDialog'
+    props: {}
 
-reengDialog = React.renderComponent(
-  dm.ui.ReEngineeringDialog(
-    connection: dm.socket, dbs: dmAssets.dbs
-    onDataReceive: dm.core.handlers.reengRequest
-  )
-  goog.dom.getElement 'reengDialog'
-)
-
-dm.core.registerDialog 'reeng', reengDialog
-
-
-selectDbDialog = React.renderComponent(
-  dm.ui.SelectDbDialog(dbs: dmAssets.dbs, onSelect: dm.core.state.setActualRdbs)
-  goog.dom.getElement 'selectDbDialog'
-)
-
-dm.core.registerDialog 'selectDb', selectDbDialog
-
-tableDialog = React.renderComponent(
-  dm.ui.TableDialog(types: null)
-  goog.dom.getElement 'tableDialog'
-)
-
-dm.core.registerDialog 'table', tableDialog
-
-relationDialog = React.renderComponent(
-  dm.ui.RelationDialog()
-  goog.dom.getElement 'relationDialog' 
-)
-
-dm.core.registerDialog 'relation', relationDialog
-
-loadModelDialog = React.renderComponent(
-  dm.ui.LoadModelDialog(onModelLoad: dm.core.handlers.modelLoad)
-  goog.dom.getElement 'loadModelDialog' 
-)
-
-dm.core.registerDialog 'loadModel', loadModelDialog
-
-inputDialog = React.renderComponent(
-  dm.ui.SimpleInputDialog()
-  goog.dom.getElement 'inputDialog' 
-)
-
-dm.core.registerDialog 'input', inputDialog
+# create and register all neccessary dialogs
+for type, spec of dialogs
+  component = dm.ui[spec.componentName](spec.props)
+  dialog = React.renderComponent component, goog.dom.getElement "#{type}Dialog"
+  
+  dm.core.registerDialog type, dialog
 
 # handling events on components
 goog.events.listen canvas, dm.ui.Table.EventType.MOVE, dm.core.handlers.moveObject
@@ -120,3 +120,6 @@ goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
 goog.dom.getWindow().onbeforeunload = dm.core.handlers.windowUnload
 
 #goog.exportSymbol 'dm.init', dm.init
+
+# display intro dialog when app start
+dm.core.getDialog('intro').show()

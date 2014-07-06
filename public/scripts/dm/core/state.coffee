@@ -43,7 +43,7 @@ dm.core.state =
   * @param {string} db Id of db to set as actualRdbs
   ###
   setActualRdbs: (db) ->
-    dbDef = dmAssets.dbs[db]
+    dbDef = dm.core.getDbDef db
 
     console.error 'Selected database isnt defined' if not dbDef
 

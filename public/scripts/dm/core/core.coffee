@@ -7,11 +7,13 @@ dm.core =
   canvas: null
   modelManager: null
   dialogs: {}
+  dbDefs: {}
 
-  init: (canvas, toolbar, manager) ->
+  init: (canvas, toolbar, manager, defs) ->
     dm.core.toolbar = toolbar
     dm.core.canvas = canvas
     dm.core.modelManager = manager
+    dm.core.dbDefs = defs
 
   submitWithHiddenForm: (action, data, state = '') ->
     data = for name, value of data
@@ -38,3 +40,6 @@ dm.core =
 
   getDialog: (name) ->
     dm.core.dialogs[name]
+
+  getDbDef: (id) ->
+    dm.core.dbDefs[id]
