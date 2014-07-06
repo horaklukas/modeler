@@ -64,8 +64,8 @@ dm.core.handlers =
   ###
   introActionSelected: (action) ->
     switch action
-      when 'new' then dm.core.getDialog('selectDb').show(dm.core.handlers.createNewModel)
-      when 'load' then dm.core.getDialog('loadModel').show()
+      when 'new' then dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
+      when 'load' then dm.core.getDialog('loadModel').show false
       #when 'byversion' then ''
       when 'fromdb' then dm.core.getDialog('reeng').show()
       else return

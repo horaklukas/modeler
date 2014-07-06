@@ -45,6 +45,7 @@ toolbar.addChild new goog.ui.ToolbarSeparator(), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
   'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL, 'Generate SQL code'
 ), true
+toolbar.addChild new goog.ui.ToolbarSeparator(), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
   'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL, 'Save model'
 ), true
