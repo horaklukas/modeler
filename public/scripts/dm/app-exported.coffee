@@ -108,15 +108,24 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
   dm.core.getDialog('info').show text
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
+  infoType = dm.ui.InfoDialog.types.INFO
+
   if dme.storage?
     json = dme.storage.get dme.ID
-    modelManager.createActualFromLoaded json.name, json.tables, json.relations
-    dm.core.state.setSaved true
-    text = 'Load was successful'
+
+    if json
+      modelManager.createActualFromLoaded(
+        json.name, json.tables, json.relations
+      )
+      dm.core.state.setSaved true
+      text = 'Load was successful'
+    else
+      text = 'Model can\'t been loaded since it wasn\'t saved yet'
+      infoType = dm.ui.InfoDialog.types.WARN 
   else  
     text = 'Storage mechanism isnt available!'
   
-  dm.core.getDialog('info').show text
+  dm.core.getDialog('info').show text, infoType
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name
@@ -132,5 +141,6 @@ dm.core.state.setActualRdbs dmDefault.dbId
 modelManager.createActualFromLoaded(
   dmDefault.model.name, dmDefault.model.tables, dmDefault.model.relations
 )
+dm.core.state.setSaved true
 
 #goog.exportSymbol 'dm.init', dm.init
