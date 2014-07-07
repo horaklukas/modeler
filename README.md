@@ -20,13 +20,13 @@ _The uploaded application needn't corespond to latest state_
 ## TODO
 
 ### App
-* options to delete objects (tables/relations)
+* <s>options to delete objects (tables/relations)</s>
 * <s>create database connections manager</s>
 * <s>add reingeneering of model from database</s>
 * <s>add load/save model funcionality</s>
 
 ### Table
-* Fix changing columns at relation and table model when some column is deleted
+* <s>Fix changing columns at relation and table model when some column is deleted</s>
 * create system of counting best point to connect relation
 * <s>column indexes (unique, not null)</s>
 * <s>change mouse cursor type to `move` when moving table - as listed out  in
@@ -60,7 +60,7 @@ _The uploaded application needn't corespond to latest state_
 * <s>add "check all" option</s>
 
 #### Table dialog
-* Column's length attribute
+* <s>Column's length attribute</s>
 * Column's auto increment option
 * Fix creating of tables with same names
 * <s>fix lost of unsaved columns change when new column row is added</s>

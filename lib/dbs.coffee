@@ -20,9 +20,10 @@ module.exports = databases =
 		else responseCb()
 
 	getDb: (name) ->
-		dbs[name]
+		dbs?[name]
 	
 	setDb: (name, db) ->
+		unless dbs? then dbs = {}
 		dbs[name] = db
 
 	setDbs: (newDbs) -> 

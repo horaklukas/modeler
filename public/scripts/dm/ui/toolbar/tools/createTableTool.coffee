@@ -12,7 +12,7 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
   * @extends {dm.ui.tools.CreateToggleButton}
 	###	
 	constructor: ->
-		super 'table'
+		super 'table', 'Create table'
 
 		canvas = dm.ui.Canvas.getInstance()
 

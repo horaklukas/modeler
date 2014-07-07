@@ -4,7 +4,8 @@ expose = require 'express-expose'
 socketio = require 'socket.io'
 stylus = require 'stylus'
 nib = require 'nib'
-routes = require './lib/routes'
+httpRoutes = require './lib/routes/http'
+socketRoutes = require './lib/routes/socket'
 
 multipart = require 'connect-multiparty'
 multipartMiddleware = multipart()
@@ -32,18 +33,20 @@ app.configure ->
 	app.use (err, req, res, next) ->
 	  res.render '500', error: err
 	app.use express.errorHandler()
+
 	
-app.get '/', routes.app
-app.post '/', routes.app
-#app.post '/list', routes.getList
-app.post '/save', routes.saveModel
-app.post '/load', multipartMiddleware, routes.loadModel
+app.get '/', httpRoutes.app
+app.post '/', httpRoutes.app
+#app.post '/list', httpRoutes.getList
+app.post '/save', httpRoutes.saveModel
+app.post '/load', multipartMiddleware, httpRoutes.loadModel
+app.post '/export', httpRoutes.exportModel
 
 io.on 'connection', (socket) ->
-	socket.on 'connect-db', routes.connectDb
-	socket.on 'get-reeng-data', routes.getReengData
-	socket.on 'get-connections', routes.getConnections
-	socket.on 'add-connection', routes.addConnection
+	socket.on 'connect-db', socketRoutes.connectDb
+	socket.on 'get-reeng-data', socketRoutes.getReengData
+	socket.on 'get-connections', socketRoutes.getConnections
+	socket.on 'add-connection', socketRoutes.addConnection
 
 server.listen port, -> 
 	console.log 'Listening on port ' + port

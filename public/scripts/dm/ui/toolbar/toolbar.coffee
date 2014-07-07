@@ -21,6 +21,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
 		SAVE_MODEL: goog.events.getUniqueId 'save-model'
 		LOAD_MODEL: goog.events.getUniqueId 'load-model'
+		EXPORT_MODEL: goog.events.getUniqueId 'export-model'
 		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
 
 	###*
@@ -41,21 +42,6 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 	###* @override	###
 	createDom: ->
 		super()
-
-		@addChild new dm.ui.tools.CreateTable, true
-		@addChild new dm.ui.tools.CreateRelation(true), true
-		@addChild new dm.ui.tools.CreateRelation(false), true
-		@addChild new goog.ui.ToolbarSeparator(), true
-		@addChild new dm.ui.tools.SimpleCommandButton(
-			'generate-sql', dm.ui.Toolbar.EventType.GENERATE_SQL
-		), true
-		@addChild new dm.ui.tools.SimpleCommandButton(
-			'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL
-		), true
-		@addChild new dm.ui.tools.SimpleCommandButton(
-			'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL
-		), true
-		@addChild new goog.ui.ToolbarSeparator(), true
 
 		domHelper = @getDomHelper()
 

@@ -1,73 +1,13 @@
 fs = require 'fs'
 fspath = require 'path'
-mkdirp = require 'mkdirp'
 async = require 'async'
-databases = require './dbs'
-reverseEng = require './reverse-eng'
+mkdirp = require 'mkdirp'
+reverseEng = require '../reverse-eng'
 
 ###*
-* POST request by ajax from select database dialog
+* @type {string}
 ###
-exports.getList = (req, res) ->	
-	databases.getList (err, list) ->
-		if err? then res.send 500, err
-		else res.json dbs: list
-
-###*
-* GET or POST request
-###
-exports.app = (req, res, next) ->
-	switch req.method
-		# ajax request, setting of selected db
-		when 'POST'
-			dbId = req.body.db
-			# selected dbs id not exist for not known reason
-			unless dbId then return res.send 400, 'Id of db doesnt exist'
-			
-			databases.setSelected dbId
-			res.json databases.getDb(dbId)
-
-		# browser request, usually page refresh
-		when 'GET'
-			exposeData = {}
-			###
-			selectedId = databases.getSelected()
-			if selectedId then selectedDb = databases.getDb selectedId
-	
-			if selectedDb
-				exposeData.name = selectedDb.name
-				exposeData.version = selectedDb.version
-				exposeData.types = selectedDb.types
-			###
-			databases.loadAllDefinitions (err, defs) ->
-				if err then return next "Error at loading definitions #{err}"
-
-				exposeData.dbs = defs
-
-				page = 'main'
-				page += '-devel' if @process.env.MODE is 'development'
-
-				res.expose exposeData, 'dmAssets'
-				res.render page, title: 'Database not selected'
-
-###*
-* POST request, invoke "save file" dialog for save model to JSON file
-###
-exports.saveModel = (req, res) ->
-	res.attachment "#{req.body.name ? 'unknown'}.json"
-
-	res.setHeader 'Content-Type', 'application/json'
-	res.end req.body.model, 'utf8'
-
-###*
-* POST request that responses with content of selected file
-###
-exports.loadModel = (req, res) ->
-	fs.readFile req.files.modelfile.path, (err, content) ->
-		if err? then return res.send 500, err.code
-		
-		try	res.json JSON.parse content
-		catch e then res.send 500, 'Selected file isnt valid JSON'
+connsFilePath = fspath.join	__dirname, '../../data/connections.json'
 
 ###*
 * `connect-db` WebSocket event
@@ -157,11 +97,6 @@ exports.getReengData = (tables, mainCb) ->
 			relations: relationsData
 			db: "#{dbType}-#{dbVersion}" 
 		}
-
-###*
-* @type {string}
-###
-connsFilePath = fspath.join	__dirname, '../data/connections.json'
 
 ###*
 * `get-connections` Websocket event

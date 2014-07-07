@@ -19,7 +19,14 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		###
 		@ident = ident
 
-		super "rel-#{if ident then '' else 'no'}ident"
+		clss = 'rel-ident'
+		title = 'Create identifying relationship'
+
+		if ident is false
+			clss = clss.replace 'ident', 'non-ident'
+			title = title.replace 'ident', 'non-ident'			
+
+		super clss, title
 
 		###*
     * @type {dm.ui.Table}

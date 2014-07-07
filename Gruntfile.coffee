@@ -142,8 +142,10 @@ module.exports = (grunt) ->
 
     stylus:
       options:
-        compile: true
+        compress: true
         use: [ require('nib') ]
+        urlfunc: 'url'
+        'include css': true
       compile:
         files: 
           'public/styles/dm.css': 'public/styles/dm.styl'

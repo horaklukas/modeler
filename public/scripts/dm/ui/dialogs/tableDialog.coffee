@@ -45,14 +45,14 @@ dm.ui.TableDialog = React.createClass
       isPk: pks? and id in pks
       isFk: fks? and id in fks
     )
+    
+    # one more empty row for adding
+    columns.push @getEmptyColumnModel()
 
-    @setState 
+    @replaceState 
       visible: true    
       name: model.getName()
       columns: columns
-
-    # one more empty row for adding
-    @addColumn()
 
   hide: ->
     @setState visible: false
@@ -103,14 +103,17 @@ dm.ui.TableDialog = React.createClass
     @setState name: e.target.value
 
   addColumn: ->
+    columns = @state.columns
+    columns.push @getEmptyColumnModel() 
+    
+    @setState columns: columns
+
+  getEmptyColumnModel: ->
     for name, group of @props.types
       defaultType = group[0]
       break # we need only first type at first group
 
-    columns = @state.columns
-    columns.push {name: null, type: defaultType, length: '', isNotNull: null}
-    
-    @setState columns: columns
+    name: null, type: defaultType, length: '', isNotNull: null
 
   ###*
   * Add column id to the list of those that should be removed

@@ -79,7 +79,8 @@ class dm.ui.Table extends goog.ui.Component
 
 		goog.events.listen @dragger, 'start', @dragStartEnd
 		
-		goog.events.listen @dragger, 'drag', => 
+		goog.events.listen @dragger, 'drag', (ev) => 
+			@setPosition ev.left, ev.top
 			@dispatchEvent dm.ui.Table.EventType.MOVE
 		
 		goog.events.listen @dragger, 'end', @dragStartEnd
@@ -118,8 +119,10 @@ class dm.ui.Table extends goog.ui.Component
 	###*
   * @param {number} x
   * @param {number} y
+  * @param {boolean} move Determine if table should be physically moved, if
+  *  false then only actual coordinates are saved
 	###
-	setPosition: (x, y) =>
+	setPosition: (x, y, move = true) =>
 		# table's position coordinates and size dimensions
 		@position_.x = x
 		@position_.y = y

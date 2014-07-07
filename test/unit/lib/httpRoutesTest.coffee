@@ -3,17 +3,22 @@ mocks =
 		getDb: sinon.stub(), getList: sinon.stub(), getSelected: sinon.stub()
 		setList: sinon.spy(), setDbs: sinon.spy(), setSelected: sinon.spy()
 		loadAllDefinitions: sinon.stub()
+	export:
+		getAppScript: sinon.stub(), getDbDefScript: sinon.stub(), 
+		getReactJsScript: sinon.stub(), getAppStyles: sinon.stub()
+		compileCss: sinon.stub(), renderTemplate: sinon.stub()
 	fs:
 		readFile: sinon.stub()
 	mkdirp:
 		sinon.stub()
 
 
-describe 'app routes', ->		
+describe 'app http routes', ->		
 	before ->
 		mockery.enable warnOnUnregistered: false
-		mockery.registerMock './dbs', mocks.databases
+		mockery.registerMock '../dbs', mocks.databases
 		mockery.registerMock 'mkdirp', mocks.mkdirp
+		mockery.registerMock '../export', mocks.export
 
 		@app = require '../../../app'
 
@@ -131,7 +136,7 @@ describe 'app routes', ->
 					expect(res.body).to.have.property('types').that.deep.equal ['char', 'integer', 'boolean']
 					done()
 
-	describe 'method saveModel', ->
+	describe 'route saveModel', ->
 		it 'should response attachment with name of file if passed', (done) ->
 			request(@app)
 				.post('/save')
@@ -145,23 +150,80 @@ describe 'app routes', ->
 				.expect('Content-Disposition', 'attachment; filename="unknown.json"')
 				.expect(200, done)
 
-	describe.skip 'method getConnections', ->
-		before ->
-			@cb = sinon.spy()
-
+	describe 'route exportModel', ->
 		beforeEach ->
-			mocks.fs.readFile.reset()
-			@cb.reset()
+			mocks.export.getAppScript.yields null, 'app-script'
+			mocks.export.getDbDefScript.yields null, 'script'
+			mocks.export.getReactJsScript.yields null, 'react-js-script'
+			mocks.export.getAppStyles.yields null, 'app-css'
+			mocks.export.compileCss.withArgs('app-css').returns 'compiled-css' 
+			mocks.export.renderTemplate
+				.withArgs('react-js-script\ndb-def-script\napp-script', 'compiled-css')
+				.yields null, 'rendered template content' 
 
-		it 'should response with err if reading connections file failed', ->
+		it 'should response attachment with model name as a filename', (done) ->
+			mocks.export.getDbDefScript.withArgs('sql').yields null, 'db-def-script'
 
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql', model: '{"name":"model3","data":"fakeddata"}'})
+				.expect('Content-Disposition', 'attachment; filename="model3.html"')
+				.expect(200, done)
 
-			@cb.should.been.calledWithExactly 'Error at reading connections file: err'
+		it 'should parse model  and pass it for getting app script as an object', (done) ->
+			mocks.export.getDbDefScript.withArgs('sql2').yields null, 'db-def-script'
+			stringifiedModel = '{"name":"jmeno","data":{"relations":[1,2],"tables":[3,4]}}'
 
-		it 'should response with err if parsing connections file failed', ->
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql2', model: stringifiedModel})
+				.expect('Content-Disposition', 'attachment; filename="model3.html"')
+				.expect(200, ->
+					mocks.export.getDbDefScript.lastCall.args[1].should.deep.equal {
+						name: 'jmeno', data: {relations: [1, 2], tables: [3, 4]}
+					}
+					done()
+				)
 
-			@cb.should.been.calledWithExactly 'Error at parsing connections file: err'
+		it 'should response attachment with rendered template', (done) ->
+			mocks.export.getDbDefScript
+				.withArgs('sql-1', {'name': 'db model'}).yields null, 'db-def-script'
 
-		it 'should response with parsed connections if file is ok', ->
-			@cb.should.been.calledWithExactly null, {'c1': {'host': 'h1', 'port': 3}}
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql-1', model: '{"name": "db model"}'})
+				.expect(200)
+				.expect(/rendered template content/ , done)
 
+		it 'should response with error if getting any source failed', (done) ->
+			mocks.export.getDbDefScript.withArgs('sql3', {'mdl': 'da'}).yields null, 'script'
+			mocks.export.getAppScript.yields 'build err'
+
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql3', model: '{"mdl":"da"}'})
+				.expect('Content-Type', /text/)
+				.expect(500)
+				.end (err, res) ->
+					if err then return done err
+
+					expect(res.text).to.equal 'Error at getting source code: build err'
+					done()
+
+		it 'should reponse with error if rendering failed', (done) ->
+			mocks.export.getDbDefScript
+				.withArgs('sql4', {'mdl': 'da'}).yields null, 'db-def-script'
+			mocks.export.renderTemplate
+				.withArgs('react-js-script\ndb-def-script\napp-script', 'compiled-css')
+				.yields 'render error'
+
+			request(@app)
+				.post('/export')
+				.send({dbid: 'sql4', model: '{"mdl":"da"}'})
+				.expect('Content-Type', /text/)
+				.expect(500)
+				.end (err, res) ->
+					if err then return done err
+
+					expect(res.text).to.equal 'Error at rendering template: render error'
+					done()

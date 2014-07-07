@@ -200,8 +200,8 @@ class dm.model.ModelManager extends goog.events.EventTarget
       # this is useful when creating relations
       tableIdxsByName[table.model.name] = idx 
 
-      for columnId, columnIndexes of indexes
-        # foreign key indexes are created by relation
+        # foreign key column's indexes are created by relation
+      for columnId, columnIndexes of indexes when not goog.array.contains columnIndexes, dm.model.Table.index.FK
         for index in columnIndexes when index isnt dm.model.Table.index.FK
           tableModel.setIndex columnId, index 
         
