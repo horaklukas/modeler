@@ -20,8 +20,10 @@ dm.core =
       goog.dom.createDom 'input', {'type':'hidden', 'name':name, 'value':value }
 
     form = goog.dom.createDom 'form', {'action':action, 'method':'POST'}, data
+    goog.dom.appendChild goog.dom.getElement('app'), form
 
     form.submit()
+    goog.dom.removeNode form
 
   getToolbar: ->
     dm.core.toolbar
