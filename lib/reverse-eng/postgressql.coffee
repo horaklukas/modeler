@@ -1,19 +1,21 @@
 pg = require 'pg'
 exports.query = query = {}
 
+DEFAULT_SCHEMA_NAME = 'public'
+
 ###*
 * @param {Object.<string,(string|number|boolen)>} connOptions
 * @return {pg.Client}
 ###
 exports.getClient = (connOptions) ->
-	new pg.Client({
-		host: connOptions.host
-		database: connOptions.db
-		user: connOptions.user
-		password: connOptions.pass ? null
-		port: connOptions.port ? 5432
-		ssl: connOptions.ssl ? false
-	})
+  new pg.Client({
+    host: connOptions.host
+    database: connOptions.db
+    user: connOptions.user
+    password: connOptions.pass ? null
+    port: connOptions.port ? 5432
+    ssl: connOptions.ssl ? false
+  })
 
 query.getDbServerVersion = ->
   """
@@ -23,12 +25,18 @@ query.getDbServerVersion = ->
 
 
 query.getSchemata = ->
-	# get all user schemata
-	"""
-	SELECT schema_name FROM information_schema.schemata 
-	WHERE schema_name != 'information_schema' 
-	AND schema_name NOT LIKE 'pg_%';
-	"""
+  # get all user schemata
+  """
+  SELECT schema_name FROM information_schema.schemata 
+  WHERE schema_name != 'information_schema' 
+  AND schema_name NOT LIKE 'pg_%';
+  """
+
+###*
+* @return {string} name of default database schema
+###
+exports.getDefaultSchema = ->
+  DEFAULT_SCHEMA_NAME
 
 query.getTablesList = (schema) ->
 	"""
