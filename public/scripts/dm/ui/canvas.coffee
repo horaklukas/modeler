@@ -85,6 +85,11 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@addTableInternal_ @clueTable
 
 		[defs] = goog.dom.getElementsByTagNameAndClass 'defs', null, @getElement()
+		
+		unless defs?
+			defs = goog.dom.createElement 'defs'
+			goog.dom.insertChildAt @getElement(), defs, 0
+
 		defs.innerHTML = dm.ui.tmpls.CardinalityMarkers()
 
 		goog.events.listen(

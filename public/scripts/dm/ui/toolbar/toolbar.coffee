@@ -118,8 +118,9 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		if saved?
 			statusSaved = goog.dom.getElementByClass 'model-saved', @statusBar_
 
-			if saved is true then mark = '✓'; color = 'green'
-			else mark = '✗'; color = 'red'
+			if saved is true then mark = '✓'; color = 'green'; title = 'Model saved'
+			else mark = '✗'; color = 'red'; title = 'Model is at unsaved state'
 
 			goog.dom.setTextContent statusSaved, mark
+			goog.dom.setProperties statusSaved, {'title': title}
 			goog.style.setStyle statusSaved, 'color', color

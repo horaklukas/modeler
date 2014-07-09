@@ -19,22 +19,21 @@ stylusCompile = (str, path) ->
 	stylus(str).set('filename', path).set('compress', yes)
 		.use(nib()).import 'nib'
 
-app.configure ->
-	app.set 'view engine', 'jade'
-	app.set 'views', __dirname + '/views'
-	app.use express.logger 'dev'
-	app.use express.json()
-	app.use express.urlencoded()
-	app.use express.methodOverride()
-	app.use stylus.middleware src: __dirname + '/public/styles', compile: stylusCompile
-	app.use '/bower_components', express.static(__dirname + '/bower_components')
-	app.use '/public', express.static __dirname + '/public'
-	app.use app.router
-	app.use (err, req, res, next) ->
-	  res.render '500', error: err
-	app.use express.errorHandler()
-
+app.set 'view engine', 'jade'
+app.set 'views', __dirname + '/views'
+app.use express.logger 'dev'
+app.use express.json()
+app.use express.urlencoded()
+#app.use express.methodOverride()
+app.use stylus.middleware src: __dirname + '/public/styles', compile: stylusCompile
+app.use '/bower_components', express.static(__dirname + '/bower_components')
+app.use '/public', express.static __dirname + '/public'
+app.use app.router
+app.use (err, req, res, next) ->
+  res.render '500', error: err
+app.use express.errorHandler()
 	
+# App routers
 app.get '/', httpRoutes.app
 app.post '/', httpRoutes.app
 #app.post '/list', httpRoutes.getList
