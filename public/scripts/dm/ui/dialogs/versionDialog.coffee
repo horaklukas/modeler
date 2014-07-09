@@ -21,6 +21,8 @@ dm.ui.VersioningDialog = React.createClass
 
   getInitialState: ->
     visible: false
+    data: {}
+    info: err: false, text: ''
     cancelEnabled: true
 
   render: ->

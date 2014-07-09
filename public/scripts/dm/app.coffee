@@ -13,6 +13,7 @@ goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
+goog.require 'dm.ui.VersioningDialog'
 goog.require 'dm.ui.tools.CreateTable'
 goog.require 'dm.ui.tools.CreateRelation'
 goog.require 'dm.ui.tools.SimpleCommandButton'
@@ -52,10 +53,13 @@ toolbar.addChild new dm.ui.tools.SimpleCommandButton(
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
   'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL, 'Load model'
 ), true
+toolbar.addChild new goog.ui.ToolbarSeparator(), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
   'export-model', dm.ui.Toolbar.EventType.EXPORT_MODEL, 'Export model'
 ), true
-toolbar.addChild new goog.ui.ToolbarSeparator(), true
+toolbar.addChild new dm.ui.tools.SimpleCommandButton(
+  'version-model', dm.ui.Toolbar.EventType.VERSION_MODEL, 'Version model'
+), true
 
 toolbar.renderBefore canvasElement
 dm.core.init canvas, toolbar, modelManager, dmAssets.dbs
@@ -85,6 +89,9 @@ dialogs =
   'input':
     componentName: 'SimpleInputDialog'
     props: {}
+  'version':
+    componentName: 'VersioningDialog'
+    props: {}
 
 # create and register all neccessary dialogs
 for type, spec of dialogs
@@ -111,6 +118,8 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, dm.core.handlers
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.EXPORT_MODEL, dm.core.handlers.exportModelRequest
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, dm.core.getDialog('loadModel').show
+
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.VERSION_MODEL, dm.core.handlers.versionModelRequest
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name

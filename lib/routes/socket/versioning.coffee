@@ -7,7 +7,7 @@ xd = require 'xdiff'
 ###*
 * @type {string}
 ###
-reposDir = fspath.resolve __dirname, '../data/versions'
+reposDir = fspath.resolve __dirname, '../../../data/versions'
 
 ###*
 * Returns list of repos

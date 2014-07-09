@@ -88,6 +88,10 @@ dm.core.handlers =
         dm.core.state.setSaved true
     )
 
+  versionModelRequest: ->
+    dm.core.getDialog('version').show(
+    )
+
   statusChange: (ev) ->
     dm.core.getDialog('input').show(
       dm.core.getActualModel().name

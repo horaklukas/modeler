@@ -12,7 +12,7 @@ mockery.registerMock 'mkdirp', mocks.mkdirp
 mockery.registerAllowables ['async', 'path', 'xdiff']
 
 reposDir = require('path').resolve  __dirname, '../../../data/versions'
-vers = require '../../../lib/versioning'
+vers = require '../../../lib/routes/socket/versioning'
 
 describe 'Module versioning', ->
   before ->

@@ -2,12 +2,12 @@ fs = require 'fs'
 fspath = require 'path'
 async = require 'async'
 mkdirp = require 'mkdirp'
-reverseEng = require '../reverse-eng'
+reverseEng = require '../../reverse-eng'
 
 ###*
 * @type {string}
 ###
-connsFilePath = fspath.join	__dirname, '../../data/connections.json'
+connsFilePath = fspath.join	__dirname, '../../../data/connections.json'
 
 ###*
 * `connect-db` WebSocket event

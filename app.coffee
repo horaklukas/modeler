@@ -4,10 +4,12 @@ expose = require 'express-expose'
 socketio = require 'socket.io'
 stylus = require 'stylus'
 nib = require 'nib'
-httpRoutes = require './lib/routes/http'
-socketRoutes = require './lib/routes/socket'
-
 multipart = require 'connect-multiparty'
+
+httpRoutes = require './lib/routes/http'
+reengRoutes = require './lib/routes/socket/reeng'
+versionRoutes = require './lib/routes/socket/versioning'
+
 multipartMiddleware = multipart()
 
 app = express()
@@ -42,10 +44,14 @@ app.post '/load', multipartMiddleware, httpRoutes.loadModel
 app.post '/export', httpRoutes.exportModel
 
 io.on 'connection', (socket) ->
-	socket.on 'connect-db', socketRoutes.connectDb
-	socket.on 'get-reeng-data', socketRoutes.getReengData
-	socket.on 'get-connections', socketRoutes.getConnections
-	socket.on 'add-connection', socketRoutes.addConnection
+	socket.on 'connect-db', reengRoutes.connectDb
+	socket.on 'get-reeng-data', reengRoutes.getReengData
+	socket.on 'get-connections', reengRoutes.getConnections
+	socket.on 'add-connection', reengRoutes.addConnection
+	socket.on 'get-repos', versionRoutes.getRepos
+	socket.on 'get-versions', versionRoutes.readRepos
+	socket.on 'add-version', versionRoutes.addVersion
+	socket.on 'get-version', versionRoutes.getVersion
 
 server.listen port, -> 
 	console.log 'Listening on port ' + port
