@@ -33,8 +33,6 @@ dm.ui.InfoDialog = React.createClass
       <Dialog title={title} buttons={buttonSet} 
         visible={this.state.visible} onConfirm={this.hide} onCancel={this.hide}
       >
-        <p className="info-dialog">
-          <div className={stateClass}>{this.state.text}</div>
-        </p>
+        <div className={stateClass}>{this.state.text}</div>
       </Dialog>
     )`

@@ -54,6 +54,9 @@ class dm.model.ModelManager extends goog.events.EventTarget
     goog.events.listen model, tableEvents, @onModelEdit
     goog.events.listen tab, dm.ui.Table.EventType.MOVED, @onModelEdit
 
+    # enable bubbling and catching object events on modelManager
+    model.setParentEventTarget this
+
     tab.getId()
 
   ###*

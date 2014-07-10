@@ -6,7 +6,9 @@ goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
 goog.require 'dm.ui.Table'
 goog.require 'dm.ui.Relation'
+goog.require 'dm.ui.InfoDialog'
 goog.require 'dm.sqlgen.list'
+goog.require 'goog.object'
 
 dm.core.handlers =
   ###*
@@ -145,17 +147,15 @@ dm.core.handlers =
 
         modelManager.deleteTable target
 
-  createObject: (ev) ->
-    modelManager = dm.core.getModelManager()
+  createObject: (ev) ->    
     switch ev.objType
       when 'table'
-        dm.core.getDialog('input').show(
-          'NewTable', 'Type name of new table', (name) ->
-            model = new dm.model.Table name, []
-            modelManager.addTable model, ev.data.x, ev.data.y
-            dm.core.getDialog('table').show model
+        dm.core.getDialog('input').show(      
+          'NewTable', 'Type name of new table'
+          goog.partial dm.core.handlers.tableNameInput, ev
         )
       when 'relation'
+        modelManager = dm.core.getModelManager()
         actualModel = dm.core.getActualModel()
         {parent, child, identifying} = ev.data
         #rel.setRelatedTables parent.getModel(), child.getModel() 
@@ -169,6 +169,51 @@ dm.core.handlers =
 
         modelManager.addRelation model
         dm.core.getDialog('relation').show model, tables
+
+  ###*
+  * Handler for input dialog when user type name of new table and confirm
+  *
+  * @param {goog.events.Event} ev Event object from original `createObject` 
+  *  handler
+  * @param {string} name Table name
+  ###
+  tableNameInput: (ev, name) ->
+    modelManager = dm.core.getModelManager()
+    actualModel = dm.core.getActualModel()
+    # used to fix table name duplicity
+    originalName = name
+    counter = 0
+
+    while actualModel.getTableIdByName(name)?
+      name = originalName + (counter++).toString()
+
+    if name isnt originalName then dm.core.getDialog('info').show(
+      "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
+      "for ensuring uniqueness"
+    )
+
+    model = new dm.model.Table name, []
+    modelManager.addTable model, ev.data.x, ev.data.y
+    dm.core.getDialog('table').show model
+
+  tableNameChange: (ev) ->
+    model = ev.target
+    originalName = name = model.getName()
+
+    actualModel = dm.core.getActualModel()
+    counter = 0
+
+    tables = actualModel.getTablesByName()
+    
+    if goog.isArray tables[name]
+      while tables[name]? then name = originalName + (counter++).toString()
+
+    if name isnt originalName
+      model.setName name
+      dm.core.getDialog('info').show(
+        "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
+        "for ensuring uniqueness!"
+      )
 
   windowUnload: (ev) ->
     state = dm.core.state.getActual()

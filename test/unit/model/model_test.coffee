@@ -155,10 +155,18 @@ describe 'class model.Model', ->
 		it 'should return tables with their names as a keys', ->
 			tabsByName = model.getTablesByName()
 
-			expect(tabsByName).to.be.an('object')
+			expect(tabsByName).to.be.an 'object'
 			expect(tabsByName).to.have.deep.property 'table1', model1
 			expect(tabsByName).to.have.deep.property 'table2', model2
 			expect(tabsByName).to.have.deep.property 'table3', model3
+
+		it 'should return array of models if two tables have same name', ->
+			model4 = getName: (-> 'table2'), id: 'tb4'
+			model.tables_.tab4 = {getModel: -> model4}
+			tabsByName = model.getTablesByName()
+
+			expect(tabsByName['table2']).to.be.an('array').and.have.length 2
+			expect(tabsByName['table2']).to.eql [model2, model4]
 
 	describe 'getTableIdByName', ->
 		tab1 = null

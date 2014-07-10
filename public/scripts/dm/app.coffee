@@ -11,6 +11,7 @@ goog.require 'dm.ui.TableDialog'
 goog.require 'dm.ui.RelationDialog'
 goog.require 'dm.ui.LoadModelDialog'
 goog.require 'dm.ui.IntroDialog'
+goog.require 'dm.ui.InfoDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
 goog.require 'dm.ui.VersioningDialog'
@@ -92,6 +93,9 @@ dialogs =
   'version':
     componentName: 'VersioningDialog'
     props: {}
+  'info': 
+    componentName: 'InfoDialog'
+    props: {}
 
 # create and register all neccessary dialogs
 for type, spec of dialogs
@@ -126,6 +130,8 @@ goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
     dm.core.state.setSaved false
+
+goog.events.listen modelManager, 'name-change', dm.core.handlers.tableNameChange
 
 goog.dom.getWindow().onbeforeunload = dm.core.handlers.windowUnload
 

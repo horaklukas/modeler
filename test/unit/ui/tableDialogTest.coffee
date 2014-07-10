@@ -292,7 +292,7 @@ describe 'class TableDialog', ->
       tabd.setState columns: []
 
     it 'should set error and reject dialog hide when name is empty', ->
-      infobar = TestUtils.findRenderedDOMComponentWithClass tabd, 'error'
+      infobar = TestUtils.findRenderedDOMComponentWithClass tabd, 'state'
       tabd.setState name: ''
 
       expect(tabd.onConfirm()).to.be.false

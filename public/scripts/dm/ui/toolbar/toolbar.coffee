@@ -22,6 +22,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		SAVE_MODEL: goog.events.getUniqueId 'save-model'
 		LOAD_MODEL: goog.events.getUniqueId 'load-model'
 		EXPORT_MODEL: goog.events.getUniqueId 'export-model'
+		VERSION_MODEL: goog.events.getUniqueId 'version-model'
 		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
 
 	###*

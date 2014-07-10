@@ -113,14 +113,21 @@ class dm.model.Model
 	###*
   * Maps tables by its names
   *
-  * @return {Object.<string, dm.model.Table>}
+  * @return {Object.<string, (dm.model.Table|Array.<dm.model.Table>)>}
 	###
 	getTablesByName: ->
 		mappedTables = {}
 		
 		for id, table of @tables_
 			model = table.getModel()
-			mappedTables[model.getName()] = model 
+			name = model.getName()
+
+			if goog.isArray mappedTables[name]
+				goog.array.insert mappedTables[name], model
+			else if mappedTables[name]?
+				mappedTables[name] = [mappedTables[name], model]
+			else
+				mappedTables[name] = model 
 
 		mappedTables
 
