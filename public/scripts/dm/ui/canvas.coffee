@@ -180,7 +180,14 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 		@menu.getChildAt(0).setCaption goog.dom.createDom('strong', null, objName)
 
-		goog.events.listen document, goog.events.EventType.CLICK, @hideMenu
+		@menu.setVisible true
+
+		{x, y} = goog.style.getRelativePosition ev, @rootElement_
+		# 30 is height of toolbar, it must be imputed since menu is positioned
+		# absolutely to document, not canvas
+		@menu.setPosition x, y + 30 
+
+		goog.events.listen document, goog.events.EventType.CLICK, @onMenuCanceled
 		goog.events.listen @menu, 'action', =>
 			@hideMenu()
 			
@@ -190,16 +197,20 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 				)
 			)
 
-		@menu.setVisible true
-
-		{x, y} = goog.style.getRelativePosition ev, @rootElement_
-		# 30 is height of toolbar, it must be imputed since menu is positioned
-		# absolutely to document, not canvas
-		@menu.setPosition x, y + 30 
-
+	###*
+  * This prevents hiding menu at some Gecko browsers (found at Iceweasel) where
+  * event CLICK is dispatched immedietly after CONTEXTMENU and it caused menu
+  * hide. If it happen, we must check if not clicked by right click and if so
+  * then check if target isnt object (is Canvas) and only in that case, we can
+  * hide menu.
+  *
+  * @param {goog.events.Event} ev
+	###
+	onMenuCanceled: (ev) =>
+		if ev.button isnt 2 or @isCanvasElement(ev.target) then @hideMenu()
 
 	hideMenu: =>
-		goog.events.unlisten document, goog.events.EventType.CLICK, @hideMenu
+		goog.events.unlisten document, goog.events.EventType.CLICK, @onMenuCanceled
 		goog.events.removeAll @menu, 'action'
 
 		@menu.setVisible false
