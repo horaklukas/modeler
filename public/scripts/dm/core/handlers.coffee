@@ -68,7 +68,10 @@ dm.core.handlers =
     switch action
       when 'new' then dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
       when 'load' then dm.core.getDialog('loadModel').show false
-      #when 'byversion' then ''
+      when 'byversion'
+        dm.core.getDialog('version').show(
+          null, dm.core.handlers.modelLoad, dm.core.getDialog('intro').show
+        )
       when 'fromdb' then dm.core.getDialog('reeng').show()
       else return
 
@@ -91,7 +94,17 @@ dm.core.handlers =
     )
 
   versionModelRequest: ->
+    actualModel = dm.core.getActualModel()
+    model = actualModel.toJSON()
+    model['db'] = dm.core.state.getActualRdbs()
+
+    data =
+      'name': actualModel.name.toLowerCase()
+      'model': model
+
     dm.core.getDialog('version').show(
+      {model: data}
+      => dm.core.getDialog('info').show 'Model successfuly versioned'
     )
 
   statusChange: (ev) ->

@@ -74,7 +74,6 @@ dialogs =
     props:
       connection: dm.socket, dbs: dmAssets.dbs
       onDataReceive: dm.core.handlers.reengRequest
-    
   'selectDb':
     componentName: 'SelectDbDialog' 
     props: {dbs: dmAssets.dbs, onSelect: dm.core.state.setActualRdbs}
@@ -92,7 +91,8 @@ dialogs =
     props: {}
   'version':
     componentName: 'VersioningDialog'
-    props: {}
+    props: 
+      connection: dm.socket
   'info': 
     componentName: 'InfoDialog'
     props: {}

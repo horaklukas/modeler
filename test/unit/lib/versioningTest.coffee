@@ -18,30 +18,49 @@ describe 'Module versioning', ->
   before ->
     @cb = sinon.spy()
 
+  beforeEach ->
+    @cb.reset()
+    mocks.mkdirp.reset()
+
   after ->
     mockery.deregisterAll()
     mockery.disable()
 
-  describe.skip 'method getRepos', ->
+  describe 'method getRepos', ->
     beforeEach ->
       @cb.reset()
 
     it 'should response with list of repos if reading repos dir success', ->
-      vers.getRepos @cb
-      mocks.fs.readdir.withArgs(reposDir).yield null, [
+      mocks.fs.readdir.withArgs(reposDir).yields null, [
         'repo1', 'repo2', 'repo3'
       ]
+      vers.getRepos @cb
 
       @cb.should.been.calledOnce.and.calledWithExactly null, [
         'repo1', 'repo2', 'repo3'
       ]
 
-    it 'should response with error if reading repos dir failed', ->
+    it 'should response with error if error occured ant not ENOENT', ->
+      mocks.fs.readdir.withArgs(reposDir).yields code: 'EACCESS'
       vers.getRepos @cb
-      mocks.fs.readdir.withArgs(reposDir).yield 'Dir isnt readable'
 
-      @cb.should.been.calledOnce.and.calledWithExactly 'Dir isnt readable'
+      @cb.should.been.calledOnce.and.calledWithExactly code: 'EACCESS'
 
+    it 'should create repos directory if it not exist yet', ->
+      mocks.fs.readdir.withArgs(reposDir).yields code: 'ENOENT'
+      mocks.mkdirp.withArgs(reposDir).yields null, '/some path'
+      vers.getRepos @cb
+
+      @cb.should.been.calledOnce.and.calledWithExactly null, []
+      mocks.mkdirp.should.been.calledOnce.and.calledWith reposDir
+
+    it 'should response with error if creating reposDir failed', ->
+      mocks.fs.readdir.withArgs(reposDir).yields code: 'ENOENT'
+      mocks.mkdirp.withArgs(reposDir).yields 'Error at creating'
+      vers.getRepos @cb
+      
+      @cb.should.been.calledOnce.and.calledWithExactly 'Error at creating'
+      mocks.mkdirp.should.been.calledOnce.and.calledWith reposDir
 
   describe 'method readRepo', ->
     beforeEach ->
@@ -86,7 +105,7 @@ describe 'Module versioning', ->
         done()
 
     it 'should response error if reading repo failed', (done) ->
-      mocks.mkdirp.withArgs(reposDir+'/repo4').yields null
+      mocks.mkdirp.withArgs(reposDir+'/repo4').yields null, '/path'
       vers.readRepo.withArgs('repo4').yields 'Cannot read'
 
       vers.addVersion 'repo4', 'data', (err) ->
@@ -94,7 +113,7 @@ describe 'Module versioning', ->
         done()
 
     it 'should write whole data if no previous versions are available', (done) ->
-      mocks.mkdirp.withArgs(reposDir+'/repo5').yields null
+      mocks.mkdirp.withArgs(reposDir+'/repo5').yields null, '/path'
       vers.readRepo.withArgs('repo5').yields null, []
       mocks.fs.writeFile.yields null
 
@@ -107,7 +126,7 @@ describe 'Module versioning', ->
         done()
 
     it 'should response with error if content is broken', (done) ->
-      mocks.mkdirp.withArgs(reposDir+'/repo6').yields null
+      mocks.mkdirp.withArgs(reposDir+'/repo6').yields null, 'path'
       vers.readRepo.withArgs('repo6').yields null, []
 
       vers.addVersion 'repo6', undefined, (err) ->
@@ -115,7 +134,7 @@ describe 'Module versioning', ->
         done()
 
     it 'should response with error if first repo version read failed', (done) ->
-      mocks.mkdirp.withArgs(reposDir+'/repo7').yields null
+      mocks.mkdirp.withArgs(reposDir+'/repo7').yields null, '/path'
       vers.readRepo.withArgs('repo7').yields null, ['12', '34', '87']
       mocks.fs.readFile.withArgs(reposDir+'/repo7/12').yields 'Read vers failed'
 
@@ -124,7 +143,7 @@ describe 'Module versioning', ->
         done()
 
     it 'should response with error if first repo version read failed', (done) ->
-      mocks.mkdirp.withArgs(reposDir+'/repo7').yields null
+      mocks.mkdirp.withArgs(reposDir+'/repo7').yields null, '/path'
       vers.readRepo.withArgs('repo7').yields null, ['12', '34', '87']
       mocks.fs.readFile.withArgs(reposDir+'/repo7/12').yields 'Read vers failed'
 
@@ -133,7 +152,7 @@ describe 'Module versioning', ->
         done()
 
     it 'should write data diff to first version if previous versions exist', (done) ->
-      mocks.mkdirp.withArgs(reposDir+'/repo8').yields null
+      mocks.mkdirp.withArgs(reposDir+'/repo8').yields null, '/path'
       vers.readRepo.withArgs('repo8').yields null, ['12', '34']
       mocks.fs.readFile.withArgs(reposDir+'/repo8/12').yields(
         null, '{"version": "original content"}'

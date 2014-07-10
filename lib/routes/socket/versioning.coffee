@@ -13,7 +13,11 @@ reposDir = fspath.resolve __dirname, '../../../data/versions'
 * Returns list of repos
 ###
 exports.getRepos = (cb) ->
-  fs.readdir reposDir, cb
+  fs.readdir reposDir, (err, repos) ->
+    unless err? then cb null, repos
+    else if err.code isnt 'ENOENT' then cb err
+    else mkdirp reposDir, (err) -> 
+      if err then cb(err) else cb null, []
 
 ###*
 * Returns list of versions at repo
@@ -35,6 +39,7 @@ exports.addVersion = (repo, data, cb) ->
 
   async.waterfall [
     async.apply mkdirp, dir
+    (dir, cb) -> cb()
     async.apply exports.readRepo, repo
     async.apply createVersion, repo, data
   ], cb

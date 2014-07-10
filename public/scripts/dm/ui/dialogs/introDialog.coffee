@@ -10,7 +10,7 @@ dm.ui.IntroDialog = React.createClass
     actions:
       'new': 'NEW MODEL'
       'load': 'LOAD MODEL'
-      'byversion': 'SELECT VERSIONED MODEL - BLIND NOW'
+      'byversion': 'SELECT VERSIONED MODEL'
       'fromdb': 'CREATE MODEL FROM DB'
 
   show: ->
