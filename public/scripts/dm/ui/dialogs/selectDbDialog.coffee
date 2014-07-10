@@ -39,7 +39,7 @@ dm.ui.SelectDbDialog = React.createClass
     buttonSetType = Dialog.buttonSet.SELECT
     dbsList = []
 
-    infoClass = if @state.info.err then 'error' else 'info'
+    infoClass = 'state' + (if @state.info.err then ' error' else '')
     
     dbNames = []
     versions = []

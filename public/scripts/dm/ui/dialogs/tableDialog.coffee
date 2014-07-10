@@ -155,6 +155,8 @@ dm.ui.TableDialog = React.createClass
     title = "Table \"#{@state.name or 'unnamed'}\""
     show = @state.visible
 
+    infoClass = 'state' + (if @state.errorState then ' error' else '')
+
     `(
     <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide} visible={show}>
       <div className="row">
@@ -173,7 +175,7 @@ dm.ui.TableDialog = React.createClass
       <button onClick={this.addColumn}>Add new column</button><br />
       <strong>* <small>foreign key columns can change only name</small></strong>
 
-      <div className="info error">{this.state.errorState}</div>
+      <div className={infoClass}>{this.state.errorState}</div>
     </Dialog>
     )`
 

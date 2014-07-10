@@ -138,7 +138,7 @@ dm.ui.ReEngineeringDialog = React.createClass
       type = 'selecttables'
 
 
-    infoClass = 'info'
+    infoClass = 'state'
     infoClass += ' error' if @state.info.err
     
     `(

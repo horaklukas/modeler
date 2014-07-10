@@ -60,7 +60,7 @@ dm.ui.LoadModelDialog = React.createClass
     {Dialog} = dm.ui
     {visible, info, loadDisabled} = @state
     title = 'Load model from file'
-    infoClasses = 'info' + (if info.type? then " #{info.type}" else '')
+    infoClasses = 'state' + (if info.type? then " #{info.type}" else '')
     
     if @state.cancelable then buttonSet = dm.ui.Dialog.buttonSet.CANCEL
     else buttonSet = dm.ui.Dialog.buttonSet.NONE
@@ -71,7 +71,7 @@ dm.ui.LoadModelDialog = React.createClass
 
       <form method="POST" action="/load" encType="multipart/form-data"
         onSubmit={this.onUploadRequest}>
-        <p className={infoClasses}>{this.state.info.text}</p>
+        <div className={infoClasses}>{this.state.info.text}</div>
 
         <p>Select JSON that contains model:</p>
 
