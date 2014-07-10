@@ -49,7 +49,7 @@ io.on 'connection', (socket) ->
 	socket.on 'get-connections', reengRoutes.getConnections
 	socket.on 'add-connection', reengRoutes.addConnection
 	socket.on 'get-repos', versionRoutes.getRepos
-	socket.on 'get-versions', versionRoutes.readRepos
+	socket.on 'get-versions', versionRoutes.readRepo
 	socket.on 'add-version', versionRoutes.addVersion
 	socket.on 'get-version', versionRoutes.getVersion
 
