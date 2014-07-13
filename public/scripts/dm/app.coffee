@@ -1,5 +1,6 @@
 goog.provide 'dm'
 
+goog.require 'dm.core'
 goog.require 'dm.core.handlers'
 goog.require 'dm.model.ModelManager'
 goog.require 'dm.ui.Canvas'

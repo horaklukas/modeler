@@ -39,6 +39,7 @@ module.exports = (grunt) ->
             './*.coffee'
             '!./Gruntfile.coffee'
             './lib/**/*.coffee'
+            './defs/**/*.coffee'
             './public/scripts/**/*.coffee'
           ]
           ext: '.js'

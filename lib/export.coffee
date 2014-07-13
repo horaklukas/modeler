@@ -25,7 +25,8 @@ module.exports = exportApp =
     args = [
       "--root=#{closurePath}"
       "--root=#{appSrcPath}"
-      "--input=#{fspath.join(appSrcPath, 'app-exported.js')}"
+      "--root=#{fspath.join(publicDirPath, 'scripts/dme')}"
+      "--input=#{fspath.join(publicDirPath, 'scripts/dme', 'app-exported.js')}"
       '--output_mode=script'
     ]
 

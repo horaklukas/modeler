@@ -71,13 +71,13 @@ class dm.model.Relation extends goog.events.EventTarget
   getName: ->
     @name_
 
-  setCardinalityAndParciality: (cardinality, parciality) ->
+  setCardinalityParciality: (cardinality, parciality) ->
     @cardinality_ = cardinality
     @parciality_ = parciality
 
     @dispatchEvent 'cardinality-change'
 
-  getCardinalityAndParciality: ->
+  getCardinalityParciality: ->
     cardinality: @cardinality_
     parciality: @parciality_      
 
