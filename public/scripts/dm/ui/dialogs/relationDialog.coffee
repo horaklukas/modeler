@@ -34,19 +34,19 @@ dm.ui.RelationDialog = React.createClass
       childName: tables.child.name
     }
 
-    {cardinality, modality} = model.getCardinalityAndModality()
+    {cardinality, parciality} = model.getCardinalityParciality()
 
     @setState 
       visible: true
       name: model.getName()
       identifying: model.isIdentifying()
       cardinality: cardinality
-      modality: modality
+      parciality: parciality
 
   onConfirm: ->
     @_originalModel.setType @state.identifying
-    @_originalModel.setCardinalityAndModality(
-      @state.cardinality, @state.modality
+    @_originalModel.setCardinalityParciality(
+      @state.cardinality, @state.parciality
     )
     @_originalModel.setName @state.name
 
@@ -58,10 +58,10 @@ dm.ui.RelationDialog = React.createClass
   handleTypeChange: (isIdentifying) ->
     @setState identifying: isIdentifying
 
-  handleCardModChange: (cardinality, modality) ->
+  handleCardModChange: (cardinality, parciality) ->
     nextState = {}
     if cardinality? then nextState.cardinality = cardinality
-    if modality? then nextState.modality = modality
+    if parciality? then nextState.parciality = parciality
 
     @setState nextState
 
@@ -73,13 +73,13 @@ dm.ui.RelationDialog = React.createClass
     name: ''
     identifying: false
     cardinality: parent: '1', child: 'n'
-    modality: parent: 1, child: 1
+    parciality: parent: 1, child: 1
 
   render: ->
     {Dialog} = dm.ui
  
     title = "Relation \"#{this.state.name}\""
-    {visible, identifying, cardinality, modality} = @state
+    {visible, identifying, cardinality, parciality} = @state
 
     `(
     <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide}
@@ -95,7 +95,7 @@ dm.ui.RelationDialog = React.createClass
 
       <RelationTypeSelect identifying={identifying} 
         onChange={this.handleTypeChange} />
-      <CardinalityModalitySelect identifying={identifying} modality={modality} 
+      <CardinalityModalitySelect identifying={identifying} parciality={parciality} 
         cardinality={cardinality} onChange={this.handleCardModChange} />
     </Dialog>
     )`
@@ -129,10 +129,10 @@ CardinalityModalitySelect = React.createClass
     @props.onChange cardinality, null
 
   handleModalityChange: (type, ev) ->
-    {modality} = @props
-    modality[type] = goog.string.toNumber ev.target.value
+    {parciality} = @props
+    parciality[type] = goog.string.toNumber ev.target.value
 
-    @props.onChange null, modality
+    @props.onChange null, parciality
 
   createCardinality: (card, type, disabled = false) ->
     cb = goog.partial @handleCardinalityChange, type
@@ -171,19 +171,19 @@ CardinalityModalitySelect = React.createClass
     )`
 
   render: ->
-    {cardinality, modality, identifying} = @props
+    {cardinality, parciality, identifying} = @props
 
     `(
       <div className="cardmod">
         <strong>Parent</strong>
         <div className="row">
           {this.createCardinality(cardinality.parent, 'parent')}
-          {this.createModality(modality.parent, 'parent', identifying)}
+          {this.createModality(parciality.parent, 'parent', identifying)}
         </div>
         <strong>Child</strong>
         <div className="row">
           {this.createCardinality(cardinality.child, 'child')}
-          {this.createModality(modality.child, 'child')}
+          {this.createModality(parciality.child, 'child')}
         </div>
       </div>
     )`

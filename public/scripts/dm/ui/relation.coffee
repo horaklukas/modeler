@@ -60,7 +60,7 @@ class dm.ui.Relation extends goog.ui.Component
 			path, dm.ui.Relation.relationStroke, null, @relationGroup_
 		)
 
-		@setCardinalityMarkers model.getCardinalityAndModality()
+		@setCardinalityMarkers model.getCardinalityParciality()
 		
 		groupElement = @relationGroup_.getElement()
 		groupElement.id = @getId()
@@ -87,14 +87,14 @@ class dm.ui.Relation extends goog.ui.Component
 	recountPosition: (parentTable, childTable) =>
 		newPath = @getRelationPath new goog.graphics.Path, parentTable, childTable
 		
-		@setCardinalityMarkers @getModel().getCardinalityAndModality()
+		@setCardinalityMarkers @getModel().getCardinalityParciality()
 
 		@relationPath_.setPath newPath
 		@relationBg_.setPath newPath
 
-	setCardinalityMarkers: ({cardinality, modality})->
-		parentClassName = @getCardinalityClass cardinality.parent, modality.parent
-		childClassName = @getCardinalityClass cardinality.child, modality.child, true
+	setCardinalityMarkers: ({cardinality, parciality})->
+		parentClassName = @getCardinalityClass cardinality.parent, parciality.parent
+		childClassName = @getCardinalityClass cardinality.child, parciality.child, true
 
 		goog.style.setStyle @relationPath_.getElement(), {
 			markerStart: "url(##{parentClassName})" 
@@ -121,17 +121,17 @@ class dm.ui.Relation extends goog.ui.Component
 
 	###*
   * @param {Object.<string,string>} cardinality
-  * @param {Object.<string,number>} modality
+  * @param {Object.<string,number>} parciality
   * @param {boolean=} end
   * @return {string} class name
 	###
-	getCardinalityClass: (cardinality, modality, end = false) ->
+	getCardinalityClass: (cardinality, parciality, end = false) ->
 		className = 'one'
 
 		if cardinality is 'n' then className += 'OrEn'
 
-		if modality is 1 and cardinality is '1' then className += 'Exactly'
-		else if modality is 0 then className += 'Optional'
+		if parciality is 1 and cardinality is '1' then className += 'Exactly'
+		else if parciality is 0 then className += 'Optional'
 
 		if end is true then className += 'End'
 

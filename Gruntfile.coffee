@@ -21,6 +21,11 @@ module.exports = (grunt) ->
   # task for heroku deployment
   grunt.registerTask 'heroku:development', ['coffee:app', 'reactjsx', 'deps']
 
+  grunt.registerTask 'default', [
+    'coffee:app', 'reactjsx:all', 'stylus', 'test', 'mocha_phantomjs',
+    'mochacli'
+  ]
+
   grunt.initConfig
     coffee:
       options:

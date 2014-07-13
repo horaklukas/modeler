@@ -12,7 +12,7 @@ describe 'class model.ModelManager', ->
 			getColumnsMapping: sinon.stub()
 			setColumnsMapping: sinon.spy()
 			getOppositeMappingId: sinon.stub()
-			setCardinalityAndModality: sinon.stub()
+			setCardinalityParciality: sinon.stub()
 			isIdentifying: sinon.stub()
 
 	describe 'method createActualFromLoaded', ->

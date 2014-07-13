@@ -75,7 +75,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
       @onModelEdit()
 
     goog.events.listen model, 'cardinality-change', =>
-      rel.setCardinalityMarkers model.getCardinalityAndModality()
+      rel.setCardinalityMarkers model.getCardinalityParciality()
       @onModelEdit()
 
     columnsListChangeEvents = ['column-add', 'column-change' ,'column-delete']
@@ -211,14 +211,14 @@ class dm.model.ModelManager extends goog.events.EventTarget
       @addTable tableModel, table.pos.x, table.pos.y
 
     for relation in relations
-      {name, type, cardinality, modality} = relation
+      {name, type, cardinality, parciality} = relation
       {parent, child} = relation.tables
 
       parentId = @actualModel.getTableIdByName parent
       childId = @actualModel.getTableIdByName child
 
       relationModel = new dm.model.Relation(type, parentId, childId, name)
-      relationModel.setCardinalityAndModality cardinality, modality
+      relationModel.setCardinalityParciality cardinality, parciality
 
       @addRelation relationModel
 
