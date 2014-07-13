@@ -5,7 +5,7 @@ util = require 'util'
 dbs = null
 selected = null
 
-defsDir = path.join __dirname, 'defs'
+defsDir = path.resolve __dirname, '..', 'defs'
 
 module.exports = databases =
 	getList: (cb) -> 

@@ -5,7 +5,7 @@ mocks =
 mockery.enable useCleanCache: true
 
 path = require 'path'
-defsDir = path.resolve __dirname, '../../../lib', 'defs'
+defsDir = path.resolve __dirname, '../../..', 'defs'
 
 mockery.registerMock 'fs', mocks.fs
 mockery.registerAllowables ['util', 'path']
