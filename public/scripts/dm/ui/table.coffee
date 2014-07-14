@@ -12,7 +12,7 @@ goog.require 'goog.math.Size'
 goog.require 'goog.ui.Component'
 goog.require 'goog.events'
 goog.require 'goog.fx.Dragger'
-goog.require 'dm.ui.tmpls.createElementFromReactComponent'
+goog.require 'dm.ui.utils'
 
 class dm.ui.Table extends goog.ui.Component
 	@EventType =
@@ -58,7 +58,7 @@ class dm.ui.Table extends goog.ui.Component
 	###
 	createDom: =>
 		model = @getModel()
-		element = dm.ui.tmpls.createElementFromReactComponent dm.ui.tmpls.Table(
+		element = dm.ui.utils.createElementFromReactComponent dm.ui.tmpls.Table(
 			{id: @getId(), name: model.getName(), columns: model.getColumns()}
 		)
 		
@@ -191,7 +191,7 @@ class dm.ui.Table extends goog.ui.Component
 	###
 	updateColumn: (id, column) ->
 		oldColumn = goog.dom.query("[name='#{id}']", @body_)[0]
-		newColumn = dm.ui.tmpls.createElementFromReactComponent(
+		newColumn = dm.ui.utils.createElementFromReactComponent(
 			dm.ui.tmpls.Column {id: id, data: column}
 		)
 

@@ -28,8 +28,11 @@ exports.readRepo = (repo, cb) ->
   fs.readdir fspath.join(reposDir, repo), (err, versions) ->
     if err then return cb err
 
-    cb null, versions.sort (v1, v2) -> 
-      Number(v1) > Number(v2)
+    versions = versions.sort (v1, v2) -> Number(v1) > Number(v2)
+    async.map versions, (vers, cb) ->
+      readVersionFile repo, vers, (err, content) ->
+        if err? then cb err else cb null, {date: vers, descr: content.descr}
+    , cb
 
 ###*
 * Add version to repository
@@ -52,7 +55,7 @@ exports.getVersion = (repo, version, cb) ->
     if err then return cb err
 
     if versions.length > 1
-      readVersionFile repo, versions[0], (err, original) ->
+      readVersionFile repo, versions[0].date, (err, original) ->
         if err then return cb err
 
         readVersionFile repo, version, (err, versionDiff) ->
@@ -60,8 +63,8 @@ exports.getVersion = (repo, version, cb) ->
           else cb null, xd.patch(original, versionDiff)
 
     else if versions.length is 1
-      if version isnt versions[0]
-        return cb "Versions doesnt match: #{version}-#{versions[0]}"
+      if version isnt versions[0].date
+        return cb "Versions doesnt match: #{version}-#{versions[0].date}"
       
       readVersionFile repo, version, cb
     else

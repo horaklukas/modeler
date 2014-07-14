@@ -98,9 +98,7 @@ dm.core.handlers =
     model = actualModel.toJSON()
     model['db'] = dm.core.state.getActualRdbs()
 
-    data =
-      'name': actualModel.name.toLowerCase()
-      'model': model
+    data = 'model': model
 
     dm.core.getDialog('version').show(
       {model: data}

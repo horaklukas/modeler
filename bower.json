@@ -6,6 +6,7 @@
     "closure-library": "https://github.com/google/closure-library.git",
     "este-library": "git://github.com/steida/este-library.git#5.1.0",
     "react": "~0.10.0",
+    "react-externs": "https://github.com/steida/react-externs.git",
     "socket.io-externs": "https://github.com/horaklukas/socket.io-externs.git"
   },
   "resolutions": {

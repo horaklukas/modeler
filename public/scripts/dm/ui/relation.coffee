@@ -6,7 +6,6 @@ goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.Stroke'
 goog.require 'goog.object'
 goog.require 'goog.dom'
-goog.require 'dm.ui.tmpls.createElementFromReactComponent'
 
 class dm.ui.Relation extends goog.ui.Component
 	###*

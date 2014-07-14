@@ -75,12 +75,47 @@ describe 'Module versioning', ->
     it 'should return sorted versions of repo', ->
       vers.readRepo 'repo2', @cb
       mocks.fs.readdir.withArgs(reposDir+'/repo2').yield null, [
-        '165', '38', '321', '294', '1', '145'
+        '165', '38', '1', '145'
       ]
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/1').yield null, '{}'
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/38').yield null, '{}'
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/145').yield null, '{}'
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/165').yield null, '{}'
 
-      @cb.should.been.calledOnce.and.calledWithExactly null, [
-        '1', '38', '145', '165', '294', '321' 
-      ]
+      @cb.should.been.calledOnce 
+      {args} = @cb.lastCall
+      expect(args[0]).to.not.exist
+      expect(args[1]).to.be.an 'array'
+      expect(args[1][0]).to.have.property 'date', '1'
+      expect(args[1][1]).to.have.property 'date', '38'
+      expect(args[1][2]).to.have.property 'date', '145'
+      expect(args[1][3]).to.have.property 'date', '165'
+
+    it 'should response with error if reading any file failed', (done) ->
+      mocks.fs.readdir.withArgs(reposDir+'/repo2').yields null, ['9','16','5']
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/9').yields null, '{}'
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/16').yields 'fuck error'
+      mocks.fs.readFile.withArgs(reposDir+'/repo2/5').yields null, '{}'
+
+      vers.readRepo 'repo2', (err) ->
+        expect(err).to.equal 'fuck error'
+        done() 
+
+    it 'should read desc of each version', (done) ->
+      mocks.fs.readdir.withArgs(reposDir+'/repo4').yields null, ['9','16']
+      mocks.fs.readFile.withArgs(reposDir+'/repo4/16').yields(
+        null, '{"descr":"vers 16"}'
+      )
+      mocks.fs.readFile.withArgs(reposDir+'/repo4/9').yields(
+        null, '{"descr":"vers 9"}'
+      )
+
+      vers.readRepo 'repo4', (err, data) ->
+        expect(err).to.not.exist
+        expect(data).to.be.an 'array'
+        expect(data[0]).to.have.property 'descr', 'vers 9'
+        expect(data[1]).to.have.property 'descr', 'vers 16'
+        done()
 
   describe 'method addVersion', ->
     before ->
@@ -196,7 +231,7 @@ describe 'Module versioning', ->
 
     it 'should read whole content if only one version exist', ->
       vers.getVersion 'repo3', '12345', @cb
-      vers.readRepo.withArgs('repo3').yield null, ['12345']
+      vers.readRepo.withArgs('repo3').yield null, [{date:'12345'}]
       mocks.fs.readFile.withArgs(reposDir+'/repo3/12345').yield(
         null, '{"alone":"vers"}'
       )
@@ -206,7 +241,7 @@ describe 'Module versioning', ->
 
     it 'should response with error if the only one version has different name', ->
       vers.getVersion 'repo4', '12345', @cb
-      vers.readRepo.withArgs('repo4').yield null, ['654321']
+      vers.readRepo.withArgs('repo4').yield null, [{date:'654321'}]
 
       @cb.should.been.calledOnce.and.calledWithExactly(
         'Versions doesnt match: 12345-654321'
@@ -215,7 +250,7 @@ describe 'Module versioning', ->
 
     it 'should response with error if reading original version fail', ->
       vers.getVersion 'repo5', '12345', @cb
-      vers.readRepo.withArgs('repo5').yield null, ['123', '456']
+      vers.readRepo.withArgs('repo5').yield null, [{date: '123'}, {date:'456'}]
       mocks.fs.readFile.withArgs(reposDir+'/repo5/123').yield 'File not exist'
 
       @cb.should.been.calledOnce.and.calledWithExactly 'File not exist'
@@ -223,7 +258,7 @@ describe 'Module versioning', ->
 
     it 'should response with error if reading required version patch fail', ->
       vers.getVersion 'repo6', '1234', @cb
-      vers.readRepo.withArgs('repo6').yield null, ['12', '3456']
+      vers.readRepo.withArgs('repo6').yield null, [{date:'12'}, {date:'3456'}]
       mocks.fs.readFile.withArgs(reposDir+'/repo6/12').yield null, '{}'
       mocks.fs.readFile.withArgs(reposDir+'/repo6/1234').yield 'File isnt readable'
 
@@ -232,7 +267,7 @@ describe 'Module versioning', ->
 
     it 'should write patched original, which is required object version', ->
       vers.getVersion 'repo7', '54321', @cb
-      vers.readRepo.withArgs('repo7').yield null, ['54', '321']
+      vers.readRepo.withArgs('repo7').yield null, [{date:'54'}, {date:'321'}]
       mocks.fs.readFile.withArgs(reposDir+'/repo7/54').yield(
         null, '{"version": "original content"}'
       )

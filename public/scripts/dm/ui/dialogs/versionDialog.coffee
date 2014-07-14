@@ -6,7 +6,7 @@ goog.require 'dm.ui.Dialog'
 goog.require 'goog.array'
 goog.require 'goog.object'
 goog.require 'dm.ui.Dialog'
-
+goog.require 'dm.ui.utils'
 
 dm.ui.VersioningDialog = React.createClass
   show: (data = {}, successCb, cancelCb = ->)->
@@ -39,34 +39,36 @@ dm.ui.VersioningDialog = React.createClass
             selectedRepo: repo
           }
 
-  handleVersionSelect: ({target}) ->
+  handleVersionSelect: (ev) ->
     repo = @state.selectedRepo
-    vers = @state.data.versions[target.getAttribute('name')]
+    vers = @state.data.versions[ev.currentTarget.getAttribute('name')]
 
     if not vers?
       @setStatus 'Cannot confirm when version isnt selected'
     else
-      @props.connection.emit 'get-version', repo, vers, (err, data) =>
-        if err then @setStatus err
-        else @props.confirmCb?(data)
+      @props.connection.emit 'get-version', repo, vers.date, (err, data) =>
+        if err then return @setStatus err
+        
+        @hide() 
+        @props.confirmCb?(data['model'])
 
   handleAddRepo: ->
     repoName = @refs.repoName.getDOMNode().value
-    versName = @refs.versionName.getDOMNode().value
-    missing = null
+    versDescr = @refs.versionDescr.getDOMNode().value
 
-    unless repoName then missing = 'repository'
-    else if not versName then missing = 'version'
+    unless repoName then @setStatus "Please type repository name"
+    else
+      data = goog.object.clone @state['data']['model']
+      data['descr'] = versDescr
 
-    if missing? then @setStatus "Please type #{missing} name"
-    else @addVersion repoName, @state.data.model
+      @addVersion repoName, data
 
   ###*
   * @param {string} repo Name of repository
-  * @param {Object} 
+  * @param {Object} data 
   ###
   addVersion: (repo, data) ->
-    @props.connection.emit 'add-version', repo, data, (err, data) ->
+    @props.connection.emit 'add-version', repo, data, (err, data) =>
       if err then @setStatus err else @props?.confirmCb()
 
   ###*
@@ -91,8 +93,14 @@ dm.ui.VersioningDialog = React.createClass
 
       when 'selectversion'
         versionsList = goog.array.map @state.data.versions, (vers, i) ->
-          `( <div className="list-item" key={vers+i} name={i}
-              onClick={this.handleVersionSelect} >{vers}</div> )`
+          date = vers['date']
+          descr = vers['descr']
+          `( <div className="list-item" key={date+i} name={i}
+              onClick={this.handleVersionSelect} 
+             >
+              {dm.ui.utils.convertMsToDateTimeFormat(date)}{' '}{descr}
+             </div> 
+           )`
         , this
         
         # this should never haapen
@@ -103,10 +111,13 @@ dm.ui.VersioningDialog = React.createClass
       when 'addrepo'
         `( <div>
             <p>Repository name: <input ref="repoName" /></p>
-            <p>Version name: <input ref="versionName" />not used now</p>
+            <p>Version description: <input ref="versionDescr" /></p>
           </div> )`
       
-      when 'addversion'  then ''
+      when 'addversion'
+        `( <div>
+            <p>Version description: <input ref="versionDescr" /></p>
+          </div> )`
 
   componentWillMount: ->
     @props.connection.emit 'get-repos', (err, repos) =>
