@@ -228,6 +228,13 @@ dm.core.handlers =
         "for ensuring uniqueness!"
       )
 
+  onServerReconnect: ->
+    dm.core.enableServerRelatedTools true
+
+  onServerDisconnect: (enable) ->
+    console.log 'Server disconnected at socket.io channel'
+    dm.core.enableServerRelatedTools false
+
   windowUnload: (ev) ->
     state = dm.core.state.getActual()
     

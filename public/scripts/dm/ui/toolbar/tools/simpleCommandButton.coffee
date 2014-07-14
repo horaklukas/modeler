@@ -6,14 +6,18 @@ class dm.ui.tools.SimpleCommandButton extends goog.ui.ToolbarButton
 	###*
 	* @param {!string} cssClass
 	* @param {string} event Name of event to be dispatched after click
+	* @param {?string=} title Optional content of `title` attribute
+	* @oaran {string=} id Id of tool
   * @constructor
   * @extends {goog.ui.ToolbarButton}
 	###	
-	constructor: (cssClass, event, title = '') ->
+	constructor: (cssClass, event, title = '', id) ->
 		super goog.dom.createDom 'div', {
 			'class': "icon tool #{cssClass}"
 			'title': title
 		}
+
+		if id? then @setId id
 
 		###*
     * @type {string}

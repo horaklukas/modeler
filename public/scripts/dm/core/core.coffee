@@ -25,6 +25,17 @@ dm.core =
     form.submit()
     goog.dom.removeNode form
 
+  ###*
+  * @param {boolean=} enable
+  ###
+  enableServerRelatedTools: (enable = true) ->
+    toolbar = dm.core.getToolbar()
+
+    toolbar.getChild('save-tool').setEnabled enable
+    toolbar.getChild('load-tool').setEnabled enable
+    toolbar.getChild('exp-tool').setEnabled enable
+    toolbar.getChild('vers-tool').setEnabled enable
+
   getToolbar: ->
     dm.core.toolbar
 

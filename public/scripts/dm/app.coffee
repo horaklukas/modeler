@@ -40,8 +40,8 @@ goog.exportProperty dm.ui, 'VersioningDialog', dm.ui.VersioningDialog
 ###
 dm.socket = io.connect location.hostname
 
-dm.socket.on 'disconnect', ->
-  console.log 'Server disconnected at socket.io channel'
+dm.socket.on 'disconnect', dm.core.handlers.onServerDisconnect
+dm.socket.on 'reconnect', dm.core.handlers.onServerReconnect
 
 canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
@@ -60,17 +60,19 @@ toolbar.addChild new dm.ui.tools.SimpleCommandButton(
 ), true
 toolbar.addChild new goog.ui.ToolbarSeparator(), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
-  'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL, 'Save model'
+  'save-model', dm.ui.Toolbar.EventType.SAVE_MODEL, 'Save model', 'save-tool'
 ), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
-  'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL, 'Load model'
+  'load-model', dm.ui.Toolbar.EventType.LOAD_MODEL, 'Load model', 'load-tool'
 ), true
 toolbar.addChild new goog.ui.ToolbarSeparator(), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
   'export-model', dm.ui.Toolbar.EventType.EXPORT_MODEL, 'Export model'
+  'exp-tool'
 ), true
 toolbar.addChild new dm.ui.tools.SimpleCommandButton(
   'version-model', dm.ui.Toolbar.EventType.VERSION_MODEL, 'Version model'
+  'vers-tool'
 ), true
 
 toolbar.renderBefore canvasElement
