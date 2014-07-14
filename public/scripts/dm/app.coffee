@@ -25,6 +25,16 @@ goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.dom'
 goog.require 'goog.events'
 
+goog.exportProperty dm.ui, 'SelectDbDialog', dm.ui.SelectDbDialog
+goog.exportProperty dm.ui, 'TableDialog', dm.ui.TableDialog
+goog.exportProperty dm.ui, 'RelationDialog', dm.ui.RelationDialog
+goog.exportProperty dm.ui, 'LoadModelDialog', dm.ui.LoadModelDialog
+goog.exportProperty dm.ui, 'IntroDialog', dm.ui.IntroDialog
+goog.exportProperty dm.ui, 'InfoDialog', dm.ui.InfoDialog
+goog.exportProperty dm.ui, 'ReEngineeringDialog', dm.ui.ReEngineeringDialog
+goog.exportProperty dm.ui, 'SimpleInputDialog', dm.ui.SimpleInputDialog
+goog.exportProperty dm.ui, 'VersioningDialog', dm.ui.VersioningDialog
+
 ###*
 * @type {Socket}
 ###
@@ -73,27 +83,26 @@ dialogs =
   'reeng': 
     componentName: 'ReEngineeringDialog'
     props:
-      connection: dm.socket, dbs: dmAssets.dbs
-      onDataReceive: dm.core.handlers.reengRequest
+      'connection': dm.socket, 'dbs': dmAssets.dbs
+      'onDataReceive': dm.core.handlers.reengRequest
   'selectDb':
     componentName: 'SelectDbDialog' 
-    props: {dbs: dmAssets.dbs, onSelect: dm.core.state.setActualRdbs}
+    props: {'dbs': dmAssets.dbs, 'onSelect': dm.core.state.setActualRdbs}
   'table':
     componentName: 'TableDialog'
-    props: {types: null}
+    props: {'types': null}
   'relation':
     componentName: 'RelationDialog' 
     props: {}
   'loadModel':
     componentName: 'LoadModelDialog' 
-    props: {onModelLoad: dm.core.handlers.modelLoad}
+    props: {'onModelLoad': dm.core.handlers.modelLoad}
   'input':
     componentName: 'SimpleInputDialog'
     props: {}
   'version':
     componentName: 'VersioningDialog'
-    props: 
-      connection: dm.socket
+    props: {'connection': dm.socket}
   'info': 
     componentName: 'InfoDialog'
     props: {}

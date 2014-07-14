@@ -6,7 +6,7 @@ goog.require 'goog.object'
 goog.require 'dm.ui.Dialog'
 
 dm.ui.IntroDialog = React.createClass
-  statics:
+  'statics':
     actions:
       'new': 'NEW MODEL'
       'load': 'LOAD MODEL'

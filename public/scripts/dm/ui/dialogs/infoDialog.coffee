@@ -6,7 +6,7 @@ goog.require 'dm.ui.Dialog'
 goog.require 'goog.string'
 
 dm.ui.InfoDialog = React.createClass
-  statics:
+  'statics':
     types:
       INFO: 'info'
       WARN: 'warning' 
