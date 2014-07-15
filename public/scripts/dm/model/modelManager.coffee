@@ -42,10 +42,11 @@ class dm.model.ModelManager extends goog.events.EventTarget
   * @param {dm.model.Table} model
   * @param {number} x Horizontal coordinate of table position
   * @param {string} y Vertical coordinate of table position
+  * @param {string=} id Id of table component
   * @return {string} id of created table
   ###
-  addTable: (model, x, y) ->
-    tab = new dm.ui.Table model, x, y
+  addTable: (model, x, y, id) ->
+    tab = new dm.ui.Table model, x, y, id
     @canvas.addTable tab
     @actualModel.addTable tab
 
@@ -63,10 +64,11 @@ class dm.model.ModelManager extends goog.events.EventTarget
   * Add relation to actual model and create it at canvas
   *
   * @param {dm.model.Relation} model
+  * @param {string=} id Id of relation component
   * @return {string} id of created relation
   ###
-  addRelation: (model) ->
-    rel = new dm.ui.Relation model
+  addRelation: (model, id) ->
+    rel = new dm.ui.Relation model, id
     parentTable = @actualModel.getTableUiById model.tables.parent
     childTable = @actualModel.getTableUiById model.tables.child
 
@@ -208,11 +210,11 @@ class dm.model.ModelManager extends goog.events.EventTarget
         for index in columnIndexes when index isnt dm.model.Table.index.FK
           tableModel.setIndex columnId, index 
         
-      @addTable tableModel, table.pos.x, table.pos.y
+      @addTable tableModel, table.pos.x, table.pos.y, table.__id__
 
     for relation in relations
-      {name, type, cardinality, parciality} = relation
-      {parent, child} = relation.tables
+      {name, type, cardinality, parciality} = relation.model
+      {parent, child} = relation.model.tables
 
       parentId = @actualModel.getTableIdByName parent
       childId = @actualModel.getTableIdByName child
@@ -220,11 +222,11 @@ class dm.model.ModelManager extends goog.events.EventTarget
       relationModel = new dm.model.Relation(type, parentId, childId, name)
       relationModel.setCardinalityParciality cardinality, parciality
 
-      @addRelation relationModel
+      @addRelation relationModel, relation.__id__
 
       childTable = @actualModel.getTableById childId
 
-      for mapping in relation.mapping
+      for mapping in relation.model.mapping
         # since column was created by relation, it hasnt id saved at json, but
         # has any newly created, so we must get it and the best solution is
         # from relation mapping by parent column - we know its id (id from 

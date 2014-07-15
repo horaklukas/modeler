@@ -3,6 +3,7 @@ fspath = require 'path'
 async = require 'async'
 mkdirp = require 'mkdirp'
 xd = require 'xdiff'
+util = require 'util'
 
 ###*
 * @type {string}
@@ -29,12 +30,10 @@ exports.readRepo = (repo, cb) ->
     if err then return cb err
 
     versions = versions.sort (v1, v2) -> Number(v1) > Number(v2)
-    async.map versions, (vers, cb) ->
+    async.mapSeries versions, (vers, cb2) ->
       readVersionFile repo, vers, (err, versData) ->
-        if err? then return cb err
-        
-        versData.date = vers 
-        cb null, versData
+        if err? then return cb2 err      
+        cb2 null, {date: vers, descr: versData.descr}
     , cb
 
 ###*
@@ -42,7 +41,7 @@ exports.readRepo = (repo, cb) ->
 ###
 exports.addVersion = (repo, data, cb) ->
   dir = fspath.join(reposDir, repo)
-
+  console.log util.inspect data
   async.waterfall [
     async.apply mkdirp, dir
     (dir, cb) -> cb()
@@ -61,9 +60,21 @@ exports.getVersion = (repo, version, cb) ->
       readVersionFile repo, versions[0].date, (err, original) ->
         if err then return cb err
 
+        # requested first version that contain full content, so response it
+        if version is versions[0].date then return cb null, original
+
         readVersionFile repo, version, (err, versionDiff) ->
           if err then return cb err
-          else cb null, xd.patch(original, versionDiff)
+          
+          console.log  'appling patch'
+          console.log util.inspect versionDiff.model
+          console.log '\nto\n'
+          util.inspect original.model 
+          model = xd.patch original.model, versionDiff.model
+          cb null, {
+            model: model 
+            descr: versionDiff.descr
+          } 
 
     else if versions.length is 1
       if version isnt versions[0].date
@@ -86,14 +97,19 @@ readVersionFile = (repo, version, cb) ->
 ###
 createVersion = (repo, data, versions, cb) ->
   date = new Date
-  newVersion = date.getTime().toString()
+  versName = date.getTime().toString()
 
   if versions.length > 0
-    readVersionFile repo, versions[0], (err, origContent) ->
+    readVersionFile repo, versions[0].date, (err, origContent) ->
       if err then return cb err
-      writeVersion repo, newVersion, xd.diff(origContent, data), cb
+
+      newVersion = 
+        model: xd.diff origContent.model, data.model
+        descr: data.descr
+
+      writeVersion repo, versName, newVersion, cb
   else 
-    writeVersion repo, newVersion, data, cb
+    writeVersion repo, versName, data, cb
 
 ###*
 * Write version content do file system

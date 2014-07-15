@@ -43,30 +43,43 @@ dm.ui.VersioningDialog = React.createClass
     repo = @state.selectedRepo
     vers = @state.data.versions[ev.currentTarget.getAttribute('name')]
 
-    unless vers?
+    if not vers?
       return @setStatus 'Cannot confirm when version isnt selected'
+    
+    @props.connection.emit 'get-version', repo, vers.date, (err, data) =>
+      if err then return @setStatus err
+      
+      @hide() 
+      @props.confirmCb?(data['model'], repo, vers.date)
 
-    @hide()
-    @props.confirmCb?(vers['model'], repo, vers.date)
-
+  ###*
+  * Handler for create of version at non-existing repo
+  ###
   handleAddRepo: ->
     repoName = @refs['repoName'].getDOMNode().value
     versDescr = @refs['versionDescr'].getDOMNode().value
 
     unless repoName then @setStatus "Please type repository name"
-    else
-      data = goog.object.clone @state['data']['model']
-      data['descr'] = versDescr
+    else @addVersion repoName, @state.data.model, versDescr
 
-      @addVersion repoName, data
+  ###*
+  * Handler for create of version at existing repo
+  ###
+  handleAddVersion: ->
+    versDescr = @refs['versionDescr'].getDOMNode().value
+    @addVersion @state.data.repo, @state.data.model, versDescr
 
   ###*
   * @param {string} repo Name of repository
-  * @param {Object} data 
+  * @param {Object} model 
+  * @param {string=} descr Version description 
   ###
-  addVersion: (repo, data) ->
+  addVersion: (repo, model, descr) ->
+    data = goog.object.clone model
+    data['descr'] = descr
+
     @props.connection.emit 'add-version', repo, data, (err, data) =>
-      if err then @setStatus err else @props?.confirmCb()
+      if err then @setStatus err else @props?.confirmCb repo
 
   ###*
   * @param {string} text Text of status
@@ -133,7 +146,7 @@ dm.ui.VersioningDialog = React.createClass
     buttonSet =  Dialog.buttonSet.OK_CANCEL
     
     if @state.data.model?
-      if @state.data.repo and @state.data.version
+      if @state.data.repo
         text = 'Fill information about new version'
         confirmHandler = @handleAddVersion
         type = 'addversion'        
@@ -152,7 +165,9 @@ dm.ui.VersioningDialog = React.createClass
       type = 'selectrepo'
       # repository are selected by click on repo, so only Cancel is available
       buttonSet = Dialog.buttonSet.CANCEL
-    
+
+    repo = @state.selectedRepo ? @state.data.repo ? null
+    additionalInfo = `(<p>Repository: <strong>{repo}</strong></p>)` if repo?
 
     infoClass = 'state'
     infoClass += " #{@state.info.type}" if @state.info.type?
@@ -161,6 +176,8 @@ dm.ui.VersioningDialog = React.createClass
     <Dialog title={title} buttons={buttonSet} visible={this.state.visible}
       onConfirm={confirmHandler} onCancel={this.handleCancel}
      >
+
+      {additionalInfo}
       <strong>{text}</strong>
 
       <div className={infoClass}>{this.state.info.text}</div>

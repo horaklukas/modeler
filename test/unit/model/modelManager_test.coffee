@@ -58,11 +58,12 @@ describe 'class model.ModelManager', ->
 
 		describe 'relations recreate', ->
 			before ->
-				@relationsdata = [{	
-					'type': true,
-					'mapping': [{'parent':':9', 'child':':g'}],
-					'tables': {'parent':'parenttab','child':'childtab'}
-					'name': 'rel1'
+				@relationsdata = [{
+					'model':	
+						'type': true,
+						'mapping': [{'parent':':9', 'child':':g'}],
+						'tables': {'parent':'parenttab','child':'childtab'}
+						'name': 'rel1'
 				}]
 
 				@tablesdata = [{

@@ -12,6 +12,24 @@ goog.require 'goog.object'
 
 dm.core.handlers =
   ###*
+  * @param {string} action Id of action selected at intro dialog
+  ###
+  introActionSelected: (action) ->
+    switch action
+      when 'new'
+        dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
+      when 'load'
+        dm.core.getDialog('loadModel').show false
+      when 'byversion'
+        dm.core.getDialog('version').show(
+          null, dm.core.handlers.onVersionSelect, dm.core.getDialog('intro').show
+        )
+      when 'fromdb' then dm.core.getDialog('reeng').show()
+      else return
+
+    dm.core.getDialog('intro').hide()
+  
+  ###*
   * @param {Object} json JSON representation of model
   ###
   modelLoad: (json) ->
@@ -29,6 +47,7 @@ dm.core.handlers =
       'NewModel', 'Type name of new model'
       dm.core.getModelManager().bakupOldCreateNewActual
     )
+    dm.core.state.clearVersion()
     dm.core.state.setSaved true
 
   saveModelRequest: (ev) ->
@@ -62,22 +81,6 @@ dm.core.handlers =
     )
 
   ###*
-  * @param {string} action Id of action selected at intro dialog
-  ###
-  introActionSelected: (action) ->
-    switch action
-      when 'new' then dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
-      when 'load' then dm.core.getDialog('loadModel').show false
-      when 'byversion'
-        dm.core.getDialog('version').show(
-          null, dm.core.handlers.onVersionSelect, dm.core.getDialog('intro').show
-        )
-      when 'fromdb' then dm.core.getDialog('reeng').show()
-      else return
-
-    dm.core.getDialog('intro').hide()
-
-  ###*
   * @param {Object.<string, object>} object containing keys `tables` and 
   *  `relations`
   ###
@@ -90,6 +93,7 @@ dm.core.handlers =
 
         # set model's db as a actual with replaced dots at version string
         dm.core.state.setActualRdbs data.db.replace '.', '-'
+        dm.core.state.clearVersion()
         dm.core.state.setSaved true
     )
 
@@ -98,11 +102,15 @@ dm.core.handlers =
     model = actualModel.toJSON()
     model['db'] = dm.core.state.getActualRdbs()
 
-    data = 'model': model
+    props = model: 'model': model 
+    
+    if (repo = dm.core.state.getVersioned())? then props.repo = repo
 
     dm.core.getDialog('version').show(
-      {model: data}
-      => dm.core.getDialog('info').show 'Model successfuly versioned'
+      props, (repo) ->
+        dm.core.getDialog('info').show 'Model successfuly versioned'
+        dm.core.state.setVersioned repo 
+        dm.core.state.setSaved true
     )
 
   statusChange: (ev) ->
@@ -226,7 +234,9 @@ dm.core.handlers =
         "for ensuring uniqueness!"
       )
 
-  onVersionSelect: (model, repo, versDate) ->
+  onVersionSelect: (model, repo) ->
+    dm.core.state.setVersioned repo
+    dm.core.handlers.modelLoad model
 
   onServerReconnect: ->
     dm.core.enableServerRelatedTools true

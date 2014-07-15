@@ -20,6 +20,11 @@ dm.core.state =
   ###
   actual: ''
 
+  ###*
+  * @type {Object.<string, string>}
+  ###
+  repo: null
+
   setActual: (type) ->
     dm.core.state.actual = type
 
@@ -57,3 +62,19 @@ dm.core.state =
 
   getActualRdbs: ->
     dm.core.state.actualRdbs
+
+  clearVersioned: ->
+    dm.core.state.setVersioned null
+
+  ###*
+  * @param {string} repo Name of repository
+  * @param {string} id Identificator of version file
+  ###
+  setVersioned: (repo, id) ->
+    dm.core.state.repo = repo
+
+  ###*
+  * @return {(string|null)}
+  ###
+  getVersioned: ->
+    dm.core.state.repo ? null
