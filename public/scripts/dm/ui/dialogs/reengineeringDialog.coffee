@@ -26,7 +26,7 @@ dm.ui.ReEngineeringDialog = React.createClass
 
     @props.connection.emit 'connect-db', type, options, (err, data) =>
       if err then @handleError err
-      else @setState data: data
+      else @setState data: data, info: {text: '', err: false}
 
     # dont hide dialog until process is complete
     return false

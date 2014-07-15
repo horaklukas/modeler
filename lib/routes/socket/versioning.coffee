@@ -41,7 +41,7 @@ exports.readRepo = (repo, cb) ->
 ###
 exports.addVersion = (repo, data, cb) ->
   dir = fspath.join(reposDir, repo)
-  console.log util.inspect data
+
   async.waterfall [
     async.apply mkdirp, dir
     (dir, cb) -> cb()
@@ -66,9 +66,6 @@ exports.getVersion = (repo, version, cb) ->
         readVersionFile repo, version, (err, versionDiff) ->
           if err then return cb err
           
-          console.log  'appling patch'
-          console.log util.inspect versionDiff.model
-          console.log '\nto\n'
           util.inspect original.model 
           model = xd.patch original.model, versionDiff.model
           cb null, {

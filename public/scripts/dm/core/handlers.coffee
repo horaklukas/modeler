@@ -47,7 +47,7 @@ dm.core.handlers =
       'NewModel', 'Type name of new model'
       dm.core.getModelManager().bakupOldCreateNewActual
     )
-    dm.core.state.clearVersion()
+    dm.core.state.clearVersioned()
     dm.core.state.setSaved true
 
   saveModelRequest: (ev) ->
@@ -93,7 +93,7 @@ dm.core.handlers =
 
         # set model's db as a actual with replaced dots at version string
         dm.core.state.setActualRdbs data.db.replace '.', '-'
-        dm.core.state.clearVersion()
+        dm.core.state.clearVersioned()
         dm.core.state.setSaved true
     )
 

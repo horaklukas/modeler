@@ -116,7 +116,7 @@ dm.ui.VersioningDialog = React.createClass
         # this should never haapen
         if versionsList.length is 0 then versionsList = 'There are no versions'
 
-        `( <div>{versionsList}</div> )`
+        `( <div>{versionsList.reverse()}</div> )`
 
       when 'addrepo'
         `( <div>
