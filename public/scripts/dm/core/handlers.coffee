@@ -70,7 +70,7 @@ dm.core.handlers =
       when 'load' then dm.core.getDialog('loadModel').show false
       when 'byversion'
         dm.core.getDialog('version').show(
-          null, dm.core.handlers.modelLoad, dm.core.getDialog('intro').show
+          null, dm.core.handlers.onVersionSelect, dm.core.getDialog('intro').show
         )
       when 'fromdb' then dm.core.getDialog('reeng').show()
       else return
@@ -225,6 +225,8 @@ dm.core.handlers =
         "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
         "for ensuring uniqueness!"
       )
+
+  onVersionSelect: (model, repo, versDate) ->
 
   onServerReconnect: ->
     dm.core.enableServerRelatedTools true

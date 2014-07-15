@@ -30,8 +30,11 @@ exports.readRepo = (repo, cb) ->
 
     versions = versions.sort (v1, v2) -> Number(v1) > Number(v2)
     async.map versions, (vers, cb) ->
-      readVersionFile repo, vers, (err, content) ->
-        if err? then cb err else cb null, {date: vers, descr: content.descr}
+      readVersionFile repo, vers, (err, versData) ->
+        if err? then return cb err
+        
+        versData.date = vers 
+        cb null, versData
     , cb
 
 ###*

@@ -89,7 +89,7 @@ dm.ui.ReEngineeringDialog = React.createClass
           dbTypes.push `(<option key={dbId} value={dbId}>{db.name}</option>)`
 
         `(
-          <ConnectionsManager source={this.props.connection} dbTypes={dbTypes}
+          <ConnectionsManager conn={this.props.connection} dbTypes={dbTypes}
             selected={selected}
             onError={this.handleError} onSelect={this.handleConnSelect} />
         )`
@@ -160,23 +160,23 @@ ConnectionsManager = React.createClass
   addConnection: (ev) ->
     ev.preventDefault()
 
-    connName = @refs.name.getDOMNode().value
+    connName = @refs['name'].getDOMNode().value
 
     if @state.connections[connName]?
       @props.onError 'Connection with this name already exists'
 
-    type = @refs.dbtype.getDOMNode().value
-    pass = @refs.pass.getDOMNode().value
-    port = @refs.port.getDOMNode().value
+    type = @refs['dbtype'].getDOMNode().value
+    pass = @refs['pass'].getDOMNode().value
+    port = @refs['port'].getDOMNode().value
     connectOptions =
       type: type
-      host: @refs.host.getDOMNode().value
-      db: @refs.db.getDOMNode().value
-      user: @refs.user.getDOMNode().value
+      host: @refs['host'].getDOMNode().value
+      db: @refs['db'].getDOMNode().value
+      user: @refs['user'].getDOMNode().value
       pass: if pass is '' then null else pass
       port: if port is '' then null else port
 
-    @props.source.emit 'add-connection', connName, connectOptions, (err) =>
+    @props.conn.emit 'add-connection', connName, connectOptions, (err) =>
       if err then return @props.onError err
 
       connections = @state.connections
@@ -190,7 +190,7 @@ ConnectionsManager = React.createClass
   * is used instead of getting it from DOM
   ###
   onConnectionSelect: (selected) ->
-    selected = @refs.connections.getDOMNode().value unless goog.isString selected
+    selected = @refs['connections'].getDOMNode().value unless goog.isString selected
 
     if selected is 'placeholder' then selected = null
 
@@ -208,7 +208,7 @@ ConnectionsManager = React.createClass
     )`
 
   componentWillMount: ->
-    @props.source.emit 'get-connections', (err, connections) =>
+    @props.conn.emit 'get-connections', (err, connections) =>
       if err then return @props.onError err
       @setState connections: connections
 

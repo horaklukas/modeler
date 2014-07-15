@@ -43,18 +43,15 @@ dm.ui.VersioningDialog = React.createClass
     repo = @state.selectedRepo
     vers = @state.data.versions[ev.currentTarget.getAttribute('name')]
 
-    if not vers?
-      @setStatus 'Cannot confirm when version isnt selected'
-    else
-      @props.connection.emit 'get-version', repo, vers.date, (err, data) =>
-        if err then return @setStatus err
-        
-        @hide() 
-        @props.confirmCb?(data['model'])
+    unless vers?
+      return @setStatus 'Cannot confirm when version isnt selected'
+
+    @hide()
+    @props.confirmCb?(vers['model'], repo, vers.date)
 
   handleAddRepo: ->
-    repoName = @refs.repoName.getDOMNode().value
-    versDescr = @refs.versionDescr.getDOMNode().value
+    repoName = @refs['repoName'].getDOMNode().value
+    versDescr = @refs['versionDescr'].getDOMNode().value
 
     unless repoName then @setStatus "Please type repository name"
     else

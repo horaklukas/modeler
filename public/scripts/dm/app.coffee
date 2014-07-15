@@ -85,26 +85,26 @@ dialogs =
   'reeng': 
     componentName: 'ReEngineeringDialog'
     props:
-      'connection': dm.socket, 'dbs': dmAssets.dbs
-      'onDataReceive': dm.core.handlers.reengRequest
+      connection: dm.socket, dbs: dmAssets.dbs
+      onDataReceive: dm.core.handlers.reengRequest
   'selectDb':
     componentName: 'SelectDbDialog' 
-    props: {'dbs': dmAssets.dbs, 'onSelect': dm.core.state.setActualRdbs}
+    props: {dbs: dmAssets.dbs, onSelect: dm.core.state.setActualRdbs}
   'table':
     componentName: 'TableDialog'
-    props: {'types': null}
+    props: {types: null}
   'relation':
     componentName: 'RelationDialog' 
     props: {}
   'loadModel':
     componentName: 'LoadModelDialog' 
-    props: {'onModelLoad': dm.core.handlers.modelLoad}
+    props: {onModelLoad: dm.core.handlers.modelLoad}
   'input':
     componentName: 'SimpleInputDialog'
     props: {}
   'version':
     componentName: 'VersioningDialog'
-    props: {'connection': dm.socket}
+    props: {connection: dm.socket}
   'info': 
     componentName: 'InfoDialog'
     props: {}

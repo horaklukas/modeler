@@ -58,7 +58,7 @@ dm.ui.TableDialog = React.createClass
     @setState visible: false
 
   onConfirm: ->
-    tableName = @refs.tableName.getDOMNode().value
+    tableName = @refs['tableName'].getDOMNode().value
     
     if tableName is ''
       @setState errorState: 'Table name have to be filled'
