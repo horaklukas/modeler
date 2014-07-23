@@ -16,7 +16,7 @@ dm.ui.ReEngineeringDialog = React.createClass
     @setState visible: false
 
   handleError: (err) ->
-    @setState info: {text: err, err: true}
+    @setState info: {text: err, type: 'error'}
 
   handleDbConnection: ->
     unless @state.data? then return @handleError 'No connection selected'
@@ -26,8 +26,9 @@ dm.ui.ReEngineeringDialog = React.createClass
 
     @props.connection.emit 'connect-db', type, options, (err, data) =>
       if err then @handleError err
-      else @setState data: data, info: {text: '', err: false}
+      else @setState data: data, info: {text: '', type: null}
 
+    @setState info: {text: 'Trying connect to database', type: 'info'}
     # dont hide dialog until process is complete
     return false
 
@@ -48,7 +49,7 @@ dm.ui.ReEngineeringDialog = React.createClass
       if table.checked then selectedTables.push @state.data.tables[name]
 
     @props.connection.emit 'get-reeng-data', selectedTables, (err, data) =>
-      if err then return @setState info: {text: err, err: true}
+      if err then return @setState info: {text: err, type: 'error'}
 
       @props.onDataReceive data
       @hide()
@@ -116,7 +117,7 @@ dm.ui.ReEngineeringDialog = React.createClass
 
   getInitialState: ->
     visible: false
-    info: text: '', err: false
+    info: text: '', type: null
     data: null
 
   render: ->
@@ -139,7 +140,7 @@ dm.ui.ReEngineeringDialog = React.createClass
 
 
     infoClass = 'state'
-    infoClass += ' error' if @state.info.err
+    infoClass += " #{@state.info.type}" if @state.info.type?
     
     `(
     <Dialog title={title} buttons={buttonSetType} visible={this.state.visible}

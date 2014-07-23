@@ -10,8 +10,6 @@ httpRoutes = require './lib/routes/http'
 reengRoutes = require './lib/routes/socket/reeng'
 versionRoutes = require './lib/routes/socket/versioning'
 
-multipartMiddleware = multipart()
-
 app = express()
 server = http.createServer app
 io = socketio.listen server
@@ -33,14 +31,14 @@ app.use '/bower_components', express.static "#{__dirname}/bower_components"
 app.use '/public', express.static "#{__dirname}/public"
 app.use app.router
 app.use (err, req, res, next) -> res.render '500', error: err
-app.use express.errorHandler()
+#app.use express.errorHandler()
 	
 # App routers
 app.get '/', httpRoutes.app
 app.post '/', httpRoutes.app
 #app.post '/list', httpRoutes.getList
 app.post '/save', httpRoutes.saveModel
-app.post '/load', multipartMiddleware, httpRoutes.loadModel
+app.post '/load', multipart(), httpRoutes.loadModel
 app.post '/export', httpRoutes.exportModel
 
 io.on 'connection', (socket) ->
