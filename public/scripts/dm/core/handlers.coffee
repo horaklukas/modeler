@@ -88,11 +88,11 @@ dm.core.handlers =
     dm.core.getDialog('input').show(
       'Reengineered model', 'Type name of reenginered model', (name) -> 
         dm.core.getModelManager().createActualFromCatalogData(
-          name, data.columns, data.relations
+          name, data['columns'], data['relations']
         )
 
         # set model's db as a actual with replaced dots at version string
-        dm.core.state.setActualRdbs data.db.replace '.', '-'
+        dm.core.state.setActualRdbs data['db'].replace '.', '-'
         dm.core.state.clearVersioned()
         dm.core.state.setSaved true
     )

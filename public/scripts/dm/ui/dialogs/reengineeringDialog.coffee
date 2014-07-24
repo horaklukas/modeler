@@ -46,7 +46,7 @@ dm.ui.ReEngineeringDialog = React.createClass
     selectedTables = []
 
     @forEachTable (table, name) ->
-      if table.checked then selectedTables.push @state.data.tables[name]
+      if table.checked then selectedTables.push @state.data['tables'][name]
 
     @props.connection.emit 'get-reeng-data', selectedTables, (err, data) =>
       if err then return @setState info: {text: err, type: 'error'}
@@ -102,7 +102,7 @@ dm.ui.ReEngineeringDialog = React.createClass
         )`
 
       when 'selecttables'
-        tables = goog.array.map @state.data.tables, (table, idx) ->
+        tables = goog.array.map @state.data['tables'], (table, idx) ->
           `( <p><input type="checkbox" ref={ 'table' + idx } />{table}</p> )` 
         
         `( 
@@ -129,11 +129,11 @@ dm.ui.ReEngineeringDialog = React.createClass
       text = 'Select existing database connection or create new'
       confirmHandler = @handleDbConnection
       type = 'dbconnect'
-    else if @state.data.schemata?
+    else if @state.data['schemata']?
       text = 'Database contains more than one database schema, select the correct one'
       confirmHandler = @handleSchemaSelect
       type = 'selectschema'
-    else if @state.data.tables?
+    else if @state.data['tables']?
       text = 'Select tables for reengineering'
       confirmHandler = @handleTablesSelected
       type = 'selecttables'
@@ -170,12 +170,12 @@ ConnectionsManager = React.createClass
     pass = @refs['pass'].getDOMNode().value
     port = @refs['port'].getDOMNode().value
     connectOptions =
-      type: type
-      host: @refs['host'].getDOMNode().value
-      db: @refs['db'].getDOMNode().value
-      user: @refs['user'].getDOMNode().value
-      pass: if pass is '' then null else pass
-      port: if port is '' then null else port
+      'type': type
+      'host': @refs['host'].getDOMNode().value
+      'db': @refs['db'].getDOMNode().value
+      'user': @refs['user'].getDOMNode().value
+      'pass': if pass is '' then null else pass
+      'port': if port is '' then null else port
 
     @props.conn.emit 'add-connection', connName, connectOptions, (err) =>
       if err then return @props.onError err
@@ -217,12 +217,14 @@ ConnectionsManager = React.createClass
     connections: {}
 
   render: ->
-    fieldStyle = float: 'right'
+    fieldStyle = 'float': 'right'
     connName = @props.selected
     disabled = connName?
 
     conn = @state.connections[connName] ? {
-      host: null, db: null, user: null, pass: null, port: null, type: null
+      'host': null, 'db': null
+      'user': null, 'pass': null
+      'port': null, 'type': null
     }
 
     `(
@@ -236,34 +238,34 @@ ConnectionsManager = React.createClass
         </p>
         <p>
           Database type
-          <select ref="dbtype" style={fieldStyle} value={conn.type} 
+          <select ref="dbtype" style={fieldStyle} value={conn['type']} 
             disabled={disabled}>
             {this.props.dbTypes}
           </select>
         </p>
         <p>
           Hostname or Ip address
-          <input ref="host" style={fieldStyle} value={conn.host}
+          <input ref="host" style={fieldStyle} value={conn['host']}
             disabled={disabled} />
         </p>
         <p>
           Database name
-          <input ref="db" style={fieldStyle} value={conn.db} 
+          <input ref="db" style={fieldStyle} value={conn['db']} 
             disabled={disabled} />
         </p>
         <p>
           Name of database user
-          <input ref="user" style={fieldStyle} value={conn.user} 
+          <input ref="user" style={fieldStyle} value={conn['user']} 
             disabled={disabled} />
         </p>
         <p>
           User password
           <input type="password" ref="pass" style={fieldStyle} 
-            value={conn.pass} disabled={disabled} />
+            value={conn['pass']} disabled={disabled} />
         </p>
         <p>
           Connection port
-          <input ref="port" style={fieldStyle} maxLength="5" size="10" value={conn.port} disabled={disabled} />
+          <input ref="port" style={fieldStyle} maxLength="5" size="10" value={conn['port']} disabled={disabled} />
         </p>
         <button onClick={this.addConnection} disabled={disabled}>
           Create

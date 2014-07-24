@@ -25,13 +25,14 @@ app.use express.logger 'dev'
 app.use express.json()
 app.use express.urlencoded()
 #app.use express.methodOverride()
-express.compress()
+app.use express.compress()
 app.use stylus.middleware src: "#{__dirname}/public/styles", compile: stylusCompile
 app.use '/bower_components', express.static "#{__dirname}/bower_components"
 app.use '/public', express.static "#{__dirname}/public"
 app.use app.router
-app.use (err, req, res, next) -> res.render '500', error: err
-#app.use express.errorHandler()
+
+if process.env.MODE is 'development' then app.use express.errorHandler()
+else app.use (err, req, res, next) -> res.render '500', error: err
 	
 # App routers
 app.get '/', httpRoutes.app

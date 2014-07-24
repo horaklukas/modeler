@@ -191,50 +191,57 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     for table, idx in tables
       columns = {}
-      {indexes} = table.model
+      indexes = table['model']['indexes']
+      tabName = table['model']['name']
 
-      goog.object.forEach table.model.columns, (column, id) => 
+      goog.object.forEach table['model']['columns'], (column, id) => 
         if indexes?[id]? and dm.model.Table.index.FK in indexes[id]
           return 
         
         columns[id] = {}
         columns[id][prop] = @columnCoercion(value) for prop, value of column
 
-      tableModel = new dm.model.Table table.model.name, columns
+      tableModel = new dm.model.Table tabName, columns
   
       # this is useful when creating relations
-      tableIdxsByName[table.model.name] = idx 
+      tableIdxsByName[tabName] = idx 
 
         # foreign key column's indexes are created by relation
       for columnId, columnIndexes of indexes when not goog.array.contains columnIndexes, dm.model.Table.index.FK
         for index in columnIndexes when index isnt dm.model.Table.index.FK
           tableModel.setIndex columnId, index 
         
-      @addTable tableModel, table.pos.x, table.pos.y, table.__id__
+      @addTable tableModel, table['pos']['x'], table['pos']['y'], table['__id__']
 
     for relation in relations
-      {name, type, cardinality, parciality} = relation.model
-      {parent, child} = relation.model.tables
+      model = relation['model']
+      parent = model['tables']['parent']
+      child = model['tables']['child']
 
-      parentId = @actualModel.getTableIdByName parent
+      parentId = @actualModel.getTableIdByName parent 
       childId = @actualModel.getTableIdByName child
 
-      relationModel = new dm.model.Relation(type, parentId, childId, name)
-      relationModel.setCardinalityParciality cardinality, parciality
+      relationModel = new dm.model.Relation(
+        model['type'], parentId, childId, model['name']
+      )
+      relationModel.setCardinalityParciality(
+        model['cardinality'], model['parciality']
+      )
 
-      @addRelation relationModel, relation.__id__
+      @addRelation relationModel, relation['__id__']
 
       childTable = @actualModel.getTableById childId
 
-      for mapping in relation.model.mapping
+      for mapping in model['mapping']
         # since column was created by relation, it hasnt id saved at json, but
         # has any newly created, so we must get it and the best solution is
         # from relation mapping by parent column - we know its id (id from 
         # loaded model is used)
-        columnId = relationModel.getOppositeMappingId mapping.parent
+        columnId = relationModel.getOppositeMappingId mapping['parent']
 
         childTable.setColumn(
-          tables[tableIdxsByName[child]].model.columns[mapping.child], columnId
+          tables[tableIdxsByName[child]]['model']['columns'][mapping['child']]
+          columnId
         )
    
   ###*
