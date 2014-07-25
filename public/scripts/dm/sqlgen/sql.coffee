@@ -94,8 +94,8 @@ class dm.sqlgen.Sql
 		@relConstraintNames.push name
 		
 		for map in columnsMapping
-			childColumnsNames.push childColumns[map.child].name
-			parentColumnsNames.push parentColumns[map.parent].name
+			childColumnsNames.push childColumns[map['child']].name
+			parentColumnsNames.push parentColumns[map['parent']].name
 
 		"ALTER TABLE #{child} ADD CONSTRAINT #{name} FOREIGN KEY " +
 			"(#{childColumnsNames.join(', ')}) REFERENCES " +

@@ -118,7 +118,7 @@ class dm.ui.Relation extends goog.ui.Component
 
 		for map in mapping
 			childTabModel.setIndex(
-				map.child, dm.model.Table.index.PK, not isIdentifying
+				map['child'], dm.model.Table.index.PK, not isIdentifying
 			)
 
 	###*
@@ -365,7 +365,7 @@ class dm.ui.Relation extends goog.ui.Component
 				parentCols[pkColId], childModel, isIdentifying
 			)
 
-			keysMapping.push parent: pkColId, child: childId
+			keysMapping.push 'parent': pkColId, 'child': childId
 
 		relationModel.setColumnsMapping keysMapping
 
@@ -392,10 +392,10 @@ class dm.ui.Relation extends goog.ui.Component
 		mapping = relationModel.getColumnsMapping()
 
 		# remove indexes from columns created by relation, but columns left in table
-		for mapp in mapping
-			childModel.setIndex mapp.child, dm.model.Table.index.FK, true
+		for map in mapping
+			childModel.setIndex map['child'], dm.model.Table.index.FK, true
 			if isIdentifying
-				childModel.setIndex mapp.child, dm.model.Table.index.PK, true
+				childModel.setIndex map['child'], dm.model.Table.index.PK, true
 
 	disposeInternal: ->
 		goog.events.removeAll @relationGroup_

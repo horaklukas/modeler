@@ -117,13 +117,13 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     switch type
       when 'column-delete' 
-        if relMappings.length is 1 and relMappings[0].parent is column.id
+        if relMappings.length is 1 and relMappings[0]['parent'] is column.id
           @deleteRelation rel
         else if relMappings.length > 1
           # primary key at parent table has more columns so relation not need
           # to be deleted when one of them is deleted
-          for mapping, idx in relMappings when mapping.parent is column.id 
-            childTable.removeColumn mapping.child 
+          for mapping, idx in relMappings when mapping['parent'] is column.id 
+            childTable.removeColumn mapping['child'] 
             model.removeMapping idx
 
       when 'column-add'
@@ -134,7 +134,7 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
         id = rel.addForeignKeyColumn column.data, childModel, identifying
 
-        goog.array.insert relMappings, { parent: column.id, child: id }  
+        goog.array.insert relMappings, { 'parent': column.id, 'child': id }  
         model.setColumnsMapping relMappings
 
       when 'column-change'
@@ -260,24 +260,24 @@ class dm.model.ModelManager extends goog.events.EventTarget
     # first create tables
     for column, i in columns
       unless tableModel?
-        actualTableName = column.table_name
+        actualTableName = column['table_name']
         tableModel = new dm.model.Table actualTableName
 
       # dont create foreign key columns, they are created by relation
-      unless column.isfk
+      unless column['isfk']
         colId = tableModel.setColumn { 
-          name: column.column_name
-          type: column.data_type
-          isNotNull: column.isnotnull 
-          length: if column.length then column.length else null
+          name: column['column_name']
+          type: column['data_type']
+          isNotNull: column['isnotnull'] 
+          length: if column['length'] then column['length'] else null
         }
 
-        tableModel.setIndex colId, dm.model.Table.index.PK if column.ispk
-        tableModel.setIndex colId, dm.model.Table.index.UNIQUE if column.isunique
+        tableModel.setIndex colId, dm.model.Table.index.PK if column['ispk']
+        tableModel.setIndex colId, dm.model.Table.index.UNIQUE if column['isunique']
 
       # last column in list = next doesnt exists or next column from different 
       # table means that model is completed
-      if not (columns[i + 1]?.table_name is actualTableName)
+      if not (columns[i + 1]?['table_name'] is actualTableName)
         @addTable(
           tableModel
           Math.round(Math.random() * canvasSize.width)
@@ -289,18 +289,19 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     # then create relations
     for relation, i in relations
-      {parent_table, child_table} = relation
+      parentTable = relation['parent_table']
+      childTable = relation['child_table']
 
-      if relations[i - 1]?.parent_table isnt parent_table or
-      relations[i - 1]?.child_table isnt child_table
-        childId = @actualModel.getTableIdByName child_table
-        parentId = @actualModel.getTableIdByName parent_table
+      if relations[i - 1]?['parent_table'] isnt parentTable or
+      relations[i - 1]?['child_table'] isnt childTable
+        childId = @actualModel.getTableIdByName childTable
+        parentId = @actualModel.getTableIdByName parentTable
   
         childTable = @actualModel.getTableById childId
         parentTable = @actualModel.getTableById parentId
 
         relationModel = new dm.model.Relation(
-          relation.is_identifying, parentId, childId, relation.name
+          relation['is_identifying'], parentId, childId, relation['name']
         )
 
         @addRelation relationModel
@@ -310,10 +311,10 @@ class dm.model.ModelManager extends goog.events.EventTarget
       # we know name of parent column, its easy to find its id and the id of
       # opposite child column
       columnId = relationModel.getOppositeMappingId(
-        parentTable.getColumnIdByName(relation.parent_column)
+        parentTable.getColumnIdByName(relation['parent_column'])
       )
       childColumn = childTable.getColumnById columnId
-      childColumn.name = relation.child_column
+      childColumn.name = relation['child_column']
 
       childTable.setColumn childColumn, columnId
 
@@ -323,8 +324,8 @@ class dm.model.ModelManager extends goog.events.EventTarget
     relatedTables = []
 
     for relation in relations
-      parent = relation.parent_table
-      child = relation.child_table
+      parent = relation['parent_table']
+      child = relation['child_table']
       parentSize = tablesByName[parent].getSize()
       childSize = tablesByName[child].getSize()
 
