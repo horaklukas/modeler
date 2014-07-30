@@ -126,7 +126,7 @@ class dm.sqlgen.Sql
   * @return {string} piece of sql that defines table column
 	###
 	createColumn: (column) ->
-		data = ["`#{column.name}`", column.type.toUpperCase()]
+		data = ["\"#{column.name}\"", column.type.toUpperCase()]
 		data.push 'NOT NULL' if column.isNotNull
 		data[1] += "(#{column.length})" if column.length
 		

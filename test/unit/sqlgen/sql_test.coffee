@@ -31,23 +31,23 @@ describe 'class SQL generator', ->
     it 'should return only name and uppercased type if column can be null', ->
       column = name: 'col', type: 'char', length: '', isNotNull: false 
 
-      expect(@gen.createColumn column).to.equal '`col` CHAR'
+      expect(@gen.createColumn column).to.equal '"col" CHAR'
 
     it 'should return also NOT NULL clause if column cant be null', ->
       column = name: 'col1', type: 'char', length: '', isNotNull: true 
 
-      expect(@gen.createColumn column).to.equal '`col1` CHAR NOT NULL'
+      expect(@gen.createColumn column).to.equal '"col1" CHAR NOT NULL'
 
     it 'should append length to type if length is defined', ->
       column = name: 'col2', type: 'char', length: 15, isNotNull: false 
 
-      expect(@gen.createColumn column).to.equal '`col2` CHAR(15)'
+      expect(@gen.createColumn column).to.equal '"col2" CHAR(15)'
 
     it 'should not append length if its not defined or is null', ->
       column = name: 'col3', type: 'char', length: null, isNotNull: false 
 
-      expect(@gen.createColumn column).to.equal '`col3` CHAR'
+      expect(@gen.createColumn column).to.equal '"col3" CHAR'
 
       column.length = ''
 
-      expect(@gen.createColumn column).to.equal '`col3` CHAR'
+      expect(@gen.createColumn column).to.equal '"col3" CHAR'
