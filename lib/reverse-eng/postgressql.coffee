@@ -75,7 +75,7 @@ query.getConstraintColumns = (schema, constr, typeAlias = 'type', position) ->
       ON  keycols.constraint_name = constrs.constraint_name 
       AND keycols.table_name = constrs.table_name 
     WHERE constrs.constraint_type = '#{constr}'
-      AND constrs.table_schema = 'public'
+      AND constrs.table_schema = '#{schema}'
     """
 
 ###*

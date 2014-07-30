@@ -3,7 +3,6 @@
 goog.provide 'dm.ui.SelectDbDialog'
 
 goog.require 'dm.ui.Dialog'
-goog.require 'goog.net.XhrIo'
 goog.require 'goog.events'
 goog.require 'goog.object'
 goog.require 'goog.array'
