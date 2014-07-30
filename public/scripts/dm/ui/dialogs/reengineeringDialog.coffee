@@ -24,23 +24,26 @@ dm.ui.ReEngineeringDialog = React.createClass
     {options} = @state.data
     type = options.type
 
-    @props.connection.emit 'connect-db', type, options, (err, data) =>
-      if err then @handleError err
-      else @setState data: data, info: {text: '', type: null}
+    @props.connection.emit 'connect-db', type, options, @onTablesReceive
 
     @setState info: {text: 'Trying connect to database', type: 'info'}
     # dont hide dialog until process is complete
     return false
 
   handleConnSelect: (name, options) ->
-    data = null
-
-    if name then data = { name: name, options: options }
+    data = if name then { name: name, options: options } else null
 
     @setState data: data
 
   handleSchemaSelect: ->
+    schemaIdx = @refs['schema'].getDOMNode().value
+    selectedSchema = @state.data['schemata'][schemaIdx]
 
+    @props.connection.emit 'schema-selected', selectedSchema, @onTablesReceive 
+
+  onTablesReceive: (err, tables) ->
+    if err then @handleError err
+    else @setState data: tables, info: {text: '', type: null}
 
   handleTablesSelected: ->
     selectedTables = []
@@ -95,9 +98,12 @@ dm.ui.ReEngineeringDialog = React.createClass
             onError={this.handleError} onSelect={this.handleConnSelect} />
         )`
       when 'selectschema'
+        schemas = goog.array.map @state.data['schemata'], (schema, idx) ->
+          `( <option value={idx}>{schema}</option> )` 
+
         `(
           <form>
-            <select ref="schema"></select>
+            <select ref="schema">{schemas}</select>
           </form>
         )`
 

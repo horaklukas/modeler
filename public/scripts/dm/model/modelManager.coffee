@@ -289,13 +289,13 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
     # then create relations
     for relation, i in relations
-      parentTable = relation['parent_table']
-      childTable = relation['child_table']
+      relParentId = relation['parent_table']
+      relChildId = relation['child_table']
 
-      if relations[i - 1]?['parent_table'] isnt parentTable or
-      relations[i - 1]?['child_table'] isnt childTable
-        childId = @actualModel.getTableIdByName childTable
-        parentId = @actualModel.getTableIdByName parentTable
+      if relations[i - 1]?['parent_table'] isnt relParentId or
+      relations[i - 1]?['child_table'] isnt relChildId
+        childId = @actualModel.getTableIdByName relChildId
+        parentId = @actualModel.getTableIdByName relParentId
   
         childTable = @actualModel.getTableById childId
         parentTable = @actualModel.getTableById parentId
