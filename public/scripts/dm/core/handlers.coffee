@@ -15,16 +15,18 @@ dm.core.handlers =
   * @param {string} action Id of action selected at intro dialog
   ###
   introActionSelected: (action) ->
+    introShowCb = dm.core.getDialog('intro').show
+
     switch action
       when 'new'
         dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
       when 'load'
-        dm.core.getDialog('loadModel').show false
+        dm.core.getDialog('loadModel').show introShowCb
       when 'byversion'
         dm.core.getDialog('version').show(
-          null, dm.core.handlers.onVersionSelect, dm.core.getDialog('intro').show
+          null, dm.core.handlers.onVersionSelect, introShowCb
         )
-      when 'fromdb' then dm.core.getDialog('reeng').show()
+      when 'fromdb' then dm.core.getDialog('reeng').show introShowCb
       else return
 
     dm.core.getDialog('intro').hide()

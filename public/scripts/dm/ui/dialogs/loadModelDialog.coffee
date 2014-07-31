@@ -11,14 +11,18 @@ dm.ui.LoadModelDialog = React.createClass
   ###*
   * Show the dialog
   ###
-  show: (enableCancel = true) ->
+  show: (cancelCb = ->) ->
+    @setProps cancelCb: cancelCb
     @setState 
       visible: true
       info: text: '', type: null
-      cancelable: enableCancel 
 
   hide: ->
     @setState visible: false
+
+  onCancel: ->
+    @hide()
+    @props.cancelCb?()
 
   onUploadRequest: (e) ->
     e.preventDefault()
@@ -54,7 +58,6 @@ dm.ui.LoadModelDialog = React.createClass
     visible: false
     info: text: '', type: null
     loadDisabled: true
-    cancelable: true
 
   render: ->
     {Dialog} = dm.ui
@@ -62,11 +65,10 @@ dm.ui.LoadModelDialog = React.createClass
     title = 'Load model from file'
     infoClasses = 'state' + (if info.type? then " #{info.type}" else '')
     
-    if @state.cancelable then buttonSet = dm.ui.Dialog.buttonSet.CANCEL
-    else buttonSet = dm.ui.Dialog.buttonSet.NONE
+    buttonSet = dm.ui.Dialog.buttonSet.CANCEL
 
     `(
-    <Dialog title={title} onCancel={this.hide} visible={visible} 
+    <Dialog title={title} onCancel={this.onCancel} visible={visible} 
       buttons={buttonSet} >
 
       <form method="POST" action="/load" encType="multipart/form-data"

@@ -9,11 +9,17 @@ goog.require 'dm.ui.Dialog'
 
 
 dm.ui.ReEngineeringDialog = React.createClass
-  show: ->
+  show: (cancelCb = ->) ->
+    @setProps cancelCb: cancelCb
     @setState visible: true
 
   hide: ->
     @setState visible: false
+
+  onCancel: ->
+    @hide()
+    @props.cancelCb?()
+
 
   handleError: (err) ->
     @setState info: {text: err, type: 'error'}
@@ -135,6 +141,7 @@ dm.ui.ReEngineeringDialog = React.createClass
       text = 'Select existing database connection or create new'
       confirmHandler = @handleDbConnection
       type = 'dbconnect'
+      buttonSetType = Dialog.buttonSet.OK_CANCEL
     else if @state.data['schemata']?
       text = 'Database contains more than one database schema, select the correct one'
       confirmHandler = @handleSchemaSelect
@@ -150,7 +157,7 @@ dm.ui.ReEngineeringDialog = React.createClass
     
     `(
     <Dialog title={title} buttons={buttonSetType} visible={this.state.visible}
-      onConfirm={confirmHandler}
+      onConfirm={confirmHandler} onCancel={this.onCancel}
      >
       <strong>{text}</strong>
 
