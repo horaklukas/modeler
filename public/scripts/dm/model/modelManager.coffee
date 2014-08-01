@@ -320,6 +320,9 @@ class dm.model.ModelManager extends goog.events.EventTarget
 
   spaceOutTablesByRelation: (relations) ->
     tablesByName = @actualModel.getTablesUiByName()
+    # tables without any relation - start with full list of tables and for each
+    # relation remove its parent and child table from list
+    aloneTables = goog.object.getKeys tablesByName
     canvasSize = @canvas.getSize()
     relatedTables = []
 
@@ -329,6 +332,9 @@ class dm.model.ModelManager extends goog.events.EventTarget
       parentSize = tablesByName[parent].getSize()
       childSize = tablesByName[child].getSize()
 
+      goog.array.remove aloneTables, parent
+      goog.array.remove aloneTables, child
+
       added = false
       for group, i in relatedTables
         if goog.array.contains(group.tables, child) or
@@ -336,11 +342,15 @@ class dm.model.ModelManager extends goog.events.EventTarget
           goog.array.insert relatedTables[i].tables, parent
           goog.array.insert relatedTables[i].tables, child
 
-          relatedTables[i].max.w = Math.max parentSize.width, childSize.width
-          relatedTables[i].max.h = Math.max parentSize.height, childSize.height
+          relatedTables[i].max.w = Math.max(
+            relatedTables[i].max.w, parentSize.width, childSize.width
+          )
+          relatedTables[i].max.h = Math.max(
+            relatedTables[i].max.h, parentSize.height, childSize.height
+          )
 
           added = true
-          break 
+          break
 
       # neither one table belongs to any existing group of related table
       if added is false
@@ -352,6 +362,18 @@ class dm.model.ModelManager extends goog.events.EventTarget
           tables: [parent, child]
         }
 
+    # there are tables without relation
+    if aloneTables
+      groupAlones = tables: aloneTables, max: {w: 0, h: 0}
+
+      for aloneTab in aloneTables
+        aloneSize = tablesByName[aloneTab].getSize()
+        groupAlones.max =
+          w: Math.max(aloneSize.width, groupAlones.max.w)
+          h: Math.max(aloneSize.height, groupAlones.max.h)
+
+      relatedTables.push groupAlones
+
     # divide groups into sectors, count viewport for each sector and place
     # groups's tables randomly somewhere there 
     groupsMatrixSize = Math.ceil Math.sqrt(relatedTables.length)
@@ -361,17 +383,25 @@ class dm.model.ModelManager extends goog.events.EventTarget
     for group, i in relatedTables
       row = Math.floor i / groupsMatrixSize 
       col = Math.floor i % groupsMatrixSize
+      sector =
+        min: 
+          x: col * canvasSectorWidth
+          y: row * canvasSectorHeight
+        max:
+          x: (col + 1) * canvasSectorWidth
+          y: (row + 1) * canvasSectorHeight
 
+      console.log row, col, sector, groupsMatrixSize, relatedTables
       for tabname in group.tables
-        # max position is sector right (bottom) edge minus max group's table
-        # width (height)
+        # max x position is sector right edge minus max group's table width
         x = Math.min(
-          Math.round((row + Math.random()) * canvasSectorWidth)
-          ((row + 1) * canvasSectorWidth - group.max.w)
+          sector.min.x + Math.round(Math.random() * canvasSectorWidth)
+          sector.max.x - group.max.w
         )
+        # max y position is sector bottom edge minus max group's table height
         y = Math.min(
-          Math.round((col + Math.random()) * canvasSectorHeight)
-          ((col + 1) * canvasSectorHeight - group.max.h)
+          sector.min.y + Math.round(Math.random() * canvasSectorHeight)
+          sector.max.y - group.max.h
         )
 
         tablesByName[tabname].setPosition x, y
