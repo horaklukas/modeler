@@ -51,6 +51,11 @@ modelManager = new dm.model.ModelManager(canvas)
 
 toolbar = new dm.ui.Toolbar()
 
+toolbar.addChild new dm.ui.tools.SimpleCommandButton(
+  'show-intro', dm.ui.Toolbar.EventType.SHOW_INTRO, 'Show intro dialog',
+  'intro-tool'
+), true
+toolbar.addChild new goog.ui.ToolbarSeparator(), true
 toolbar.addChild new dm.ui.tools.CreateTable, true
 toolbar.addChild new dm.ui.tools.CreateRelation(true), true
 toolbar.addChild new dm.ui.tools.CreateRelation(false), true
@@ -116,12 +121,17 @@ for type, spec of dialogs
   
   dm.core.registerDialog type, dialog
 
+# intro dialog used twice below, get him only once
+introDialog = dm.core.getDialog('intro')
+
 # handling events on components
 goog.events.listen canvas, dm.ui.Table.EventType.MOVE, dm.core.handlers.moveObject
 
 goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_EDIT, dm.core.handlers.editObject
 
 goog.events.listen canvas, dm.ui.Canvas.EventType.OBJECT_DELETE, dm.core.handlers.deleteObject
+
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.SHOW_INTRO, introDialog.show 
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.CREATE, dm.core.handlers.createObject
 
@@ -150,4 +160,4 @@ goog.dom.getWindow().onbeforeunload = dm.core.handlers.windowUnload
 #goog.exportSymbol 'dm.init', dm.init
 
 # display intro dialog when app start
-dm.core.getDialog('intro').show()
+introDialog.show()

@@ -24,6 +24,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		EXPORT_MODEL: goog.events.getUniqueId 'export-model'
 		VERSION_MODEL: goog.events.getUniqueId 'version-model'
 		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
+		SHOW_INTRO: goog.events.getUniqueId 'show-intro'
 
 	###*
   * @constructor
@@ -60,9 +61,9 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		super()
 		canvas = dm.ui.Canvas.getInstance()
 		
-		@selectionModel_.addItem @getChildAt 0
-		@selectionModel_.addItem @getChildAt 1
-		@selectionModel_.addItem @getChildAt 2
+		@selectionModel_.addItem @getChild 'table'
+		@selectionModel_.addItem @getChild 'rel-ident'
+		@selectionModel_.addItem @getChild 'rel-non-ident'
 
 		goog.events.listen this, goog.ui.Component.EventType.ACTION, (e) =>
 			tool = e.target

@@ -27,6 +27,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 			title = title.replace 'ident', 'non-ident'			
 
 		super clss, title
+		@setId clss
 
 		###*
     * @type {dm.ui.Table}
