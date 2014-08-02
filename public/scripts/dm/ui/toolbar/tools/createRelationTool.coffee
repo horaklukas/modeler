@@ -57,7 +57,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		return false
 
 	###*
-  * @param {goog.math.Coordinate=} position
+  * @param {?goog.math.Coordinate} position
   * @param {?HTMLElement} object
 	###
 	finishAction: (position, object) =>
@@ -81,27 +81,6 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 
 		@parentTable = null
 		@childTable = null
-		###
-		unless position then return true 
-		unless object then return false
-
-		canvas = dm.ui.Canvas.getInstance()
-		mousemove = goog.events.EventType.MOUSEMOVE
-
-		# Create clue relation or only set start point to existing
-		unless canvas.startRelationPath
-			@startTabId = object.id
-			canvas.setStartRelationPoint position
-			goog.events.listen canvas.html, mousemove, canvas.moveEndRelationPoint
-
-			return false
-		else
-			canvas.placeRelation position, @startTabId, object.id
-			goog.events.unlisten canvas.html, mousemove, canvas.moveEndRelationPoint
-
-			canvas.html.style.cursor = 'default'
-			return true
-		###
 
 	cancel: ->
 		if @parentTable?

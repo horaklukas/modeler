@@ -8,6 +8,10 @@ goog.require 'goog.array'
 goog.require 'goog.ui.IdGenerator'
 
 class dm.model.Model
+	###*
+	* @param {string} name
+  * @constructor
+	###
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
 

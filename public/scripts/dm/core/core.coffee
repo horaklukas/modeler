@@ -15,7 +15,11 @@ dm.core =
     dm.core.modelManager = manager
     dm.core.dbDefs = defs
 
-  submitWithHiddenForm: (action, data, state = '') ->
+  ###*
+  * @param {string} action Url for submit
+  * @param {Object.<string,string>} data Form data that will be submitted 
+  ###
+  submitWithHiddenForm: (action, data) ->
     data = for name, value of data
       goog.dom.createDom 'input', {'type':'hidden', 'name':name, 'value':value }
 

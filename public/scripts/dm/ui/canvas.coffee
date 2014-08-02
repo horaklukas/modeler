@@ -104,34 +104,6 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@menu.render goog.dom.getElement 'canvasmenu'
 
 	###*
-  * @param {string} canvasId Id of element to init canvas on
-	###
-	init: (canvasId) ->
-		###
-		@html = goog.dom.getElement canvasId
-
-		{@width, @height} = goog.style.getSize @html
-		# @FIXME - remove this row and set height from document viewport height 
-		if @height is 0 then @height = 768
-		
-		@svg = new goog.graphics.SvgGraphics @width, @height
-		@svg.render @html
-
-		stroke = new goog.graphics.Stroke 2, '#000'
-		fill = new goog.graphics.SolidFill '#CCC'
-		@clueTable = @svg.drawRect 0, 0, 100, 80, stroke, fill
-
-		clueTabElement = @clueTable.getElement()
-		goog.style.setOpacity clueTabElement, 0.5
-		goog.style.showElement clueTabElement, false 
-
-		
-		goog.events.listen @html, goog.events.EventType.DBLCLICK, @onDblClick
-		goog.events.listen @svg, goog.events.EventType.DBLCLICK, @onDblClick
-		goog.events.listen @html, goog.events.EventType.CLICK, @onClick
-		###
-
-	###*
   * Updates actual canvas size
 	###
 	updateSize: =>

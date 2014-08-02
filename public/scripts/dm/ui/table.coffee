@@ -75,9 +75,11 @@ class dm.ui.Table extends goog.ui.Component
 	###
 	enterDocument: ->
 		super()
-		goog.style.setPosition @element_, @position_.x, @position_.y
+
+		element = @getElement()
+		goog.style.setPosition element, @position_.x, @position_.y
 		
-		@dragger = new goog.fx.Dragger @element_, @element_, @getDragLimits()
+		@dragger = new goog.fx.Dragger element, element, @getDragLimits()
 
 
 		goog.events.listen @dragger, 'start', @dragStartEnd
@@ -93,7 +95,12 @@ class dm.ui.Table extends goog.ui.Component
 		canvas = dm.ui.Canvas.getInstance()
 		goog.events.listen canvas, dm.ui.Canvas.EventType.RESIZED, =>
 			@dragger.setLimits @getDragLimits()
-	
+
+		return
+
+	###*
+  * @this {goog.fx.Dragger}
+	###	
 	dragStartEnd: (e) ->
 		#@target.style.zIndex = if e.type is 'start' then 99 else 1
 		@target.style.cursor = if e.type is 'start' then 'move' else 'default'
@@ -103,6 +110,7 @@ class dm.ui.Table extends goog.ui.Component
   * @override
 	###
 	setModel: (model) ->
+		model = (`/** @type {dm.model.Table} */`) model
 		super model
 
 		goog.events.listen model, 'name-change', (ev) => 
@@ -119,19 +127,19 @@ class dm.ui.Table extends goog.ui.Component
 			@removeColumn ev.column.id
 			@dragger.setLimits @getDragLimits()
 
+		return
+
 	###*
   * @param {number} x
   * @param {number} y
-  * @param {boolean} move Determine if table should be physically moved, if
-  *  false then only actual coordinates are saved
 	###
-	setPosition: (x, y, move = true) =>
+	setPosition: (x, y) =>
 		# table's position coordinates and size dimensions
 		@position_.x = x
 		@position_.y = y
 
 		if @isInDocument()
-			goog.style.setPosition @element_, @position_.x, @position_.y
+			goog.style.setPosition @getElement(), @position_.x, @position_.y
 
   ###*
   * @return {goog.math.Coordinate}
@@ -149,35 +157,16 @@ class dm.ui.Table extends goog.ui.Component
 		new goog.math.Rect 0, 0, csz.width - tsz.width - 4, csz.height - tsz.height - 4
 
 	###*
-  * @return {Object.<string,goog.math.Coordinate>}
-	###
-	getConnPoints: ->
-		top: new goog.math.Coordinate(@position_.x + @size_.width / 2, @position_.y)
-		right: new goog.math.Coordinate(@position_.x + @size_.width + 1, @position_.y + @size_.height / 2)
-		bottom: new goog.math.Coordinate(@position_.x + @size_.width / 2, @position_.y + @size_.height + 1)
-		left: new goog.math.Coordinate(@position_.x, @position_.y + @size_.height / 2)
-
-	###*
   * @return {goog.math.Size} table dimensions
 	###
 	getSize: ->
-		goog.style.getSize @element_
+		goog.style.getSize @getElement()
 
 	###*
   * @param {string} name Name of table
 	###
 	setName: (name = '') ->		
 		goog.dom.setTextContent @head_, name		
-
-	###*
-	* Adds new columns or updates existing
-	* @param {Array.<(Object,<string,*>|dm.model.TableColumn)>} columns List of
-	*  table columns at keys based object
-	###
-	###
-	setColumns: (columns) ->
-		@setColumn column for column in columns 
-	###
 
 	###*
   * @param {string} id
@@ -190,7 +179,7 @@ class dm.ui.Table extends goog.ui.Component
 
 	###*
 	* @param {string} id
-	* @param {dm.model.TableColumn} newColumn
+	* @param {dm.model.TableColumn} column
 	###
 	updateColumn: (id, column) ->
 		oldColumn = goog.dom.query("[name='#{id}']", @body_)[0]

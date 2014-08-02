@@ -44,7 +44,7 @@ dm.socket.on 'disconnect', dm.core.handlers.onServerDisconnect
 dm.socket.on 'reconnect', dm.core.handlers.onServerReconnect
 
 canvasElement = goog.dom.getElement 'modelerCanvas'
-canvas = new dm.ui.Canvas.getInstance()
+canvas = dm.ui.Canvas.getInstance()
 canvas.render canvasElement
 
 modelManager = new dm.model.ModelManager(canvas)

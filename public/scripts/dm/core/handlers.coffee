@@ -83,7 +83,7 @@ dm.core.handlers =
     )
 
   ###*
-  * @param {Object.<string, object>} object containing keys `tables` and 
+  * @param {Object.<string, object>} data Object containing keys `tables` and 
   *  `relations`
   ###
   reengRequest: (data) ->

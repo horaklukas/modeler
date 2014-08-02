@@ -5,7 +5,7 @@ goog.require 'goog.dom'
 
 dm.core.state =
   ###*
-  * @type {string}
+  * @type {(string|null)}
   ###
   actualRdbs: null
 
@@ -21,7 +21,7 @@ dm.core.state =
   actual: ''
 
   ###*
-  * @type {Object.<string, string>}
+  * @type {(string|null)}
   ###
   repo: null
 
@@ -68,9 +68,8 @@ dm.core.state =
 
   ###*
   * @param {string} repo Name of repository
-  * @param {string} id Identificator of version file
   ###
-  setVersioned: (repo, id) ->
+  setVersioned: (repo) ->
     dm.core.state.repo = repo
 
   ###*

@@ -50,7 +50,7 @@ dm.ui.VersioningDialog = React.createClass
       if err then return @setStatus err
       
       @hide() 
-      @props.confirmCb?(data['model'], repo, vers.date)
+      @props.confirmCb?(data['model'], repo)
 
   ###*
   * Handler for create of version at non-existing repo

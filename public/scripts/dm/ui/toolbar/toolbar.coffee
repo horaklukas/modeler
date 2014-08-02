@@ -69,7 +69,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 
 			if @selectionModel_.indexOfItem(tool) > -1
 				if @selectionModel_.getSelectedItem() is tool
-					@selectionModel_.setSelectedItem()
+					@selectionModel_.setSelectedItem null
 					tool.cancel()
 				else 
 					@selectionModel_.setSelectedItem tool
@@ -81,7 +81,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			unless selectedButton then return false
 			
 			if selectedButton.setActionEvent ev
-				@selectionModel_.setSelectedItem() # reset selected tool
+				@selectionModel_.setSelectedItem null # reset selected tool
 
 		goog.events.listen(
 			goog.dom.getElementByClass('model-name', @statusBar_)
@@ -89,6 +89,8 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			(ev) =>
 				@dispatchEvent dm.ui.Toolbar.EventType.STATUS_CHANGE 
 		)
+
+		return
 
 	###*
   * @param {goog.ui.Button} button
