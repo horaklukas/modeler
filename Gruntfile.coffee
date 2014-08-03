@@ -14,7 +14,9 @@ module.exports = (grunt) ->
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
-  grunt.registerTask 'build', ['coffee2closure', 'closureBuilder']
+  grunt.registerTask 'build', [
+    'coffee:app', 'deps', 'coffee2closure', 'closureBuilder'
+  ]
 
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']
 
@@ -48,6 +50,12 @@ module.exports = (grunt) ->
         expand: true,
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
+
+      este:
+        expand: true,
+        src: ['bower_components/este-library/este/**/*.coffee'],
+        ext: '.js'
+      
 
     reactjsx:
       all:
@@ -185,4 +193,10 @@ module.exports = (grunt) ->
         ]        
         options:
           livereload: true
+
+      stylus:
+        files: ['public/styles/**/*.styl']
+        tasks: ['stylus']
+
+
           
