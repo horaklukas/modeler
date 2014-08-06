@@ -9,6 +9,7 @@ goog.provide 'dm.sqlgen.Sql'
 goog.require 'dm.model.Table.index'
 goog.require 'goog.array'
 goog.require 'dm.ui.SqlCodeDialog'
+goog.require 'dm.core.handlers'
 
 class dm.sqlgen.Sql
 	###*
@@ -19,7 +20,7 @@ class dm.sqlgen.Sql
     * @type {goog.ui.Dialog}
 		###
 		@dialog = React.renderComponent(
-			dm.ui.SqlCodeDialog()
+			dm.ui.SqlCodeDialog onSave: dm.core.handlers.saveSqlRequest
 			goog.dom.getElement 'sqlCodeDialog'
 		)
 

@@ -62,7 +62,14 @@ dm.core.handlers =
       'model': JSON.stringify model
 
     dm.core.state.setActual 'saving'
-    dm.core.submitWithHiddenForm '/save', data
+    dm.core.submitWithHiddenForm '/save/model', data
+
+  saveSqlRequest: (filename, sql) ->
+    data =
+      'name': filename
+      'sql': sql
+
+    dm.core.submitWithHiddenForm '/save/sql', data
 
   exportModelRequest: (ev) ->
     data =

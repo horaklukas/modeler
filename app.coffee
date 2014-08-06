@@ -38,7 +38,8 @@ else app.use (err, req, res, next) -> res.render '500', error: err
 app.get '/', httpRoutes.app
 app.post '/', httpRoutes.app
 #app.post '/list', httpRoutes.getList
-app.post '/save', httpRoutes.saveModel
+app.post '/save/model', httpRoutes.saveModel
+app.post '/save/sql', httpRoutes.saveSql
 app.post '/load', multipart(), httpRoutes.loadModel
 app.post '/export', httpRoutes.exportModel
 
