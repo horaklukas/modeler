@@ -16,7 +16,7 @@
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-stylus": "~0.13.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-este": "~2.4.6",
+    "grunt-este": "git://github.com/horaklukas/grunt-este.git",
     "grunt-mocha-cli": "~1.6.0",
     "grunt-reactjsx": "~0.2.4",
     "jade": "^1.3.1",

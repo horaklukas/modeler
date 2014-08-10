@@ -16,8 +16,8 @@ io = socketio.listen server
 port = process.env.PORT or 5000
 
 stylusCompile = (str, path) ->
-	stylus(str).set('filename', path).set('compress', yes)
-		.use(nib()).import 'nib'
+  stylus(str).set('filename', path).set('compress', yes)
+    .use(nib()).import 'nib'
 
 app.set 'view engine', 'jade'
 app.set 'views', "#{__dirname}/views"
@@ -33,8 +33,9 @@ app.use app.router
 
 if process.env.MODE is 'development' then app.use express.errorHandler()
 else app.use (err, req, res, next) -> res.render '500', error: err
-	
+
 # App routers
+
 app.get '/', httpRoutes.app
 app.post '/', httpRoutes.app
 #app.post '/list', httpRoutes.getList
@@ -53,8 +54,8 @@ io.on 'connection', (socket) ->
 	socket.on 'add-version', versionRoutes.addVersion
 	socket.on 'get-version', versionRoutes.getVersion
 
-server.listen port, -> 
-	console.log 'Listening on port ' + port
+server.listen port, ->
+  console.log 'Listening on port ' + port
 
 # used for testing http requests
 module.exports = app
