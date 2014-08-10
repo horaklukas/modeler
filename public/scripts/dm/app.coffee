@@ -16,6 +16,7 @@ goog.require 'dm.ui.InfoDialog'
 goog.require 'dm.ui.ReEngineeringDialog'
 goog.require 'dm.ui.SimpleInputDialog'
 goog.require 'dm.ui.VersioningDialog'
+goog.require 'dm.ui.SqlCodeDialog'
 goog.require 'dm.ui.tools.CreateTable'
 goog.require 'dm.ui.tools.CreateRelation'
 goog.require 'dm.ui.tools.SimpleCommandButton'
@@ -113,6 +114,9 @@ dialogs =
   'info': 
     componentName: 'InfoDialog'
     props: {}
+  'sqlCode':
+    componentName: 'SqlCodeDialog'
+    props: {onSave: dm.core.handlers.saveSqlRequest}
 
 # create and register all neccessary dialogs
 for type, spec of dialogs

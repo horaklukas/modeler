@@ -6,11 +6,7 @@ describe 'class SQL generator', ->
     # temporary mock
     global.React = renderComponent: ->
 
-    sinon.stub dm.ui, 'SqlCodeDialog'
     @gen = dm.sqlgen.Sql.getInstance()    
-
-  after ->
-    dm.ui.SqlCodeDialog.restore()
 
   describe 'method getUniqueConstraintName', ->
     beforeEach ->

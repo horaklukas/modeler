@@ -139,14 +139,14 @@ describe 'app http routes', ->
 	describe 'route saveModel', ->
 		it 'should response attachment with name of file if passed', (done) ->
 			request(@app)
-				.post('/save')
+				.post('/save/model')
 				.send({'name': 'model1'})
 				.expect('Content-Disposition', 'attachment; filename="model1.json"')
 				.expect(200, done)
 
 		it 'should response attachment with `unknown` name of file if not passed', (done)->
 			request(@app)
-				.post('/save')
+				.post('/save/model')
 				.expect('Content-Disposition', 'attachment; filename="unknown.json"')
 				.expect(200, done)
 

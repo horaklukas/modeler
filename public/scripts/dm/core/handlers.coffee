@@ -84,10 +84,13 @@ dm.core.handlers =
     generator = dm.sqlgen.list[actualDbType ? 'sql']
     actualModel = dm.core.getActualModel()
 
-    generator.generate(
+
+    sql = generator.generate(
       tables: actualModel.getTables()
       relations: actualModel.getRelations()
     )
+
+    dm.core.getDialog('sqlCode').show sql
 
   ###*
   * @param {Object.<string, object>} data Object containing keys `tables` and 

@@ -5,11 +5,7 @@ describe 'class PostgreSQL generator', ->
 		# temporary mock
 		global.React = renderComponent: ->
 
-		sinon.stub dm.ui, 'SqlCodeDialog'
 		@gen = dm.sqlgen.Postgresql.getInstance()		
-
-	after ->
-		dm.ui.SqlCodeDialog.restore()
 
 	describe.skip 'method createColumn', ->
 		before ->

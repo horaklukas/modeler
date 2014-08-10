@@ -8,22 +8,12 @@ goog.provide 'dm.sqlgen.Sql'
 
 goog.require 'dm.model.Table.index'
 goog.require 'goog.array'
-goog.require 'dm.ui.SqlCodeDialog'
-goog.require 'dm.core.handlers'
 
 class dm.sqlgen.Sql
 	###*
   * @param {Object} options
 	###
 	constructor: (@options) ->
-		###*
-    * @type {goog.ui.Dialog}
-		###
-		@dialog = React.renderComponent(
-			dm.ui.SqlCodeDialog onSave: dm.core.handlers.saveSqlRequest
-			goog.dom.getElement 'sqlCodeDialog'
-		)
-
 		###*
 		* List of names of already created foreign key constraints, used to ensure
 		* uniqueness of constraint name
@@ -47,7 +37,7 @@ class dm.sqlgen.Sql
 				"and #{childModel.getName()} */\n"
 			sql += @createRelationConstraint rel, parentModel, childModel
 
-		@dialog.show sql
+		sql
 
 	###*
   * @param {dm.model.Table} table
