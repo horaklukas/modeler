@@ -100,8 +100,8 @@ class dm.ui.Relation extends goog.ui.Component
 		childClassName = @getCardinalityClass cardinality.child, parciality.child, true
 
 		goog.style.setStyle @relationPath_.getElement(), {
-			markerStart: "url(##{parentClassName})" 
-			markerEnd: "url(##{childClassName})" 
+			'markerStart': "url(##{parentClassName})" 
+			'markerEnd': "url(##{childClassName})" 
 		}
 
 	###*
@@ -401,3 +401,5 @@ class dm.ui.Relation extends goog.ui.Component
 	disposeInternal: ->
 		goog.events.removeAll @relationGroup_
 		goog.dom.removeNode @relationGroup_.getElement()
+
+		return
