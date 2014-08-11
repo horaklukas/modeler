@@ -26,7 +26,7 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 	###*
   * @constructor
-  * @extends {goog.events.EventTarget}
+  * @extends {goog.graphics.SvgGraphics}
 	###
 	constructor: ->
 		super '100%', '100%'
@@ -271,7 +271,7 @@ goog.addSingletonGetter dm.ui.Canvas
 class dm.ui.Canvas.ObjectAction extends goog.events.Event
 	###*
 	* @param {dm.ui.Canvas.EventType} event Type of action
-  * @param {HTMLElement}
+  * @param {HTMLElement} obj
   * @constructor
   * @extends {goog.events.Event}
 	###
@@ -280,7 +280,7 @@ class dm.ui.Canvas.ObjectAction extends goog.events.Event
 
 class dm.ui.Canvas.Click extends goog.events.Event
 	###*
-  * @param {(dm.ui.Table|dm.ui.Relation)}
+  * @param {(dm.ui.Table|dm.ui.Relation)} obj
   * @param {goog.math.Coordinate} position Position in canvas where was clicked
   * @constructor
   * @extends {goog.events.Event}

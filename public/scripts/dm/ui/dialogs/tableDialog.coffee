@@ -5,18 +5,6 @@ goog.provide 'dm.ui.TableDialog'
 goog.require 'goog.array'
 goog.require 'goog.object'
 goog.require 'goog.dom.classes'
-
-###
-goog.require 'goog.ui.Dialog'
-goog.require 'goog.ui.Dialog.ButtonSet'
-goog.require 'goog.dom'
-goog.require 'goog.dom.classes'
-goog.require 'goog.soy'
-goog.require 'goog.events'
-goog.require 'goog.string'
-goog.require 'dm.model.Table'
-###
-
 goog.require 'dm.ui.Dialog'
 
 dm.ui.TableDialog = React.createClass
@@ -37,13 +25,13 @@ dm.ui.TableDialog = React.createClass
 
     columns = (for id, col of model.getColumns()
       id: id
-      name: col.name
-      type: col.type
-      length: col.length
-      isNotNull: col.isNotNull ? false
-      isUnique: uniqs? and id in uniqs
-      isPk: pks? and id in pks
-      isFk: fks? and id in fks
+      'name': col['name']
+      'type': col['type']
+      'length': col['length']
+      'isNotNull': col['isNotNull'] ? false
+      'isUnique': uniqs? and id in uniqs
+      'isPk': pks? and id in pks
+      'isFk': fks? and id in fks
     )
     
     # one more empty row for adding
@@ -71,11 +59,15 @@ dm.ui.TableDialog = React.createClass
       {id} = col
       
       # new or updated columns
-      model = name: col.name, type: col.type, isNotNull: !!col.isNotNull
-      model.length = if col.length then goog.string.toNumber(col.length) else null
+      model = 
+        'name': col['name']
+        'type': col['type']
+        'isNotNull': !!col['isNotNull']
+
+      model['length'] = if col['length'] then goog.string.toNumber(col['length']) else null
 
       # new column has not id and column name is filled
-      isNewColumn = not id? and col.name
+      isNewColumn = not id? and col['name']
       isChangedColumn = id in @changed
 
       unless isNewColumn or isChangedColumn then continue
@@ -84,16 +76,16 @@ dm.ui.TableDialog = React.createClass
 
       # index can be deleted (third param) only when column is changing, not
       # for new columns
-      if isChangedColumn or isNewColumn and col.isUnique is true
+      if isChangedColumn or isNewColumn and col['isUnique'] is true
         @_originalModel.setIndex(
           id, dm.model.Table.index.UNIQUE,
-          isChangedColumn and not col.isUnique
+          isChangedColumn and not col['isUnique']
         )
       
-      if isChangedColumn or isNewColumn and col.isPk is true
+      if isChangedColumn or isNewColumn and col['isPk'] is true
         @_originalModel.setIndex(
           id, dm.model.Table.index.PK
-          isChangedColumn and not col.isPk
+          isChangedColumn and not col['isPk']
         )
 
     @hide()
@@ -113,7 +105,7 @@ dm.ui.TableDialog = React.createClass
       defaultType = group[0]
       break # we need only first type at first group
 
-    name: null, type: defaultType, length: '', isNotNull: null
+    'name': null, 'type': defaultType, 'length': '', 'isNotNull': null
 
   ###*
   * Add column id to the list of those that should be removed
@@ -218,7 +210,13 @@ Column = React.createClass
     @props.onChange @props.key, classes.join(''), value 
 
   render: ->
-    {name, type, length, isPk, isFk, isUnique, isNotNull} = @props.data
+    name = @props.data['name']
+    type = @props.data['type']
+    length = @props.data['length']
+    isPk = @props.data['isPk']
+    isFk = @props.data['isFk']
+    isUnique = @props.data['isUnique']
+    isNotNull = @props.data['isNotNull']
 
     typesList = `(<TypesList types={this.props.types} disabled={isFk}
       selected={type} onTypeChange={this.handleChange} />)`

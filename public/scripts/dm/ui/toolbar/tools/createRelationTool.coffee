@@ -5,7 +5,7 @@ goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.tools.ObjectCreateEvent'
 goog.require 'goog.style'
 goog.require 'goog.events'
-goog.require 'goog.dom.classes'
+goog.require 'goog.dom.classlist'
 
 class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 	###*
@@ -50,7 +50,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 	setActionEvent: (ev) ->
 		obj = ev.target
 		if obj instanceof dm.ui.Table
-			goog.dom.classes.add obj.getElement(), 'active'
+			goog.dom.classlist.add obj.getElement(), 'active'
 
 			if not @parentTable? then @parentTable = obj
 			else if not @childTable then @childTable = obj; return true
@@ -66,11 +66,11 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		# do not dispatch event, only unmark `active`
 
 		unless @parentTable then return false
-		else goog.dom.classes.remove @parentTable.getElement(), 'active'
+		else goog.dom.classlist.remove @parentTable.getElement(), 'active'
 
 		unless @childTable then @parentTable = null; return false
 		
-		goog.dom.classes.remove @childTable.getElement(), 'active'
+		goog.dom.classlist.remove @childTable.getElement(), 'active'
 		
 		@dispatchEvent new dm.ui.tools.ObjectCreateEvent(
 			'relation', {
@@ -85,7 +85,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 
 	cancel: ->
 		if @parentTable?
-			goog.dom.classes.remove @parentTable.getElement(), 'active'
+			goog.dom.classlist.remove @parentTable.getElement(), 'active'
 
 		@parentTable = null
 		@childTable = null

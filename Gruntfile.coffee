@@ -15,7 +15,7 @@ module.exports = (grunt) ->
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
   grunt.registerTask 'build', [
-    'coffee:app', 'deps', 'coffee2closure', 'closureBuilder'
+    'coffee:app', 'reactjsx', 'deps', 'coffee2closure', 'closureBuilder'
   ]
 
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']

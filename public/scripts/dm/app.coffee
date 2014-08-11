@@ -35,6 +35,7 @@ goog.exportProperty dm.ui, 'InfoDialog', dm.ui.InfoDialog
 goog.exportProperty dm.ui, 'ReEngineeringDialog', dm.ui.ReEngineeringDialog
 goog.exportProperty dm.ui, 'SimpleInputDialog', dm.ui.SimpleInputDialog
 goog.exportProperty dm.ui, 'VersioningDialog', dm.ui.VersioningDialog
+goog.exportProperty dm.ui, 'SqlCodeDialog', dm.ui.SqlCodeDialog
 
 ###*
 * @type {Socket}
