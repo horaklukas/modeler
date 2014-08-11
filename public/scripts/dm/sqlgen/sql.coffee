@@ -6,7 +6,7 @@
 
 goog.provide 'dm.sqlgen.Sql'
 
-goog.require 'dm.model.Table.index'
+goog.require 'dm.model.Table'
 goog.require 'goog.array'
 
 class dm.sqlgen.Sql

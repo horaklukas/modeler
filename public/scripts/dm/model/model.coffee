@@ -174,9 +174,9 @@ class dm.model.Model
 		tablesData = (for id, table of @tables_
 			{x, y} = table.getPosition()
 
-			model: table.getModel().toJSON()
-			pos: x: x, y: y
-			__id__: ((counter++).toString()) + id
+			'model': table.getModel().toJSON()
+			'pos': 'x': x, 'y': y
+			'__id__': ((counter++).toString()) + id
 		)
 
 		counter = 0
@@ -184,13 +184,13 @@ class dm.model.Model
 		relationsData = (for id, relation of @relations_
 			relModel = relation.getModel()
 
-			model: relModel.toJSON(
+			'model': relModel.toJSON(
 				tableModels[relModel.tables.parent].getName()
 				tableModels[relModel.tables.child].getName()
 			)
-			__id__: ((counter++).toString()) + id
+			'__id__': ((counter++).toString()) + id
 		) 
 
-		name: @name
-		tables: tablesData
-		relations: relationsData
+		'name': @name
+		'tables': tablesData
+		'relations': relationsData

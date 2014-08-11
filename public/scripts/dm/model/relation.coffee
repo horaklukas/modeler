@@ -153,7 +153,7 @@ class dm.model.Relation extends goog.events.EventTarget
     'name': @name_
     'mapping': @keyColumnsMapping_
     'tables': 
-      parent: parentName
-      child: childName
+      'parent': parentName
+      'child': childName
     'cardinality': @cardinality_
     'parciality': @parciality_

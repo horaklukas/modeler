@@ -6,6 +6,7 @@ goog.require 'goog.array'
 goog.require 'goog.object'
 goog.require 'goog.dom.classes'
 goog.require 'dm.ui.Dialog'
+goog.require 'dm.model.Table'
 
 dm.ui.TableDialog = React.createClass
   _originalModel: null

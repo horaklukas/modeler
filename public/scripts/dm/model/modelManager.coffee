@@ -2,7 +2,6 @@ goog.provide 'dm.model.ModelManager'
 
 goog.require 'dm.model.Model'
 goog.require 'dm.model.Table'
-goog.require 'dm.model.Table.index'
 goog.require 'dm.model.Relation'
 goog.require 'dm.ui.Table'
 goog.require 'dm.ui.Relation'
@@ -391,7 +390,6 @@ class dm.model.ModelManager extends goog.events.EventTarget
           x: (col + 1) * canvasSectorWidth
           y: (row + 1) * canvasSectorHeight
 
-      console.log row, col, sector, groupsMatrixSize, relatedTables
       for tabname in group.tables
         # max x position is sector right edge minus max group's table width
         x = Math.min(

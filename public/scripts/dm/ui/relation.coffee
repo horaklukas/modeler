@@ -1,7 +1,7 @@
 goog.provide 'dm.ui.Relation'
 
 goog.require 'dm.ui.Table.EventType'
-goog.require 'dm.model.Table.index'
+goog.require 'dm.model.Table'
 goog.require 'goog.graphics.Path'
 goog.require 'goog.graphics.Stroke'
 goog.require 'goog.object'

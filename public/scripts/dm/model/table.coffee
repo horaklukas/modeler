@@ -1,5 +1,4 @@
 goog.provide 'dm.model.Table'
-goog.provide 'dm.model.Table.index'
 
 goog.require 'goog.events.EventTarget'
 goog.require 'goog.events.Event'
