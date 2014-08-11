@@ -18,12 +18,6 @@ goog.require 'goog.ui.MenuItem'
 goog.require 'goog.ui.MenuSeparator'
 
 class dm.ui.Canvas extends goog.graphics.SvgGraphics
-	@EventType = 
-		OBJECT_EDIT: goog.events.getUniqueId 'object-edit'
-		OBJECT_DELETE: goog.events.getUniqueId 'object-delete'
-		CLICK: goog.events.getUniqueId 'click'
-		RESIZED: goog.events.getUniqueId 'resized'	
-
 	###*
   * @constructor
   * @extends {goog.graphics.SvgGraphics}
@@ -267,6 +261,12 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@removeChildren true
 
 goog.addSingletonGetter dm.ui.Canvas
+
+dm.ui.Canvas.EventType = 
+	OBJECT_EDIT: goog.events.getUniqueId 'object-edit'
+	OBJECT_DELETE: goog.events.getUniqueId 'object-delete'
+	CLICK: goog.events.getUniqueId 'click'
+	RESIZED: goog.events.getUniqueId 'resized'	
 
 class dm.ui.Canvas.ObjectAction extends goog.events.Event
 	###*

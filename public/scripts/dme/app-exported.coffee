@@ -22,6 +22,11 @@ goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.dom'
 goog.require 'goog.events'
 
+goog.exportProperty dm.ui, 'InfoDialog', dm.ui.InfoDialog
+goog.exportProperty dm.ui, 'TableDialog', dm.ui.TableDialog
+goog.exportProperty dm.ui, 'RelationDialog', dm.ui.RelationDialog
+goog.exportProperty dm.ui, 'SimpleInputDialog', dm.ui.SimpleInputDialog
+
 canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
 canvas.render canvasElement

@@ -16,16 +16,6 @@ goog.require 'goog.dom'
 goog.require 'goog.style'
 
 class dm.ui.Toolbar extends goog.ui.Toolbar
-	@EventType =
-		CREATE: goog.events.getUniqueId 'object-created'
-		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
-		SAVE_MODEL: goog.events.getUniqueId 'save-model'
-		LOAD_MODEL: goog.events.getUniqueId 'load-model'
-		EXPORT_MODEL: goog.events.getUniqueId 'export-model'
-		VERSION_MODEL: goog.events.getUniqueId 'version-model'
-		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
-		SHOW_INTRO: goog.events.getUniqueId 'show-intro'
-
 	###*
   * @constructor
   * @extends {goog.ui.Toolbar}
@@ -128,3 +118,13 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			goog.dom.setTextContent statusSaved, mark
 			goog.dom.setProperties statusSaved, {'title': title}
 			goog.style.setStyle statusSaved, 'color', color
+
+dm.ui.Toolbar.EventType =
+	CREATE: goog.events.getUniqueId 'object-created'
+	GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
+	SAVE_MODEL: goog.events.getUniqueId 'save-model'
+	LOAD_MODEL: goog.events.getUniqueId 'load-model'
+	EXPORT_MODEL: goog.events.getUniqueId 'export-model'
+	VERSION_MODEL: goog.events.getUniqueId 'version-model'
+	STATUS_CHANGE: goog.events.getUniqueId 'status-change'
+	SHOW_INTRO: goog.events.getUniqueId 'show-intro'
