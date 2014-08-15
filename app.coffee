@@ -22,6 +22,7 @@ stylusCompile = (str, path) ->
 app.set 'view engine', 'jade'
 app.set 'views', "#{__dirname}/views"
 app.use express.logger 'dev'
+app.use express.favicon()
 app.use express.json()
 app.use express.urlencoded()
 #app.use express.methodOverride()
