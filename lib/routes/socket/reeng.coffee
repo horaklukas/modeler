@@ -2,12 +2,12 @@ fs = require 'fs'
 fspath = require 'path'
 async = require 'async'
 mkdirp = require 'mkdirp'
-reverseEng = require '../reverse-eng'
+reverseEng = require '../../reverse-eng'
 
 ###*
 * @type {string}
 ###
-connsFilePath = fspath.join	__dirname, '../../data/connections.json'
+connsFilePath = fspath.join	__dirname, '../../../data/connections.json'
 
 ###*
 * `connect-db` WebSocket event
@@ -32,7 +32,9 @@ exports.connectDb = (type, connOptions, cb) ->
 			if err then return cb "Error at getting database schemata: #{err}"
 			schemata = result.rows.map (row) -> row.schema_name
 
-			if schemata.length is 1
+			if schemata.length is 0
+				getTablesList.call this, reverseEng[type].getDefaultSchema(), cb
+			else if schemata.length is 1
 				getTablesList.call this, schemata[0], cb
 			else
 				cb null, schemata: schemata

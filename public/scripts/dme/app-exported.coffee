@@ -12,20 +12,20 @@ goog.require 'dm.ui.InfoDialog'
 goog.require 'dm.ui.tools.CreateTable'
 goog.require 'dm.ui.tools.CreateRelation'
 goog.require 'dm.ui.tools.SimpleCommandButton'
+goog.require 'dm.core'
 goog.require 'dm.core.handlers'
+goog.require 'dme.core'
+goog.require 'dme.core.handlers'
 
 goog.require 'goog.ui.Toolbar'
 goog.require 'goog.ui.ToolbarSeparator'
 goog.require 'goog.dom'
 goog.require 'goog.events'
-goog.require 'goog.storage.Storage'
-goog.require 'goog.storage.mechanism.HTML5LocalStorage'
 
-###*
-* Id of exported app for identification at local storage
-* @type {string}
-###
-dme.ID = dmDefault.id 
+goog.exportProperty dm.ui, 'InfoDialog', dm.ui.InfoDialog
+goog.exportProperty dm.ui, 'TableDialog', dm.ui.TableDialog
+goog.exportProperty dm.ui, 'RelationDialog', dm.ui.RelationDialog
+goog.exportProperty dm.ui, 'SimpleInputDialog', dm.ui.SimpleInputDialog
 
 canvasElement = goog.dom.getElement 'modelerCanvas'
 canvas = new dm.ui.Canvas.getInstance()
@@ -56,12 +56,7 @@ defs = {}
 defs[dmDefault.dbId] = dmDefault.db
 
 dm.core.init canvas, toolbar, modelManager, defs
-
-# storage mechanism for saving/loading edited model
-dme.storage = null
-mechanism = new goog.storage.mechanism.HTML5LocalStorage
-
-dme.storage = new goog.storage.Storage(mechanism) if mechanism.isAvailable()
+dme.core.init dmDefault.id
 
 dialogs =    
   'table':
@@ -97,35 +92,9 @@ goog.events.listen toolbar, dm.ui.Toolbar.EventType.STATUS_CHANGE, dm.core.handl
 
 goog.events.listen toolbar, dm.ui.Toolbar.EventType.GENERATE_SQL, dm.core.handlers.generateSqlRequest
 
-goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, (ev) ->
-  if dme.storage?
-    dme.storage.set dme.ID, modelManager.actualModel.toJSON()
-    dm.core.state.setSaved true
-    text = 'Save successful'
-  else
-    text = 'Storage mechanism isnt available!'  
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.SAVE_MODEL, dme.core.handlers.saveRequest
 
-  dm.core.getDialog('info').show text
-
-goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, (ev) ->
-  infoType = dm.ui.InfoDialog.types.INFO
-
-  if dme.storage?
-    json = dme.storage.get dme.ID
-
-    if json
-      modelManager.createActualFromLoaded(
-        json.name, json.tables, json.relations
-      )
-      dm.core.state.setSaved true
-      text = 'Load was successful'
-    else
-      text = 'Model can\'t been loaded since it wasn\'t saved yet'
-      infoType = dm.ui.InfoDialog.types.WARN 
-  else  
-    text = 'Storage mechanism isnt available!'
-  
-  dm.core.getDialog('info').show text, infoType
+goog.events.listen toolbar, dm.ui.Toolbar.EventType.LOAD_MODEL, dme.core.handlers.loadRequest
 
 goog.events.listen modelManager, dm.model.ModelManager.EventType.CHANGE, ->
     toolbar.setStatus modelManager.actualModel.name
@@ -134,7 +103,6 @@ goog.events.listen modelManager, dm.model.ModelManager.EventType.EDITED, ->
     dm.core.state.setSaved false
 
 goog.dom.getWindow().onbeforeunload = dm.core.handlers.windowUnload
-
 
 dm.core.state.setActualRdbs dmDefault.dbId
 

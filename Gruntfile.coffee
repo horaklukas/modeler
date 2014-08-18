@@ -14,12 +14,19 @@ module.exports = (grunt) ->
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
-  grunt.registerTask 'build', ['coffee2closure', 'closureBuilder']
+  grunt.registerTask 'build', [
+    'coffee:app', 'reactjsx', 'deps', 'coffee2closure', 'closureBuilder'
+  ]
 
   grunt.registerTask 'test', ['coffee:test','esteUnitTests']
 
   # task for heroku deployment
   grunt.registerTask 'heroku:development', ['coffee:app', 'reactjsx', 'deps']
+
+  grunt.registerTask 'default', [
+    'coffee:app', 'reactjsx:all', 'stylus', 'test', 'mocha_phantomjs',
+    'mochacli'
+  ]
 
   grunt.initConfig
     coffee:
@@ -34,6 +41,7 @@ module.exports = (grunt) ->
             './*.coffee'
             '!./Gruntfile.coffee'
             './lib/**/*.coffee'
+            './defs/**/*.coffee'
             './public/scripts/**/*.coffee'
           ]
           ext: '.js'
@@ -42,6 +50,12 @@ module.exports = (grunt) ->
         expand: true,
         src: ['test/unit/**/*.coffee'],
         ext: '.js'
+
+      este:
+        expand: true,
+        src: ['bower_components/este-library/este/**/*.coffee'],
+        ext: '.js'
+      
 
     reactjsx:
       all:
@@ -90,7 +104,7 @@ module.exports = (grunt) ->
           compilation_level: 'ADVANCED_OPTIMIZATIONS'
           #compilation_level: 'SIMPLE_OPTIMIZATIONS',
           externs: [
-            'bower_components/este-library/externs/react.js'
+            'bower_components/react-externs/externs.js'
             'bower_components/socket.io-externs/socket.io-externs.js'
             'public/scripts/dm/app-externs.js'
           ]
@@ -98,6 +112,8 @@ module.exports = (grunt) ->
           warning_level: 'verbose'
           jscomp_off: 'globalThis'
           extra_annotation_name: 'jsx'
+          create_source_map: './public/scripts/modeler.min.js.map'
+          source_map_format: 'V3'
 
         #execOpts:
         #   maxBuffer: 999999 * 1024
@@ -177,4 +193,10 @@ module.exports = (grunt) ->
         ]        
         options:
           livereload: true
+
+      stylus:
+        files: ['public/styles/**/*.styl']
+        tasks: ['stylus']
+
+
           

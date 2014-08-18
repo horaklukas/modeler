@@ -6,3 +6,8 @@
  */
 
 var dmAssets;
+
+/**
+ * @type {Object.<string, Object>}
+ */
+dmAssets.dbs;

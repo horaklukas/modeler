@@ -155,10 +155,18 @@ describe 'class model.Model', ->
 		it 'should return tables with their names as a keys', ->
 			tabsByName = model.getTablesByName()
 
-			expect(tabsByName).to.be.an('object')
+			expect(tabsByName).to.be.an 'object'
 			expect(tabsByName).to.have.deep.property 'table1', model1
 			expect(tabsByName).to.have.deep.property 'table2', model2
 			expect(tabsByName).to.have.deep.property 'table3', model3
+
+		it 'should return array of models if two tables have same name', ->
+			model4 = getName: (-> 'table2'), id: 'tb4'
+			model.tables_.tab4 = {getModel: -> model4}
+			tabsByName = model.getTablesByName()
+
+			expect(tabsByName['table2']).to.be.an('array').and.have.length 2
+			expect(tabsByName['table2']).to.eql [model2, model4]
 
 	describe 'getTableIdByName', ->
 		tab1 = null
@@ -202,10 +210,11 @@ describe 'class model.Model', ->
 				't3': getName: -> 'tab3'
 			}
 
-			model.getRelations.returns {
-				'rel1': tables: {parent: 't1', child: 't2'}, toJSON: -> {ident: true}
-				'rel2': tables: {parent: 't2', child: 't3'}, toJSON: -> {ident: false}
-			}
+			model.relations_ =
+				'rel1': 
+					getModel: -> {tables: {parent: 't1', child: 't2'}, toJSON: -> {ident: true}}
+				'rel2':
+					getModel: -> {tables: {parent: 't2', child: 't3'}, toJSON: -> {ident: false}}
 
 		after ->
 			model.getTables.restore()
@@ -218,20 +227,23 @@ describe 'class model.Model', ->
 				'name': 'model1'
 				'tables': [
 					{	
+						'__id__': '0t1'
 						'model': {name: 'tab1', columns: ['c1', 'c2']}
 						'pos': {'x': 45, 'y': 180}
 					}
 					{	
+						'__id__': '1t2'
 						'model': {name: 'tab2', columns: ['c3', 'c5']}
 						'pos': {'x': 354, 'y': 20}
 					}
 					{
+						'__id__': '2t3'
 						'model': {name: 'tab3', columns: ['c4', 'c7']}
 						'pos': {'x': 480, 'y': 335}
 					}
 				]
 				'relations': [
-					{ ident: true }
-					{ ident: false }
+					{'__id__': '0rel1', 'model': { ident: true }}
+					{'__id__': '1rel2', 'model': { ident: false }}
 				]
 			}

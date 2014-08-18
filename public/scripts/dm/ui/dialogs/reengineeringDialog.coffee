@@ -9,14 +9,20 @@ goog.require 'dm.ui.Dialog'
 
 
 dm.ui.ReEngineeringDialog = React.createClass
-  show: ->
+  show: (cancelCb = ->) ->
+    @setProps cancelCb: cancelCb
     @setState visible: true
 
   hide: ->
     @setState visible: false
 
+  onCancel: ->
+    @hide()
+    @props.cancelCb?()
+
+
   handleError: (err) ->
-    @setState info: {text: err, err: true}
+    @setState info: {text: err, type: 'error'}
 
   handleDbConnection: ->
     unless @state.data? then return @handleError 'No connection selected'
@@ -24,31 +30,35 @@ dm.ui.ReEngineeringDialog = React.createClass
     {options} = @state.data
     type = options.type
 
-    @props.connection.emit 'connect-db', type, options, (err, data) =>
-      if err then @handleError err
-      else @setState data: data
+    @props.connection.emit 'connect-db', type, options, @onTablesReceive
 
+    @setState info: {text: 'Trying connect to database', type: 'info'}
     # dont hide dialog until process is complete
     return false
 
   handleConnSelect: (name, options) ->
-    data = null
-
-    if name then data = { name: name, options: options }
+    data = if name then { name: name, options: options } else null
 
     @setState data: data
 
   handleSchemaSelect: ->
+    schemaIdx = @refs['schema'].getDOMNode().value
+    selectedSchema = @state.data['schemata'][schemaIdx]
 
+    @props.connection.emit 'schema-selected', selectedSchema, @onTablesReceive 
+
+  onTablesReceive: (err, tables) ->
+    if err then @handleError err
+    else @setState data: tables, info: {text: '', type: null}
 
   handleTablesSelected: ->
     selectedTables = []
 
     @forEachTable (table, name) ->
-      if table.checked then selectedTables.push @state.data.tables[name]
+      if table.checked then selectedTables.push @state.data['tables'][name]
 
     @props.connection.emit 'get-reeng-data', selectedTables, (err, data) =>
-      if err then return @setState info: {text: err, err: true}
+      if err then return @setState info: {text: err, type: 'error'}
 
       @props.onDataReceive data
       @hide()
@@ -89,19 +99,22 @@ dm.ui.ReEngineeringDialog = React.createClass
           dbTypes.push `(<option key={dbId} value={dbId}>{db.name}</option>)`
 
         `(
-          <ConnectionsManager source={this.props.connection} dbTypes={dbTypes}
+          <ConnectionsManager conn={this.props.connection} dbTypes={dbTypes}
             selected={selected}
             onError={this.handleError} onSelect={this.handleConnSelect} />
         )`
       when 'selectschema'
+        schemas = goog.array.map @state.data['schemata'], (schema, idx) ->
+          `( <option value={idx}>{schema}</option> )` 
+
         `(
           <form>
-            <select ref="schema"></select>
+            <select ref="schema">{schemas}</select>
           </form>
         )`
 
       when 'selecttables'
-        tables = goog.array.map @state.data.tables, (table, idx) ->
+        tables = goog.array.map @state.data['tables'], (table, idx) ->
           `( <p><input type="checkbox" ref={ 'table' + idx } />{table}</p> )` 
         
         `( 
@@ -116,7 +129,7 @@ dm.ui.ReEngineeringDialog = React.createClass
 
   getInitialState: ->
     visible: false
-    info: text: '', err: false
+    info: text: '', type: null
     data: null
 
   render: ->
@@ -128,22 +141,23 @@ dm.ui.ReEngineeringDialog = React.createClass
       text = 'Select existing database connection or create new'
       confirmHandler = @handleDbConnection
       type = 'dbconnect'
-    else if @state.data.schemata?
+      buttonSetType = Dialog.buttonSet.OK_CANCEL
+    else if @state.data['schemata']?
       text = 'Database contains more than one database schema, select the correct one'
       confirmHandler = @handleSchemaSelect
       type = 'selectschema'
-    else if @state.data.tables?
+    else if @state.data['tables']?
       text = 'Select tables for reengineering'
       confirmHandler = @handleTablesSelected
       type = 'selecttables'
 
 
-    infoClass = 'info'
-    infoClass += ' error' if @state.info.err
+    infoClass = 'state'
+    infoClass += " #{@state.info.type}" if @state.info.type?
     
     `(
     <Dialog title={title} buttons={buttonSetType} visible={this.state.visible}
-      onConfirm={confirmHandler}
+      onConfirm={confirmHandler} onCancel={this.onCancel}
      >
       <strong>{text}</strong>
 
@@ -160,23 +174,23 @@ ConnectionsManager = React.createClass
   addConnection: (ev) ->
     ev.preventDefault()
 
-    connName = @refs.name.getDOMNode().value
+    connName = @refs['name'].getDOMNode().value
 
     if @state.connections[connName]?
       @props.onError 'Connection with this name already exists'
 
-    type = @refs.dbtype.getDOMNode().value
-    pass = @refs.pass.getDOMNode().value
-    port = @refs.port.getDOMNode().value
+    type = @refs['dbtype'].getDOMNode().value
+    pass = @refs['pass'].getDOMNode().value
+    port = @refs['port'].getDOMNode().value
     connectOptions =
-      type: type
-      host: @refs.host.getDOMNode().value
-      db: @refs.db.getDOMNode().value
-      user: @refs.user.getDOMNode().value
-      pass: if pass is '' then null else pass
-      port: if port is '' then null else port
+      'type': type
+      'host': @refs['host'].getDOMNode().value
+      'db': @refs['db'].getDOMNode().value
+      'user': @refs['user'].getDOMNode().value
+      'pass': if pass is '' then null else pass
+      'port': if port is '' then null else port
 
-    @props.source.emit 'add-connection', connName, connectOptions, (err) =>
+    @props.conn.emit 'add-connection', connName, connectOptions, (err) =>
       if err then return @props.onError err
 
       connections = @state.connections
@@ -190,7 +204,7 @@ ConnectionsManager = React.createClass
   * is used instead of getting it from DOM
   ###
   onConnectionSelect: (selected) ->
-    selected = @refs.connections.getDOMNode().value unless goog.isString selected
+    selected = @refs['connections'].getDOMNode().value unless goog.isString selected
 
     if selected is 'placeholder' then selected = null
 
@@ -208,7 +222,7 @@ ConnectionsManager = React.createClass
     )`
 
   componentWillMount: ->
-    @props.source.emit 'get-connections', (err, connections) =>
+    @props.conn.emit 'get-connections', (err, connections) =>
       if err then return @props.onError err
       @setState connections: connections
 
@@ -216,12 +230,14 @@ ConnectionsManager = React.createClass
     connections: {}
 
   render: ->
-    fieldStyle = float: 'right'
+    fieldStyle = 'float': 'right'
     connName = @props.selected
     disabled = connName?
 
     conn = @state.connections[connName] ? {
-      host: null, db: null, user: null, pass: null, port: null, type: null
+      'host': null, 'db': null
+      'user': null, 'pass': null
+      'port': null, 'type': null
     }
 
     `(
@@ -235,34 +251,34 @@ ConnectionsManager = React.createClass
         </p>
         <p>
           Database type
-          <select ref="dbtype" style={fieldStyle} value={conn.type} 
+          <select ref="dbtype" style={fieldStyle} value={conn['type']} 
             disabled={disabled}>
             {this.props.dbTypes}
           </select>
         </p>
         <p>
           Hostname or Ip address
-          <input ref="host" style={fieldStyle} value={conn.host}
+          <input ref="host" style={fieldStyle} value={conn['host']}
             disabled={disabled} />
         </p>
         <p>
           Database name
-          <input ref="db" style={fieldStyle} value={conn.db} 
+          <input ref="db" style={fieldStyle} value={conn['db']} 
             disabled={disabled} />
         </p>
         <p>
           Name of database user
-          <input ref="user" style={fieldStyle} value={conn.user} 
+          <input ref="user" style={fieldStyle} value={conn['user']} 
             disabled={disabled} />
         </p>
         <p>
           User password
           <input type="password" ref="pass" style={fieldStyle} 
-            value={conn.pass} disabled={disabled} />
+            value={conn['pass']} disabled={disabled} />
         </p>
         <p>
           Connection port
-          <input ref="port" style={fieldStyle} maxLength="5" size="10" value={conn.port} disabled={disabled} />
+          <input ref="port" style={fieldStyle} maxLength="5" size="10" value={conn['port']} disabled={disabled} />
         </p>
         <button onClick={this.addConnection} disabled={disabled}>
           Create

@@ -5,7 +5,7 @@ goog.require 'dm.ui.Canvas'
 goog.require 'dm.ui.tools.ObjectCreateEvent'
 goog.require 'goog.style'
 goog.require 'goog.events'
-goog.require 'goog.dom.classes'
+goog.require 'goog.dom.classlist'
 
 class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 	###*
@@ -27,6 +27,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 			title = title.replace 'ident', 'non-ident'			
 
 		super clss, title
+		@setId clss
 
 		###*
     * @type {dm.ui.Table}
@@ -49,7 +50,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 	setActionEvent: (ev) ->
 		obj = ev.target
 		if obj instanceof dm.ui.Table
-			goog.dom.classes.add obj.getElement(), 'active'
+			goog.dom.classlist.add obj.getElement(), 'active'
 
 			if not @parentTable? then @parentTable = obj
 			else if not @childTable then @childTable = obj; return true
@@ -57,7 +58,7 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		return false
 
 	###*
-  * @param {goog.math.Coordinate=} position
+  * @param {?goog.math.Coordinate} position
   * @param {?HTMLElement} object
 	###
 	finishAction: (position, object) =>
@@ -65,11 +66,11 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 		# do not dispatch event, only unmark `active`
 
 		unless @parentTable then return false
-		else goog.dom.classes.remove @parentTable.getElement(), 'active'
+		else goog.dom.classlist.remove @parentTable.getElement(), 'active'
 
 		unless @childTable then @parentTable = null; return false
 		
-		goog.dom.classes.remove @childTable.getElement(), 'active'
+		goog.dom.classlist.remove @childTable.getElement(), 'active'
 		
 		@dispatchEvent new dm.ui.tools.ObjectCreateEvent(
 			'relation', {
@@ -81,31 +82,10 @@ class dm.ui.tools.CreateRelation extends dm.ui.tools.CreateToggleButton
 
 		@parentTable = null
 		@childTable = null
-		###
-		unless position then return true 
-		unless object then return false
-
-		canvas = dm.ui.Canvas.getInstance()
-		mousemove = goog.events.EventType.MOUSEMOVE
-
-		# Create clue relation or only set start point to existing
-		unless canvas.startRelationPath
-			@startTabId = object.id
-			canvas.setStartRelationPoint position
-			goog.events.listen canvas.html, mousemove, canvas.moveEndRelationPoint
-
-			return false
-		else
-			canvas.placeRelation position, @startTabId, object.id
-			goog.events.unlisten canvas.html, mousemove, canvas.moveEndRelationPoint
-
-			canvas.html.style.cursor = 'default'
-			return true
-		###
 
 	cancel: ->
 		if @parentTable?
-			goog.dom.classes.remove @parentTable.getElement(), 'active'
+			goog.dom.classlist.remove @parentTable.getElement(), 'active'
 
 		@parentTable = null
 		@childTable = null

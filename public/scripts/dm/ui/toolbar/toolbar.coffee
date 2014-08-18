@@ -16,14 +16,6 @@ goog.require 'goog.dom'
 goog.require 'goog.style'
 
 class dm.ui.Toolbar extends goog.ui.Toolbar
-	@EventType =
-		CREATE: goog.events.getUniqueId 'object-created'
-		GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
-		SAVE_MODEL: goog.events.getUniqueId 'save-model'
-		LOAD_MODEL: goog.events.getUniqueId 'load-model'
-		EXPORT_MODEL: goog.events.getUniqueId 'export-model'
-		STATUS_CHANGE: goog.events.getUniqueId 'status-change'
-
 	###*
   * @constructor
   * @extends {goog.ui.Toolbar}
@@ -59,16 +51,16 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		super()
 		canvas = dm.ui.Canvas.getInstance()
 		
-		@selectionModel_.addItem @getChildAt 0
-		@selectionModel_.addItem @getChildAt 1
-		@selectionModel_.addItem @getChildAt 2
+		@selectionModel_.addItem @getChild 'table'
+		@selectionModel_.addItem @getChild 'rel-ident'
+		@selectionModel_.addItem @getChild 'rel-non-ident'
 
 		goog.events.listen this, goog.ui.Component.EventType.ACTION, (e) =>
 			tool = e.target
 
 			if @selectionModel_.indexOfItem(tool) > -1
 				if @selectionModel_.getSelectedItem() is tool
-					@selectionModel_.setSelectedItem()
+					@selectionModel_.setSelectedItem null
 					tool.cancel()
 				else 
 					@selectionModel_.setSelectedItem tool
@@ -80,7 +72,7 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			unless selectedButton then return false
 			
 			if selectedButton.setActionEvent ev
-				@selectionModel_.setSelectedItem() # reset selected tool
+				@selectionModel_.setSelectedItem null # reset selected tool
 
 		goog.events.listen(
 			goog.dom.getElementByClass('model-name', @statusBar_)
@@ -88,6 +80,8 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 			(ev) =>
 				@dispatchEvent dm.ui.Toolbar.EventType.STATUS_CHANGE 
 		)
+
+		return
 
 	###*
   * @param {goog.ui.Button} button
@@ -118,8 +112,19 @@ class dm.ui.Toolbar extends goog.ui.Toolbar
 		if saved?
 			statusSaved = goog.dom.getElementByClass 'model-saved', @statusBar_
 
-			if saved is true then mark = '✓'; color = 'green'
-			else mark = '✗'; color = 'red'
+			if saved is true then mark = '✓'; color = 'green'; title = 'Model saved'
+			else mark = '✗'; color = 'red'; title = 'Model is at unsaved state'
 
 			goog.dom.setTextContent statusSaved, mark
+			goog.dom.setProperties statusSaved, {'title': title}
 			goog.style.setStyle statusSaved, 'color', color
+
+dm.ui.Toolbar.EventType =
+	CREATE: goog.events.getUniqueId 'object-created'
+	GENERATE_SQL: goog.events.getUniqueId 'generate-sql'
+	SAVE_MODEL: goog.events.getUniqueId 'save-model'
+	LOAD_MODEL: goog.events.getUniqueId 'load-model'
+	EXPORT_MODEL: goog.events.getUniqueId 'export-model'
+	VERSION_MODEL: goog.events.getUniqueId 'version-model'
+	STATUS_CHANGE: goog.events.getUniqueId 'status-change'
+	SHOW_INTRO: goog.events.getUniqueId 'show-intro'

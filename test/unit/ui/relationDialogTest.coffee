@@ -63,11 +63,11 @@ describe 'component RelationDialog', ->
       @isIdent = sinon.stub()
       @cardMod = sinon.stub().returns({
         cardinality: {parent: '1', child: 'n'}
-        modality: {parent: 1, child: 1}
+        parciality: {parent: 1, child: 1}
       })
       @relModel = 
         isIdentifying: @isIdent
-        getCardinalityAndModality: @cardMod
+        getCardinalityParciality: @cardMod
         getName: sinon.stub()
 
       @tables = 

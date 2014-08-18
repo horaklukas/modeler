@@ -6,9 +6,31 @@ goog.require 'dm.model.Table'
 goog.require 'dm.model.Relation'
 goog.require 'dm.ui.Table'
 goog.require 'dm.ui.Relation'
+goog.require 'dm.ui.InfoDialog'
 goog.require 'dm.sqlgen.list'
+goog.require 'goog.object'
 
 dm.core.handlers =
+  ###*
+  * @param {string} action Id of action selected at intro dialog
+  ###
+  introActionSelected: (action) ->
+    introShowCb = dm.core.getDialog('intro').show
+
+    switch action
+      when 'new'
+        dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
+      when 'load'
+        dm.core.getDialog('loadModel').show introShowCb
+      when 'byversion'
+        dm.core.getDialog('version').show(
+          null, dm.core.handlers.onVersionSelect, introShowCb
+        )
+      when 'fromdb' then dm.core.getDialog('reeng').show introShowCb
+      else return
+
+    dm.core.getDialog('intro').hide()
+  
   ###*
   * @param {Object} json JSON representation of model
   ###
@@ -27,6 +49,7 @@ dm.core.handlers =
       'NewModel', 'Type name of new model'
       dm.core.getModelManager().bakupOldCreateNewActual
     )
+    dm.core.state.clearVersioned()
     dm.core.state.setSaved true
 
   saveModelRequest: (ev) ->
@@ -39,7 +62,14 @@ dm.core.handlers =
       'model': JSON.stringify model
 
     dm.core.state.setActual 'saving'
-    dm.core.submitWithHiddenForm '/save', data
+    dm.core.submitWithHiddenForm '/save/model', data
+
+  saveSqlRequest: (filename, sql) ->
+    data =
+      'name': filename
+      'sql': sql
+
+    dm.core.submitWithHiddenForm '/save/sql', data
 
   exportModelRequest: (ev) ->
     data =
@@ -54,37 +84,44 @@ dm.core.handlers =
     generator = dm.sqlgen.list[actualDbType ? 'sql']
     actualModel = dm.core.getActualModel()
 
-    generator.generate(
+
+    sql = generator.generate(
       tables: actualModel.getTables()
       relations: actualModel.getRelations()
     )
 
-  ###*
-  * @param {string} action Id of action selected at intro dialog
-  ###
-  introActionSelected: (action) ->
-    switch action
-      when 'new' then dm.core.getDialog('selectDb').show dm.core.handlers.createNewModel
-      when 'load' then dm.core.getDialog('loadModel').show false
-      #when 'byversion' then ''
-      when 'fromdb' then dm.core.getDialog('reeng').show()
-      else return
-
-    dm.core.getDialog('intro').hide()
+    dm.core.getDialog('sqlCode').show sql
 
   ###*
-  * @param {Object.<string, object>} object containing keys `tables` and 
+  * @param {Object.<string, object>} data Object containing keys `tables` and 
   *  `relations`
   ###
   reengRequest: (data) ->
     dm.core.getDialog('input').show(
       'Reengineered model', 'Type name of reenginered model', (name) -> 
         dm.core.getModelManager().createActualFromCatalogData(
-          name, data.columns, data.relations
+          name, data['columns'], data['relations']
         )
 
         # set model's db as a actual with replaced dots at version string
-        dm.core.state.setActualRdbs data.db.replace '.', '-'
+        dm.core.state.setActualRdbs data['db'].replace '.', '-'
+        dm.core.state.clearVersioned()
+        dm.core.state.setSaved true
+    )
+
+  versionModelRequest: ->
+    actualModel = dm.core.getActualModel()
+    model = actualModel.toJSON()
+    model['db'] = dm.core.state.getActualRdbs()
+
+    props = model: 'model': model 
+    
+    if (repo = dm.core.state.getVersioned())? then props.repo = repo
+
+    dm.core.getDialog('version').show(
+      props, (repo) ->
+        dm.core.getDialog('info').show 'Model successfuly versioned'
+        dm.core.state.setVersioned repo 
         dm.core.state.setSaved true
     )
 
@@ -141,17 +178,15 @@ dm.core.handlers =
 
         modelManager.deleteTable target
 
-  createObject: (ev) ->
-    modelManager = dm.core.getModelManager()
+  createObject: (ev) ->    
     switch ev.objType
       when 'table'
-        dm.core.getDialog('input').show(
-          'NewTable', 'Type name of new table', (name) ->
-            model = new dm.model.Table name, []
-            modelManager.addTable model, ev.data.x, ev.data.y
-            dm.core.getDialog('table').show model
+        dm.core.getDialog('input').show(      
+          'NewTable', 'Type name of new table'
+          goog.partial dm.core.handlers.tableNameInput, ev
         )
       when 'relation'
+        modelManager = dm.core.getModelManager()
         actualModel = dm.core.getActualModel()
         {parent, child, identifying} = ev.data
         #rel.setRelatedTables parent.getModel(), child.getModel() 
@@ -165,6 +200,62 @@ dm.core.handlers =
 
         modelManager.addRelation model
         dm.core.getDialog('relation').show model, tables
+
+  ###*
+  * Handler for input dialog when user type name of new table and confirm
+  *
+  * @param {goog.events.Event} ev Event object from original `createObject` 
+  *  handler
+  * @param {string} name Table name
+  ###
+  tableNameInput: (ev, name) ->
+    modelManager = dm.core.getModelManager()
+    actualModel = dm.core.getActualModel()
+    # used to fix table name duplicity
+    originalName = name
+    counter = 0
+
+    while actualModel.getTableIdByName(name)?
+      name = originalName + (counter++).toString()
+
+    if name isnt originalName then dm.core.getDialog('info').show(
+      "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
+      "for ensuring uniqueness"
+    )
+
+    model = new dm.model.Table name, []
+    modelManager.addTable model, ev.data.x, ev.data.y
+    dm.core.getDialog('table').show model
+
+  tableNameChange: (ev) ->
+    model = ev.target
+    originalName = name = model.getName()
+
+    actualModel = dm.core.getActualModel()
+    counter = 0
+
+    tables = actualModel.getTablesByName()
+    
+    if goog.isArray tables[name]
+      while tables[name]? then name = originalName + (counter++).toString()
+
+    if name isnt originalName
+      model.setName name
+      dm.core.getDialog('info').show(
+        "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
+        "for ensuring uniqueness!"
+      )
+
+  onVersionSelect: (model, repo) ->
+    dm.core.state.setVersioned repo
+    dm.core.handlers.modelLoad model
+
+  onServerReconnect: ->
+    dm.core.enableServerRelatedTools true
+
+  onServerDisconnect: (enable) ->
+    console.log 'Server disconnected at socket.io channel'
+    dm.core.enableServerRelatedTools false
 
   windowUnload: (ev) ->
     state = dm.core.state.getActual()

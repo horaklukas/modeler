@@ -25,8 +25,18 @@ module.exports = exportApp =
     args = [
       "--root=#{closurePath}"
       "--root=#{appSrcPath}"
-      "--input=#{fspath.join(appSrcPath, 'app-exported.js')}"
+      "--root=#{fspath.join(publicDirPath, 'scripts/dme')}"
+      "--input=#{fspath.join(publicDirPath, 'scripts/dme', 'app-exported.js')}"
       '--output_mode=script'
+      '--output_mode=compiled'
+      "--compiler_jar=#{fspath.join(bowerComponentsPath,'closure-compiler/compiler.jar')}"
+      '--compiler_flags=--compilation_level=SIMPLE_OPTIMIZATIONS'    
+      "--compiler_flags=--externs=#{bowerComponentsPath}/react-externs/externs.js"
+      "--compiler_flags=--externs=#{bowerComponentsPath}/socket.io-externs/socket.io-externs.js"
+      "--compiler_flags=--externs=#{appSrcPath}app-externs.js"
+      '--compiler_flags=--define=\'goog.DEBUG=false\''
+      '--compiler_flags=--jscomp_off=globalThis'
+      '--compiler_flags=--extra_annotation_name=jsx'
     ]
 
     # ensure that builder script can been executed

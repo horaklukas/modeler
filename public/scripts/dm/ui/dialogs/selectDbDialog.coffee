@@ -3,7 +3,6 @@
 goog.provide 'dm.ui.SelectDbDialog'
 
 goog.require 'dm.ui.Dialog'
-goog.require 'goog.net.XhrIo'
 goog.require 'goog.events'
 goog.require 'goog.object'
 goog.require 'goog.array'
@@ -39,7 +38,7 @@ dm.ui.SelectDbDialog = React.createClass
     buttonSetType = Dialog.buttonSet.SELECT
     dbsList = []
 
-    infoClass = if @state.info.err then 'error' else 'info'
+    infoClass = 'state' + (if @state.info.err then ' error' else '')
     
     dbNames = []
     versions = []
@@ -53,9 +52,7 @@ dm.ui.SelectDbDialog = React.createClass
         )
 
     dbsList = goog.array.map dbNames, (name) =>
-      selected = name is @state.dbName
-      `( <option key={name} value={name} selected={selected}>{name}</option> )`
-
+      `( <option key={name} value={name}>{name}</option> )`
 
     `(
     <Dialog title={title} buttons={buttonSetType} visible={this.state.visible}
@@ -65,7 +62,9 @@ dm.ui.SelectDbDialog = React.createClass
 
       <div className={infoClass}>{this.state.info.text}</div>
 
-      <select onChange={this.handleSelectName}>{dbsList}</select>
+      <select onChange={this.handleSelectName} value={this.state.dbName}>
+        {dbsList}
+      </select>
       <select onChange={this.handleSelectVersion}>{versions}</select>
     </Dialog>
     )`

@@ -12,7 +12,7 @@ dm.ui.SimpleInputDialog = React.createClass
 
   componentDidUpdate: (prevProps, prevState) ->
     if prevState.visible is false and @state.visible is true
-      inputField = @refs.inputValue.getDOMNode()
+      inputField = @refs['inputValue'].getDOMNode()
       
       goog.dom.selection.setStart inputField, 0
       goog.dom.selection.setEnd inputField, @state.value.length

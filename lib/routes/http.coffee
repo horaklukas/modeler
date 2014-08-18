@@ -59,6 +59,15 @@ exports.saveModel = (req, res) ->
   res.end req.body.model, 'utf8'
 
 ###*
+* POST request, invoke "save file" dialog for save model to JSON file
+###
+exports.saveSql = (req, res) ->
+  res.attachment "#{req.body.name ? 'unknown'}.sql"
+
+  res.setHeader 'Content-Type', 'text/plain'
+  res.end req.body.sql, 'utf8'
+
+###*
 * POST request that responses with content of selected file
 ###
 exports.loadModel = (req, res) ->

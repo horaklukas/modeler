@@ -1,6 +1,6 @@
-postgres7 = require '../../../lib/defs/postgresql-7'
-postgres8 = require '../../../lib/defs/postgresql-8'
-postgres9 = require '../../../lib/defs/postgresql-9'
+postgres7 = require '../../../defs/postgresql-7'
+postgres8 = require '../../../defs/postgresql-8'
+postgres9 = require '../../../defs/postgresql-9'
 
 describe 'definitions', ->
   describe 'postgres 7', ->

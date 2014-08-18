@@ -8,6 +8,10 @@ goog.require 'goog.array'
 goog.require 'goog.ui.IdGenerator'
 
 class dm.model.Model
+	###*
+	* @param {string} name
+  * @constructor
+	###
 	constructor: (name) ->
 		unless name then throw new Error 'Model name must be specified!'
 
@@ -113,14 +117,21 @@ class dm.model.Model
 	###*
   * Maps tables by its names
   *
-  * @return {Object.<string, dm.model.Table>}
+  * @return {Object.<string, (dm.model.Table|Array.<dm.model.Table>)>}
 	###
 	getTablesByName: ->
 		mappedTables = {}
 		
 		for id, table of @tables_
 			model = table.getModel()
-			mappedTables[model.getName()] = model 
+			name = model.getName()
+
+			if goog.isArray mappedTables[name]
+				goog.array.insert mappedTables[name], model
+			else if mappedTables[name]?
+				mappedTables[name] = [mappedTables[name], model]
+			else
+				mappedTables[name] = model 
 
 		mappedTables
 
@@ -159,22 +170,27 @@ class dm.model.Model
   * @return {Object} JSON representation of all data about model
 	###
 	toJSON: ->
+		counter = 0
 		tablesData = (for id, table of @tables_
 			{x, y} = table.getPosition()
 
-			model: table.getModel().toJSON()
-			pos: x: x, y: y
+			'model': table.getModel().toJSON()
+			'pos': 'x': x, 'y': y
+			'__id__': ((counter++).toString()) + id
 		)
 
+		counter = 0
 		tableModels = @getTables()
-		relationsData = []
+		relationsData = (for id, relation of @relations_
+			relModel = relation.getModel()
 
-		goog.object.forEach @getRelations(), (relModel) ->
-			parent = tableModels[relModel.tables.parent].getName()
-			child = tableModels[relModel.tables.child].getName()
+			'model': relModel.toJSON(
+				tableModels[relModel.tables.parent].getName()
+				tableModels[relModel.tables.child].getName()
+			)
+			'__id__': ((counter++).toString()) + id
+		) 
 
-			goog.array.insert relationsData, relModel.toJSON(parent, child)
-
-		name: @name
-		tables: tablesData
-		relations: relationsData
+		'name': @name
+		'tables': tablesData
+		'relations': relationsData

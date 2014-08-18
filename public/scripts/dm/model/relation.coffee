@@ -47,7 +47,7 @@ class dm.model.Relation extends goog.events.EventTarget
     ###*
     * @type {Object.<string, number>}
     ###
-    @modality_ =
+    @parciality_ =
       parent: if identify  then 1 else 0
       child: 0
 
@@ -71,15 +71,15 @@ class dm.model.Relation extends goog.events.EventTarget
   getName: ->
     @name_
 
-  setCardinalityAndModality: (cardinality, modality) ->
+  setCardinalityParciality: (cardinality, parciality) ->
     @cardinality_ = cardinality
-    @modality_ = modality
+    @parciality_ = parciality
 
     @dispatchEvent 'cardinality-change'
 
-  getCardinalityAndModality: ->
+  getCardinalityParciality: ->
     cardinality: @cardinality_
-    modality: @modality_      
+    parciality: @parciality_      
 
   ###*
   * @return {boolean}
@@ -153,7 +153,7 @@ class dm.model.Relation extends goog.events.EventTarget
     'name': @name_
     'mapping': @keyColumnsMapping_
     'tables': 
-      parent: parentName
-      child: childName
+      'parent': parentName
+      'child': childName
     'cardinality': @cardinality_
-    'modality': @modality_
+    'parciality': @parciality_

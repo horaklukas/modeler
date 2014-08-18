@@ -6,23 +6,14 @@
 
 goog.provide 'dm.sqlgen.Sql'
 
-goog.require 'dm.model.Table.index'
+goog.require 'dm.model.Table'
 goog.require 'goog.array'
-goog.require 'dm.ui.SqlCodeDialog'
 
 class dm.sqlgen.Sql
 	###*
   * @param {Object} options
 	###
 	constructor: (@options) ->
-		###*
-    * @type {goog.ui.Dialog}
-		###
-		@dialog = React.renderComponent(
-			dm.ui.SqlCodeDialog()
-			goog.dom.getElement 'sqlCodeDialog'
-		)
-
 		###*
 		* List of names of already created foreign key constraints, used to ensure
 		* uniqueness of constraint name
@@ -46,7 +37,7 @@ class dm.sqlgen.Sql
 				"and #{childModel.getName()} */\n"
 			sql += @createRelationConstraint rel, parentModel, childModel
 
-		@dialog.show sql
+		sql
 
 	###*
   * @param {dm.model.Table} table
@@ -94,8 +85,8 @@ class dm.sqlgen.Sql
 		@relConstraintNames.push name
 		
 		for map in columnsMapping
-			childColumnsNames.push childColumns[map.child].name
-			parentColumnsNames.push parentColumns[map.parent].name
+			childColumnsNames.push childColumns[map['child']].name
+			parentColumnsNames.push parentColumns[map['parent']].name
 
 		"ALTER TABLE #{child} ADD CONSTRAINT #{name} FOREIGN KEY " +
 			"(#{childColumnsNames.join(', ')}) REFERENCES " +
@@ -126,7 +117,7 @@ class dm.sqlgen.Sql
   * @return {string} piece of sql that defines table column
 	###
 	createColumn: (column) ->
-		data = ["`#{column.name}`", column.type.toUpperCase()]
+		data = ["\"#{column.name}\"", column.type.toUpperCase()]
 		data.push 'NOT NULL' if column.isNotNull
 		data[1] += "(#{column.length})" if column.length
 		

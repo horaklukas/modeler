@@ -5,19 +5,8 @@ goog.provide 'dm.ui.TableDialog'
 goog.require 'goog.array'
 goog.require 'goog.object'
 goog.require 'goog.dom.classes'
-
-###
-goog.require 'goog.ui.Dialog'
-goog.require 'goog.ui.Dialog.ButtonSet'
-goog.require 'goog.dom'
-goog.require 'goog.dom.classes'
-goog.require 'goog.soy'
-goog.require 'goog.events'
-goog.require 'goog.string'
-goog.require 'dm.model.Table'
-###
-
 goog.require 'dm.ui.Dialog'
+goog.require 'dm.model.Table'
 
 dm.ui.TableDialog = React.createClass
   _originalModel: null
@@ -37,13 +26,13 @@ dm.ui.TableDialog = React.createClass
 
     columns = (for id, col of model.getColumns()
       id: id
-      name: col.name
-      type: col.type
-      length: col.length
-      isNotNull: col.isNotNull ? false
-      isUnique: uniqs? and id in uniqs
-      isPk: pks? and id in pks
-      isFk: fks? and id in fks
+      'name': col['name']
+      'type': col['type']
+      'length': col['length']
+      'isNotNull': col['isNotNull'] ? false
+      'isUnique': uniqs? and id in uniqs
+      'isPk': pks? and id in pks
+      'isFk': fks? and id in fks
     )
     
     # one more empty row for adding
@@ -58,7 +47,7 @@ dm.ui.TableDialog = React.createClass
     @setState visible: false
 
   onConfirm: ->
-    tableName = @refs.tableName.getDOMNode().value
+    tableName = @refs['tableName'].getDOMNode().value
     
     if tableName is ''
       @setState errorState: 'Table name have to be filled'
@@ -71,11 +60,15 @@ dm.ui.TableDialog = React.createClass
       {id} = col
       
       # new or updated columns
-      model = name: col.name, type: col.type, isNotNull: !!col.isNotNull
-      model.length = if col.length then goog.string.toNumber(col.length) else null
+      model = 
+        'name': col['name']
+        'type': col['type']
+        'isNotNull': !!col['isNotNull']
+
+      model['length'] = if col['length'] then goog.string.toNumber(col['length']) else null
 
       # new column has not id and column name is filled
-      isNewColumn = not id? and col.name
+      isNewColumn = not id? and col['name']
       isChangedColumn = id in @changed
 
       unless isNewColumn or isChangedColumn then continue
@@ -84,16 +77,16 @@ dm.ui.TableDialog = React.createClass
 
       # index can be deleted (third param) only when column is changing, not
       # for new columns
-      if isChangedColumn or isNewColumn and col.isUnique is true
+      if isChangedColumn or isNewColumn and col['isUnique'] is true
         @_originalModel.setIndex(
           id, dm.model.Table.index.UNIQUE,
-          isChangedColumn and not col.isUnique
+          isChangedColumn and not col['isUnique']
         )
       
-      if isChangedColumn or isNewColumn and col.isPk is true
+      if isChangedColumn or isNewColumn and col['isPk'] is true
         @_originalModel.setIndex(
           id, dm.model.Table.index.PK
-          isChangedColumn and not col.isPk
+          isChangedColumn and not col['isPk']
         )
 
     @hide()
@@ -113,7 +106,7 @@ dm.ui.TableDialog = React.createClass
       defaultType = group[0]
       break # we need only first type at first group
 
-    name: null, type: defaultType, length: '', isNotNull: null
+    'name': null, 'type': defaultType, 'length': '', 'isNotNull': null
 
   ###*
   * Add column id to the list of those that should be removed
@@ -155,6 +148,8 @@ dm.ui.TableDialog = React.createClass
     title = "Table \"#{@state.name or 'unnamed'}\""
     show = @state.visible
 
+    infoClass = 'state' + (if @state.errorState then ' error' else '')
+
     `(
     <Dialog title={title} onConfirm={this.onConfirm} onCancel={this.hide} visible={show}>
       <div className="row">
@@ -173,7 +168,7 @@ dm.ui.TableDialog = React.createClass
       <button onClick={this.addColumn}>Add new column</button><br />
       <strong>* <small>foreign key columns can change only name</small></strong>
 
-      <div className="info error">{this.state.errorState}</div>
+      <div className={infoClass}>{this.state.errorState}</div>
     </Dialog>
     )`
 
@@ -216,7 +211,13 @@ Column = React.createClass
     @props.onChange @props.key, classes.join(''), value 
 
   render: ->
-    {name, type, length, isPk, isFk, isUnique, isNotNull} = @props.data
+    name = @props.data['name']
+    type = @props.data['type']
+    length = @props.data['length']
+    isPk = @props.data['isPk']
+    isFk = @props.data['isFk']
+    isUnique = @props.data['isUnique']
+    isNotNull = @props.data['isNotNull']
 
     typesList = `(<TypesList types={this.props.types} disabled={isFk}
       selected={type} onTypeChange={this.handleChange} />)`

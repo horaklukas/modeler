@@ -12,7 +12,7 @@ describe 'class model.ModelManager', ->
 			getColumnsMapping: sinon.stub()
 			setColumnsMapping: sinon.spy()
 			getOppositeMappingId: sinon.stub()
-			setCardinalityAndModality: sinon.stub()
+			setCardinalityParciality: sinon.stub()
 			isIdentifying: sinon.stub()
 
 	describe 'method createActualFromLoaded', ->
@@ -58,11 +58,12 @@ describe 'class model.ModelManager', ->
 
 		describe 'relations recreate', ->
 			before ->
-				@relationsdata = [{	
-					'type': true,
-					'mapping': [{'parent':':9', 'child':':g'}],
-					'tables': {'parent':'parenttab','child':'childtab'}
-					'name': 'rel1'
+				@relationsdata = [{
+					'model':	
+						'type': true,
+						'mapping': [{'parent':':9', 'child':':g'}],
+						'tables': {'parent':'parenttab','child':'childtab'}
+						'name': 'rel1'
 				}]
 
 				@tablesdata = [{

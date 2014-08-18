@@ -18,15 +18,9 @@ goog.require 'goog.ui.MenuItem'
 goog.require 'goog.ui.MenuSeparator'
 
 class dm.ui.Canvas extends goog.graphics.SvgGraphics
-	@EventType = 
-		OBJECT_EDIT: goog.events.getUniqueId 'object-edit'
-		OBJECT_DELETE: goog.events.getUniqueId 'object-delete'
-		CLICK: goog.events.getUniqueId 'click'
-		RESIZED: goog.events.getUniqueId 'resized'	
-
 	###*
   * @constructor
-  * @extends {goog.events.EventTarget}
+  * @extends {goog.graphics.SvgGraphics}
 	###
 	constructor: ->
 		super '100%', '100%'
@@ -85,6 +79,11 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@addTableInternal_ @clueTable
 
 		[defs] = goog.dom.getElementsByTagNameAndClass 'defs', null, @getElement()
+		
+		unless defs?
+			defs = goog.dom.createElement 'defs'
+			goog.dom.insertChildAt @getElement(), defs, 0
+
 		defs.innerHTML = dm.ui.tmpls.CardinalityMarkers()
 
 		goog.events.listen(
@@ -97,34 +96,6 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 		@menu.addChild new goog.ui.MenuSeparator(), true
 		@menu.addChild new goog.ui.MenuItem('Delete'), true
 		@menu.render goog.dom.getElement 'canvasmenu'
-
-	###*
-  * @param {string} canvasId Id of element to init canvas on
-	###
-	init: (canvasId) ->
-		###
-		@html = goog.dom.getElement canvasId
-
-		{@width, @height} = goog.style.getSize @html
-		# @FIXME - remove this row and set height from document viewport height 
-		if @height is 0 then @height = 768
-		
-		@svg = new goog.graphics.SvgGraphics @width, @height
-		@svg.render @html
-
-		stroke = new goog.graphics.Stroke 2, '#000'
-		fill = new goog.graphics.SolidFill '#CCC'
-		@clueTable = @svg.drawRect 0, 0, 100, 80, stroke, fill
-
-		clueTabElement = @clueTable.getElement()
-		goog.style.setOpacity clueTabElement, 0.5
-		goog.style.showElement clueTabElement, false 
-
-		
-		goog.events.listen @html, goog.events.EventType.DBLCLICK, @onDblClick
-		goog.events.listen @svg, goog.events.EventType.DBLCLICK, @onDblClick
-		goog.events.listen @html, goog.events.EventType.CLICK, @onClick
-		###
 
 	###*
   * Updates actual canvas size
@@ -175,7 +146,14 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 		@menu.getChildAt(0).setCaption goog.dom.createDom('strong', null, objName)
 
-		goog.events.listen document, goog.events.EventType.CLICK, @hideMenu
+		@menu.setVisible true
+
+		{x, y} = goog.style.getRelativePosition ev, @rootElement_
+		# 30 is height of toolbar, it must be imputed since menu is positioned
+		# absolutely to document, not canvas
+		@menu.setPosition x, y + 30 
+
+		goog.events.listen document, goog.events.EventType.CLICK, @onMenuCanceled
 		goog.events.listen @menu, 'action', =>
 			@hideMenu()
 			
@@ -185,16 +163,20 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 				)
 			)
 
-		@menu.setVisible true
-
-		{x, y} = goog.style.getRelativePosition ev, @rootElement_
-		# 30 is height of toolbar, it must be imputed since menu is positioned
-		# absolutely to document, not canvas
-		@menu.setPosition x, y + 30 
-
+	###*
+  * This prevents hiding menu at some Gecko browsers (found at Iceweasel) where
+  * event CLICK is dispatched immedietly after CONTEXTMENU and it caused menu
+  * hide. If it happen, we must check if not clicked by right click and if so
+  * then check if target isnt object (is Canvas) and only in that case, we can
+  * hide menu.
+  *
+  * @param {goog.events.Event} ev
+	###
+	onMenuCanceled: (ev) =>
+		if ev.button isnt 2 or @isCanvasElement(ev.target) then @hideMenu()
 
 	hideMenu: =>
-		goog.events.unlisten document, goog.events.EventType.CLICK, @hideMenu
+		goog.events.unlisten document, goog.events.EventType.CLICK, @onMenuCanceled
 		goog.events.removeAll @menu, 'action'
 
 		@menu.setVisible false
@@ -280,10 +262,16 @@ class dm.ui.Canvas extends goog.graphics.SvgGraphics
 
 goog.addSingletonGetter dm.ui.Canvas
 
+dm.ui.Canvas.EventType = 
+	OBJECT_EDIT: goog.events.getUniqueId 'object-edit'
+	OBJECT_DELETE: goog.events.getUniqueId 'object-delete'
+	CLICK: goog.events.getUniqueId 'click'
+	RESIZED: goog.events.getUniqueId 'resized'	
+
 class dm.ui.Canvas.ObjectAction extends goog.events.Event
 	###*
 	* @param {dm.ui.Canvas.EventType} event Type of action
-  * @param {HTMLElement}
+  * @param {HTMLElement} obj
   * @constructor
   * @extends {goog.events.Event}
 	###
@@ -292,7 +280,7 @@ class dm.ui.Canvas.ObjectAction extends goog.events.Event
 
 class dm.ui.Canvas.Click extends goog.events.Event
 	###*
-  * @param {(dm.ui.Table|dm.ui.Relation)}
+  * @param {(dm.ui.Table|dm.ui.Relation)} obj
   * @param {goog.math.Coordinate} position Position in canvas where was clicked
   * @constructor
   * @extends {goog.events.Event}

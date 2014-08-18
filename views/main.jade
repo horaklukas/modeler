@@ -4,13 +4,10 @@ block append styles
 	link(rel="stylesheet", type="text/css", href="/public/styles/dm-closure-included.css")
 block append scripts
 	script(src="/socket.io/socket.io.js")
-	script(src="/bower_components/react/react.js")
-	script(src="/bower_components/closure-library/closure/goog/base.js")
-	script(src="/public/scripts/dm/deps.js")
+	script(src="/bower_components/react/react.min.js")
 
 block append content
-	script.
-		goog.require('dm');
+	script(src="/public/scripts/modeler.min.js")
 		
 	//script(src="/public/scripts/dm/test-data.js")
 				

@@ -6,7 +6,7 @@ goog.require 'goog.dom'
 goog.require 'goog.style'
 
 dm.ui.Dialog = React.createClass
-  statics:
+  'statics':
     buttonSet:
       OK: 'ok'
       CANCEL: 'cancel'

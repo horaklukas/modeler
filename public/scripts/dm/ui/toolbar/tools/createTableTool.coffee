@@ -13,6 +13,7 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 	###	
 	constructor: ->
 		super 'table', 'Create table'
+		@setId 'table'
 
 		canvas = dm.ui.Canvas.getInstance()
 
@@ -26,7 +27,7 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 	###
 	startAction: ->
 		# When moving over canvas, show blind table as a clue
-		goog.style.showElement @table, true 
+		goog.style.setElementShown @table, true 
 		goog.style.setPosition @table, 0, 0
 		goog.events.listen document, goog.events.EventType.MOUSEMOVE, @moveTable
 
@@ -52,7 +53,7 @@ class dm.ui.tools.CreateTable extends dm.ui.tools.CreateToggleButton
 	###
 	finishAction: =>
 		canvas = dm.ui.Canvas.getInstance()
-		goog.style.showElement canvas.clueTable, false
+		goog.style.setElementShown canvas.clueTable, false
 
 		# deactivate all events
 		goog.events.unlisten document, goog.events.EventType.MOUSEMOVE, @moveTable

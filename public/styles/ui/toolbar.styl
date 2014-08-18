@@ -1,5 +1,5 @@
 icon(name)
-	background: url("./images/icons/"name".png")
+	background: url("../../images/icons/"name".png")
 
 #app 
 	.goog-toolbar
@@ -15,12 +15,14 @@ icon(name)
 				cursor: pointer
 			&.active
 				border-style: inset
+		.show-intro
+			icon 'intro'
 		.create-table
 			icon 'table'
 		.create-rel-ident
-			icon 'rel_ident'
+			icon 'rel-ident'
 		.create-rel-non-ident
-			icon 'rel_noident'
+			icon 'rel-noident'
 		.generate-sql
 			icon 'sql'
 		.save-model
@@ -29,6 +31,8 @@ icon(name)
 			icon 'load'
 		.export-model
 			icon 'export'
+		.version-model
+			icon 'version'
 		.statusbar
 			height: 26px
 			line-height: @height
@@ -41,3 +45,4 @@ icon(name)
 			.model-name
 				margin-right: 20px
 				font-style: italic
+				cursor: text
