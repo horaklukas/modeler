@@ -1,6 +1,6 @@
 {
   "name": "dbModeler",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "",
   "dependencies": {
     "async": "^0.9.0",
@@ -42,7 +42,7 @@
   },
   "scripts": {
     "start": "PORT=3000 node app.js",
-    "start-devel": "PORT=3000 MODE=development node app.js"
+    "start-devel": "PORT=3000 NODE_ENV=development node app.js"
   },
   "private": true,
   "repository": "https://github.com/horaklukas/modeler.git"
