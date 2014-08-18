@@ -32,7 +32,7 @@ app.use '/bower_components', express.static "#{__dirname}/bower_components"
 app.use '/public', express.static "#{__dirname}/public"
 app.use app.router
 
-if process.env.MODE is 'development' then app.use express.errorHandler()
+if process.env.NODE_ENV is 'development' then app.use express.errorHandler()
 else app.use (err, req, res, next) -> res.render '500', error: err
 
 # App routers
