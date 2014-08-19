@@ -1,7 +1,5 @@
 goog.require 'dm.ui.RelationDialog'
 
-{TestUtils} = React.addons
-
 describe 'component RelationDialog', ->
   reld = null
 
@@ -51,7 +49,7 @@ describe 'component RelationDialog', ->
       reld.swapTables ev
 
       reld.tablesSwaped.should.be.true
-      
+
     it 'should swap content text inside child and parent', ->
       reld.swapTables ev
 
@@ -59,27 +57,27 @@ describe 'component RelationDialog', ->
       child.textContent.should.equal 'Parent name'
 
   describe 'method show', ->
-    before -> 
+    before ->
       @isIdent = sinon.stub()
       @cardMod = sinon.stub().returns({
         cardinality: {parent: '1', child: 'n'}
         parciality: {parent: 1, child: 1}
       })
-      @relModel = 
+      @relModel =
         isIdentifying: @isIdent
         getCardinalityParciality: @cardMod
         getName: sinon.stub()
 
-      @tables = 
-        'parent': id: 't1', name: 'parentTab1'  
-        'child': id: 't2', name: 'parentTab1' 
+      @tables =
+        'parent': id: 't1', name: 'parentTab1'
+        'child': id: 't2', name: 'parentTab1'
 
     beforeEach ->
       @isIdent.reset()
 
     it 'should showdialog', ->
       reld.setState visible: false
-      
+
       reld.show @relModel, @tables
 
       expect(reld.state).to.have.property 'visible', true
@@ -88,17 +86,17 @@ describe 'component RelationDialog', ->
       inputs = TestUtils.scryRenderedDOMComponentsWithClass reld, 'type'
 
       @isIdent.returns true
-      
+
       reld.show @relModel, @tables
-      
+
       expect(reld.state).to.have.property 'identifying', true
       expect(inputs[0].props).to.have.property 'checked', false
       expect(inputs[1].props).to.have.property 'checked', true
 
       @isIdent.returns false
-      
+
       reld.show @relModel, @tables
-      
+
       expect(reld.state).to.have.property 'identifying', false
       expect(inputs[0].props).to.have.property 'checked', true
       expect(inputs[1].props).to.have.property 'checked', false

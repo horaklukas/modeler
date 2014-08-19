@@ -2,10 +2,7 @@ goog.require 'dm.sqlgen.Postgresql'
 
 describe 'class PostgreSQL generator', ->
 	before ->
-		# temporary mock
-		global.React = renderComponent: ->
-
-		@gen = dm.sqlgen.Postgresql.getInstance()		
+		@gen = dm.sqlgen.Postgresql.getInstance()
 
 	describe.skip 'method createColumn', ->
 		before ->

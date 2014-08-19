@@ -1,5 +1,3 @@
-{TestUtils} = React.addons
-
 goog.require 'dm.ui.SelectDbDialog'
 
 describe 'component SelectDbDialog', ->
@@ -19,7 +17,7 @@ describe 'component SelectDbDialog', ->
 		dlg = TestUtils.renderIntoDocument dm.ui.SelectDbDialog props
 		[nameSelect, versionSelect] = TestUtils.scryRenderedDOMComponentsWithTag(
 			dlg, 'select'
-		) 
+		)
 
 	beforeEach ->
 		cb.reset()
