@@ -107,8 +107,8 @@ module.exports = (grunt) ->
           warning_level: 'verbose'
           jscomp_off: 'globalThis'
           extra_annotation_name: 'jsx'
-          create_source_map: './public/scripts/modeler.min.js.map'
-          source_map_format: 'V3'
+          #create_source_map: './public/scripts/modeler.min.js.map'
+          #source_map_format: 'V3'
 
         #execOpts:
         #   maxBuffer: 999999 * 1024
