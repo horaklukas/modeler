@@ -62,14 +62,14 @@ _The uploaded application needn't corespond to latest state_
 #### Table dialog
 * <s>Column's length attribute</s>
 * Column's auto increment option
-* Fix creating of tables with same names
+* <s>Fix creating of tables with same names</s>
 * <s>fix lost of unsaved columns change when new column row is added</s>
 * <s>fix allow confirm if table name not filled</s>
 * <s>make columns creted by relation not deletable and editable (only name can
   change)</s>
 
 ### Model
-* create autodesigner that space out objects hold as the data
+* <s>create autodesigner that space out objects held as the data</s>
 * remove unnecessary data  generated with `toJSON` method 
 * <s>create object that holds actual model - its table and relations</s>
 * <s>holds methods for placing object to canvas</s>

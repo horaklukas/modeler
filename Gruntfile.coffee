@@ -14,7 +14,7 @@ module.exports = (grunt) ->
     'coffee:app', 'reactjsx', 'deps', 'coffee2closure', 'closureBuilder'
   ]
 
-  grunt.registerTask 'test', ['coffee:test','esteUnitTests']
+  grunt.registerTask 'test', ['coffee:test','esteUnitTests', 'mochacli']
 
   # task for heroku deployment
   grunt.registerTask 'heroku:development', ['coffee:app', 'reactjsx', 'deps']

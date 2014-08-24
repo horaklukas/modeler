@@ -46,7 +46,7 @@ dm.ui.VersioningDialog = React.createClass
     if not vers?
       return @setStatus 'Cannot confirm when version isnt selected'
     
-    @props.connection.emit 'get-version', repo, vers.date, (err, data) =>
+    @props.connection.emit 'get-version', repo, vers['date'], (err, data) =>
       if err then return @setStatus err
       
       @hide() 
