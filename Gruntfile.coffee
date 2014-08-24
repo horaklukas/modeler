@@ -1,8 +1,5 @@
-chai = require 'chai'
-sinonChai = require 'sinon-chai'
-
 module.exports = (grunt) ->
-  # load plugins that provides tasks  
+  # load plugins that provides tasks
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-stylus'
@@ -10,7 +7,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-este'
   grunt.loadNpmTasks 'grunt-mocha-cli'
   grunt.loadNpmTasks 'grunt-reactjsx'
-  grunt.loadNpmTasks 'grunt-mocha-phantomjs'
 
   # tasks aliases
   grunt.registerTask 'deps', ['esteDeps']
@@ -24,8 +20,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'heroku:development', ['coffee:app', 'reactjsx', 'deps']
 
   grunt.registerTask 'default', [
-    'coffee:app', 'reactjsx:all', 'stylus', 'test', 'mocha_phantomjs',
-    'mochacli'
+    'coffee:app', 'reactjsx:all', 'stylus', 'test', 'mochacli'
   ]
 
   grunt.initConfig
@@ -55,7 +50,7 @@ module.exports = (grunt) ->
         expand: true,
         src: ['bower_components/este-library/este/**/*.coffee'],
         ext: '.js'
-      
+
 
     reactjsx:
       all:
@@ -100,7 +95,7 @@ module.exports = (grunt) ->
         # [OPTIONAL] if we want builder to perform compile
         compile: true
 
-        compilerOpts: 
+        compilerOpts:
           compilation_level: 'ADVANCED_OPTIMIZATIONS'
           #compilation_level: 'SIMPLE_OPTIMIZATIONS',
           externs: [
@@ -112,12 +107,12 @@ module.exports = (grunt) ->
           warning_level: 'verbose'
           jscomp_off: 'globalThis'
           extra_annotation_name: 'jsx'
-          create_source_map: './public/scripts/modeler.min.js.map'
-          source_map_format: 'V3'
+          #create_source_map: './public/scripts/modeler.min.js.map'
+          #source_map_format: 'V3'
 
         #execOpts:
         #   maxBuffer: 999999 * 1024
-      
+
       all:
         src: '<%= esteDeps.all.options.root %>'
         dest: './public/scripts/modeler.min.js'
@@ -126,18 +121,14 @@ module.exports = (grunt) ->
       options:
         depsPath: '<%= esteDeps.all.options.outputFile %>'
         prefix: '<%= esteDeps.all.options.prefix %>'
-      
-        mocha: do ->
-          global.expect = chai.expect
-          chai.use sinonChai
-          chai.should()
 
+        mocha: do ->
           ui: 'bdd'
           reporter: 'spec'
           globals: []
           timeout: 100
           bail: true
-        
+
       src: ['test/unit/**/*_test.js']
 
     mochacli:
@@ -148,13 +139,8 @@ module.exports = (grunt) ->
         bail: true
         colors: true
         require: ['./test/common.js']
-      
-      src: 'test/unit/lib/**/*Test.coffee'
 
-    mocha_phantomjs:
-      options:
-        'reporter': 'spec',
-      all: ['test/**/*Test.html']
+      src: 'test/unit/lib/**/*Test.coffee'
 
     stylus:
       options:
@@ -163,7 +149,7 @@ module.exports = (grunt) ->
         urlfunc: 'url'
         'include css': true
       compile:
-        files: 
+        files:
           'public/styles/dm.css': 'public/styles/dm.styl'
           'public/styles/dm-closure-included.css': 'public/styles/dm-closure-included.styl'
 
@@ -189,8 +175,8 @@ module.exports = (grunt) ->
         tasks: [
           'coffee:app', 'reactjsx'
           'coffee:test'
-          'test', 'mocha_phantomjs', 'mochacli'
-        ]        
+          'test', 'mochacli'
+        ]
         options:
           livereload: true
 
@@ -199,4 +185,3 @@ module.exports = (grunt) ->
         tasks: ['stylus']
 
 
-          

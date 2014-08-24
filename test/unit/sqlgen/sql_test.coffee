@@ -1,12 +1,8 @@
 goog.require 'dm.sqlgen.Sql'
 
-
 describe 'class SQL generator', ->
   before ->
-    # temporary mock
-    global.React = renderComponent: ->
-
-    @gen = dm.sqlgen.Sql.getInstance()    
+    @gen = dm.sqlgen.Sql.getInstance()
 
   describe 'method getUniqueConstraintName', ->
     beforeEach ->
@@ -25,22 +21,22 @@ describe 'class SQL generator', ->
 
   describe 'method createColumn', ->
     it 'should return only name and uppercased type if column can be null', ->
-      column = name: 'col', type: 'char', length: '', isNotNull: false 
+      column = name: 'col', type: 'char', length: '', isNotNull: false
 
       expect(@gen.createColumn column).to.equal '"col" CHAR'
 
     it 'should return also NOT NULL clause if column cant be null', ->
-      column = name: 'col1', type: 'char', length: '', isNotNull: true 
+      column = name: 'col1', type: 'char', length: '', isNotNull: true
 
       expect(@gen.createColumn column).to.equal '"col1" CHAR NOT NULL'
 
     it 'should append length to type if length is defined', ->
-      column = name: 'col2', type: 'char', length: 15, isNotNull: false 
+      column = name: 'col2', type: 'char', length: 15, isNotNull: false
 
       expect(@gen.createColumn column).to.equal '"col2" CHAR(15)'
 
     it 'should not append length if its not defined or is null', ->
-      column = name: 'col3', type: 'char', length: null, isNotNull: false 
+      column = name: 'col3', type: 'char', length: null, isNotNull: false
 
       expect(@gen.createColumn column).to.equal '"col3" CHAR'
 

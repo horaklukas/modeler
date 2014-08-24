@@ -30,18 +30,18 @@ dm.core.handlers =
       else return
 
     dm.core.getDialog('intro').hide()
-  
+
   ###*
   * @param {Object} json JSON representation of model
   ###
   modelLoad: (json) ->
     dm.core.getModelManager().createActualFromLoaded(
-      json.name, json.tables, json.relations
+      json['name'], json['tables'], json['relations']
     )
-    
+
     # set model's db as a actual
-    dm.core.state.setActualRdbs json.db
-    dm.core.state.setSaved true    
+    dm.core.state.setActualRdbs json['db']
+    dm.core.state.setSaved true
 
   createNewModel: (db) ->
     dm.core.state.setActualRdbs db
@@ -93,12 +93,12 @@ dm.core.handlers =
     dm.core.getDialog('sqlCode').show sql
 
   ###*
-  * @param {Object.<string, object>} data Object containing keys `tables` and 
+  * @param {Object.<string, object>} data Object containing keys `tables` and
   *  `relations`
   ###
   reengRequest: (data) ->
     dm.core.getDialog('input').show(
-      'Reengineered model', 'Type name of reenginered model', (name) -> 
+      'Reengineered model', 'Type name of reenginered model', (name) ->
         dm.core.getModelManager().createActualFromCatalogData(
           name, data['columns'], data['relations']
         )
@@ -114,14 +114,14 @@ dm.core.handlers =
     model = actualModel.toJSON()
     model['db'] = dm.core.state.getActualRdbs()
 
-    props = model: 'model': model 
-    
+    props = model: 'model': model
+
     if (repo = dm.core.state.getVersioned())? then props.repo = repo
 
     dm.core.getDialog('version').show(
       props, (repo) ->
         dm.core.getDialog('info').show 'Model successfuly versioned'
-        dm.core.state.setVersioned repo 
+        dm.core.state.setVersioned repo
         dm.core.state.setSaved true
     )
 
@@ -138,10 +138,10 @@ dm.core.handlers =
 
     if target instanceof dm.ui.Relation
       {parent, child} = model.tables
-      tables = 
-        parent: 
+      tables =
+        parent:
           id: parent, name: actualModel.getTableById(parent).getName()
-        child: 
+        child:
           id: child, name: actualModel.getTableById(child).getName()
 
       dm.core.getDialog('relation').show model, tables
@@ -154,7 +154,7 @@ dm.core.handlers =
     relationsIds = actualModel.getRelationsByTable(e.target.getId()) ? []
 
     for relId in relationsIds
-      relation = actualModel.getRelationUiById relId 
+      relation = actualModel.getRelationUiById relId
       {parent, child} = relation.getModel().tables
 
       relation.recountPosition(
@@ -167,7 +167,7 @@ dm.core.handlers =
     actualModel = dm.core.getActualModel()
 
     if confirm("You want to delete \"#{model.getName()}\". Are you sure?") is true
-      
+
       if target instanceof dm.ui.Relation
         modelManager.deleteRelation target
       else if target instanceof dm.ui.Table
@@ -178,10 +178,10 @@ dm.core.handlers =
 
         modelManager.deleteTable target
 
-  createObject: (ev) ->    
+  createObject: (ev) ->
     switch ev.objType
       when 'table'
-        dm.core.getDialog('input').show(      
+        dm.core.getDialog('input').show(
           'NewTable', 'Type name of new table'
           goog.partial dm.core.handlers.tableNameInput, ev
         )
@@ -189,13 +189,13 @@ dm.core.handlers =
         modelManager = dm.core.getModelManager()
         actualModel = dm.core.getActualModel()
         {parent, child, identifying} = ev.data
-        #rel.setRelatedTables parent.getModel(), child.getModel() 
+        #rel.setRelatedTables parent.getModel(), child.getModel()
 
         model = new dm.model.Relation identifying, parent, child
-        tables = 
-          parent: 
+        tables =
+          parent:
             'id': parent, 'name': actualModel.getTableById(parent).getName()
-          child: 
+          child:
             'id': child, 'name': actualModel.getTableById(child).getName()
 
         modelManager.addRelation model
@@ -204,7 +204,7 @@ dm.core.handlers =
   ###*
   * Handler for input dialog when user type name of new table and confirm
   *
-  * @param {goog.events.Event} ev Event object from original `createObject` 
+  * @param {goog.events.Event} ev Event object from original `createObject`
   *  handler
   * @param {string} name Table name
   ###
@@ -219,7 +219,7 @@ dm.core.handlers =
       name = originalName + (counter++).toString()
 
     if name isnt originalName then dm.core.getDialog('info').show(
-      "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
+      "Table name was changed from \"#{originalName}\" to \"#{name}\" " +
       "for ensuring uniqueness"
     )
 
@@ -235,14 +235,14 @@ dm.core.handlers =
     counter = 0
 
     tables = actualModel.getTablesByName()
-    
+
     if goog.isArray tables[name]
       while tables[name]? then name = originalName + (counter++).toString()
 
     if name isnt originalName
       model.setName name
       dm.core.getDialog('info').show(
-        "Table name was changed from \"#{originalName}\" to \"#{name}\" " + 
+        "Table name was changed from \"#{originalName}\" to \"#{name}\" " +
         "for ensuring uniqueness!"
       )
 
@@ -259,11 +259,11 @@ dm.core.handlers =
 
   windowUnload: (ev) ->
     state = dm.core.state.getActual()
-    
+
     # when saving model dont show dialog
     if state is 'saving' or state is 'exporting'
       dm.core.state.setActual ''
-      return 
+      return
 
     unless dm.core.state.isSaved()
       return "Model \"#{dm.core.getActualModel().name}\" isnt saved, really exit?"

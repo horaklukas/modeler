@@ -11,3 +11,10 @@ var dmAssets;
  * @type {Object.<string, Object>}
  */
 dmAssets.dbs;
+
+/**
+ * Preserve React.DOM.form attribute name
+ *
+ * @type {string}
+ */
+React.ReactAtrribute.encType;

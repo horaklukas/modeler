@@ -1,5 +1,3 @@
-{TestUtils} = React.addons
-
 goog.require 'dm.ui.Dialog'
 
 describe 'component Dialog', ->
@@ -20,17 +18,17 @@ describe 'component Dialog', ->
 	it 'should render ok cancel button in default', ->
 		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'
 
-		expect(btns[0]).to.have.deep.property 'props.children', 'Ok' 
+		expect(btns[0]).to.have.deep.property 'props.children', 'Ok'
 		expect(btns[1]).to.have.deep.property 'props.children', 'Cancel'
 
 	it 'should render ok button if passed OK as a button set type', ->
-		dlg.setProps buttons: dm.ui.Dialog.buttonSet.OK	
+		dlg.setProps buttons: dm.ui.Dialog.buttonSet.OK
 		btn = TestUtils.findRenderedDOMComponentWithTag dlg, 'button'
 
-		expect(btn).to.have.deep.property 'props.children', 'Ok' 
+		expect(btn).to.have.deep.property 'props.children', 'Ok'
 
 	it 'should render select button if passed SELECT as a button set type', ->
-		dlg.setProps buttons: dm.ui.Dialog.buttonSet.SELECT	
+		dlg.setProps buttons: dm.ui.Dialog.buttonSet.SELECT
 		btn = TestUtils.findRenderedDOMComponentWithTag dlg, 'button'
 
 		expect(btn).to.have.deep.property 'props.children', 'Select'
@@ -57,7 +55,7 @@ describe 'component Dialog', ->
 		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'block'
 
-		TestUtils.Simulate.click btns[0] 
+		TestUtils.Simulate.click btns[0]
 
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'none'
 		cb.should.been.calledOnce
@@ -67,16 +65,16 @@ describe 'component Dialog', ->
 		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'block'
 
-		TestUtils.Simulate.click btns[0] 
+		TestUtils.Simulate.click btns[0]
 
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'none'
 
 	it 'should not hide dialog when confirm callback return false', ->
 		cb = sinon.stub().returns false
 		dlg.setProps onConfirm: cb, visible: true
-		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'		
+		btns = TestUtils.scryRenderedDOMComponentsWithTag dlg, 'button'
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'block'
 
-		TestUtils.Simulate.click btns[0] 
+		TestUtils.Simulate.click btns[0]
 
 		expect(dlgRoot).to.have.deep.property 'props.style.display', 'block'

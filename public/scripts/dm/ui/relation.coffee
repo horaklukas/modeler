@@ -13,7 +13,7 @@ class dm.ui.Relation extends goog.ui.Component
   * @static
 	###
 	@relationStroke: new goog.graphics.Stroke 2, '#000'
-	
+
 	###*
   * @const
   * @static
@@ -48,13 +48,13 @@ class dm.ui.Relation extends goog.ui.Component
 
 		parentModel = parentTable.getModel()
 		childModel = childTable.getModel()
-		
+
 		path = @getRelationPath(
 			new goog.graphics.Path
 			parentTable.getElement()
 			childTable.getElement()
 		)
-		
+
 		@relationGroup_ = canvas.createGroup()
 		@relationBg_ = canvas.drawPath(
 			path, dm.ui.Relation.strokeBg, null, @relationGroup_
@@ -64,10 +64,10 @@ class dm.ui.Relation extends goog.ui.Component
 		)
 
 		@setCardinalityMarkers model.getCardinalityParciality()
-		
+
 		groupElement = @relationGroup_.getElement()
 		groupElement.id = @getId()
-		
+
 		#if @getModel()? then @setRelationType()
 
 		@setRelationType model.isIdentifying()
@@ -89,7 +89,7 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	recountPosition: (parentTable, childTable) =>
 		newPath = @getRelationPath new goog.graphics.Path, parentTable, childTable
-		
+
 		@setCardinalityMarkers @getModel().getCardinalityParciality()
 
 		@relationPath_.setPath newPath
@@ -100,8 +100,8 @@ class dm.ui.Relation extends goog.ui.Component
 		childClassName = @getCardinalityClass cardinality.child, parciality.child, true
 
 		goog.style.setStyle @relationPath_.getElement(), {
-			'markerStart': "url(##{parentClassName})" 
-			'markerEnd': "url(##{childClassName})" 
+			'markerStart': "url(##{parentClassName})"
+			'markerEnd': "url(##{childClassName})"
 		}
 
 	###*
@@ -148,19 +148,19 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	getRelationPath: (path, parentTable, childTable) =>
 		{start, stop} = @getRelationPoints parentTable, childTable
-		
+
 		#path.lineTo points.break1.x, points.break1.y
 		#unless goog.math.Coordinate.equals points.break2, points.break1
 		#	path.lineTo points.break2.x, points.break2.y
-		
+
 		###
 		widthHalf = dm.ui.Relation.width / 2
 
-		if points.start.edge in ['top', 'bottom'] 
+		if points.start.edge in ['top', 'bottom']
 			path.moveTo points.start.coords.x - widthHalf, points.start.coords.y
 		else
 			path.moveTo points.start.coords.x, points.start.coords.y - widthHalf
-		
+
 		if points.stop.edge in ['top', 'bottom']
 			path.lineTo points.stop.coords.x - widthHalf, points.stop.coords.y
 			path.lineTo points.stop.coords.x + widthHalf, points.stop.coords.y
@@ -180,7 +180,7 @@ class dm.ui.Relation extends goog.ui.Component
 			path.lineTo start.coords.x - 40, start.coords.y
 			path.lineTo start.coords.x - 40, stop.coords.y + 40
 			path.lineTo stop.coords.x, stop.coords.y + 40
-		
+
 		path.lineTo stop.coords.x, stop.coords.y
 
 	###*
@@ -218,10 +218,10 @@ class dm.ui.Relation extends goog.ui.Component
 
 	###*
   *
-  * @param {string} pos1 Name of first connection point (r = right, l = left, 
+  * @param {string} pos1 Name of first connection point (r = right, l = left,
   *  t = top, b = bottom)
   * @param {goog.math.Coordinate} coord1
-  * @param {string} pos2 Name of second connection point (r = right, l = left, 
+  * @param {string} pos2 Name of second connection point (r = right, l = left,
   *  t = top, b = bottom)
   * @param {goog.math.Coordinate} coord2
   * @return {number|boolean} returns number of distance, if it's possible from
@@ -242,12 +242,12 @@ class dm.ui.Relation extends goog.ui.Component
 
 	###*
   * @param {Element} tableElement
-  * @relation {Object.<string, goog.math.Coordinate>}
+  * @return {Object.<string, goog.math.Coordinate>}
 	###
 	getTableConnectionPoints: (tableElement) ->
 		bounds = goog.style.getBounds tableElement
-		bounds.top -= 31 # 29 size of toolbar 1 * 2 is border of table for both 
-		bounds.left -= 2 # 1 * 2 is border of table for both 
+		bounds.top -= 31 # 29 size of toolbar 1 * 2 is border of table for both
+		bounds.left -= 2 # 1 * 2 is border of table for both
 
 		'top': new goog.math.Coordinate bounds.left + bounds.width / 2, bounds.top
 		'right': new goog.math.Coordinate(
@@ -294,7 +294,7 @@ class dm.ui.Relation extends goog.ui.Component
 		console.log sPos, ePos, b1, b2
 
 		[b1, b2]
-	###	
+	###
 
 	###*
 	* Changes relation stroke typ by identifying
@@ -303,7 +303,7 @@ class dm.ui.Relation extends goog.ui.Component
 	###
 	setRelationType: (identify) =>
 		relationElement = @relationPath_.getElement()
-		
+
 		if identify then relationElement.removeAttribute 'stroke-dasharray'
 		else relationElement.setAttribute 'stroke-dasharray', '10 5'
 
@@ -329,7 +329,7 @@ class dm.ui.Relation extends goog.ui.Component
 
 		@setTablesNamesToModel()
 		@setRelatedTablesKeys()
-		
+
 		columnsListChangeEvents = ['column-add', 'column-delete']
 		goog.events.listen parentModel, columnsListChangeEvents, @recountPosition
 		goog.events.listen childModel, columnsListChangeEvents, @recountPosition
@@ -380,16 +380,16 @@ class dm.ui.Relation extends goog.ui.Component
 		childTableColumn = goog.object.clone parentColumn
 
 		indexes = [dm.model.Table.index.FK]
-		if isPk is true then goog.array.insert indexes, dm.model.Table.index.PK 
+		if isPk is true then goog.array.insert indexes, dm.model.Table.index.PK
 
-		id = childModel.setColumn childTableColumn, null, indexes 		
+		id = childModel.setColumn childTableColumn, null, indexes
 
 		return id
 
 	removeRelatedTablesKeys: (childModel) =>
 		relationModel = @getModel()
 		isIdentifying = relationModel.isIdentifying()
-		
+
 		mapping = relationModel.getColumnsMapping()
 
 		# remove indexes from columns created by relation, but columns left in table
