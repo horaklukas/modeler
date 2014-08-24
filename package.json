@@ -28,7 +28,10 @@
     "xdiff": "^0.2.11"
   },
   "devDependencies": {
+    "chai": "^1.9.1",
     "mockery": "~1.4.0",
+    "sinon": "^1.10.3",
+    "sinon-chai": "^2.5.0",
     "supertest": "~0.10.0"
   },
   "engines": {
